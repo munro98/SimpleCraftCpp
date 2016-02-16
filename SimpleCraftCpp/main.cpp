@@ -276,15 +276,17 @@ int main(int argc, char** argv) {
 		if (KEYS[SDLK_ESCAPE])
 			return 0;
 
+		
 		if (MOUSEBUTTON[SDL_BUTTON_LEFT] && !LASTMOUSEBUTTON[SDL_BUTTON_LEFT])
 		{
 			map.rayCastBlock(rayCast, camera.getPosition(), camera.getFront());
 		}
-
+		
 		if (MOUSEBUTTON[SDL_BUTTON_RIGHT] && !LASTMOUSEBUTTON[SDL_BUTTON_RIGHT])
 		{
 			map.rayCastBlockRemove(rayCast, camera.getPosition(), camera.getFront());
 		}
+		
 
 		display.clear();
 

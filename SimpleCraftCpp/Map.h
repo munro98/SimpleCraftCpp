@@ -19,5 +19,5 @@ public:
 	void rayCastBlock(RayCast & rayCast, glm::vec3 start, glm::vec3 forward);
 	void rayCastBlockRemove(RayCast & rayCast, glm::vec3 start, glm::vec3 forward);
 private:
-	std::unordered_map<int64_t, Chunk*> mChunks;
+	std::unordered_map<int, std::unordered_map<int, Chunk*>> mChunks;
 };
