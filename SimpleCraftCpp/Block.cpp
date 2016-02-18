@@ -21,6 +21,46 @@ void Block::Update()
 {
 }
 
+void Block::updateBlock(Block* frontBlock, Block* backBlock, Block* leftBlock, Block* rightBlock)
+{
+	updateFront(frontBlock);
+	updateBack(backBlock);
+	updateLeft(leftBlock);
+	updateRight(rightBlock);
+}
+
+void Block::updateFront(Block* frontBlock)
+{
+	if (frontBlock->getRender())
+	{
+		mExposedFaces |= FRONT_FACE;
+	}
+}
+
+void Block::updateBack(Block* backBlock)
+{
+	if (backBlock->getRender())
+	{
+		mExposedFaces |= BACK_FACE;
+	}
+}
+
+void Block::updateLeft(Block* leftBlock)
+{
+	if (leftBlock->getRender())
+	{
+		mExposedFaces |= LEFT_FACE;
+	}
+}
+
+void Block::updateRight(Block* rightBlock)
+{
+	if (rightBlock->getRender())
+	{
+		mExposedFaces |= RIGHT_FACE;
+	}
+}
+
 void Block::setExposedFaces(unsigned int exposedFaces)
 {
 	mExposedFaces = exposedFaces;

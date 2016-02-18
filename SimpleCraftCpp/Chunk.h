@@ -86,7 +86,9 @@ public:
 	void addFace(int vertrexIndex, int x, int y, int z, int chunkX, int chunkZ, const GLfloat vertices[]);
 	void updateBlock(int x, int y, int z);
 	void rayCastBlock(RayCast& rayCast, glm::vec3 start, glm::vec3 end);
+	void rayCastBlock2(RayCast & rayCast, glm::vec3 start, glm::vec3 forward, int * blockHitPosition);
 	void rayCastBlockRemove(RayCast & rayCast, glm::vec3 start, glm::vec3 forward);
+	void rayCastBlockRemove2(RayCast & rayCast, glm::vec3 start, glm::vec3 forward, int * blockHitPosition);
 private:
 	Block* blocks;
 	GLfloat* mVertices;

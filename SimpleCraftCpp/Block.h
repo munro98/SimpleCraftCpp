@@ -15,6 +15,16 @@ public:
 
 	void Update();
 
+	void updateBlock(Block * frontBlock, Block * backBlock, Block * leftBlock, Block * rightBlock);
+
+	void updateFront(Block * frontBlock);
+
+	void updateBack(Block * backBlock);
+
+	void updateLeft(Block * leftBlock);
+
+	void updateRight(Block * rightBlock);
+
 	void setExposedFaces(unsigned int facesExposed);
 	unsigned int getExposedFaces();
 	void setRender(bool render);
