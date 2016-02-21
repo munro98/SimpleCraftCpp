@@ -35,6 +35,10 @@ void Block::updateFront(Block* frontBlock)
 	{
 		mExposedFaces |= FRONT_FACE;
 	}
+	else
+	{
+		mExposedFaces &= ~FRONT_FACE;
+	}
 }
 
 void Block::updateBack(Block* backBlock)
@@ -42,6 +46,10 @@ void Block::updateBack(Block* backBlock)
 	if (backBlock->getRender())
 	{
 		mExposedFaces |= BACK_FACE;
+	}
+	else
+	{
+		mExposedFaces &= ~BACK_FACE;
 	}
 }
 
@@ -51,6 +59,10 @@ void Block::updateLeft(Block* leftBlock)
 	{
 		mExposedFaces |= LEFT_FACE;
 	}
+	else
+	{
+		mExposedFaces &= ~LEFT_FACE;
+	}
 }
 
 void Block::updateRight(Block* rightBlock)
@@ -58,6 +70,10 @@ void Block::updateRight(Block* rightBlock)
 	if (rightBlock->getRender())
 	{
 		mExposedFaces |= RIGHT_FACE;
+	}
+	else
+	{
+		mExposedFaces &= ~RIGHT_FACE;
 	}
 }
 

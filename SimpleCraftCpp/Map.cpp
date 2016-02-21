@@ -130,7 +130,6 @@ void Map::update(float playerX, float playerZ)
 	}
 }
 
-
 void Map::render(GLuint modelLocation, GLuint blockPositionLocation, float playerX, float playerZ)
 {
 	for (auto it = mChunks.begin(); it != mChunks.end(); ++it) {
@@ -166,14 +165,13 @@ void Map::rayCastBlock(RayCast& rayCast, glm::vec3 start, glm::vec3 forward)
 		}
 	}
 
-	std::cout << blockPos[0] << " " << blockPos[1] << " " << blockPos[2] << std::endl;
+	//std::cout << blockPos[0] << " " << blockPos[1] << " " << blockPos[2] << std::endl;
 	if (blockPos[2] == 0)
 	{
 		auto chunkZ = chunkX->second.find(z - 1);
 		if (chunkZ != chunkX->second.end())
 		{
-			chunkZ->second->updateBack(hitChunk);
-			//std::cout << "updateing!" << std::endl;
+			chunkZ->second->updateBlockBack(hitChunk, blockPos[0], blockPos[1]);
 		}
 	}
 
@@ -182,8 +180,7 @@ void Map::rayCastBlock(RayCast& rayCast, glm::vec3 start, glm::vec3 forward)
 		auto chunkZ = chunkX->second.find(z + 1);
 		if (chunkZ != chunkX->second.end())
 		{
-			chunkZ->second->updateFront(hitChunk);
-			//std::cout << "updateing!" << std::endl;
+			chunkZ->second->updateBlockFront(hitChunk, blockPos[0], blockPos[1]);
 		}
 	}
 
@@ -195,7 +192,7 @@ void Map::rayCastBlock(RayCast& rayCast, glm::vec3 start, glm::vec3 forward)
 			auto chunkZ = chunkX->second.find(z);
 			if (chunkZ != chunkX->second.end())
 			{
-				chunkZ->second->updateRight(hitChunk);
+				chunkZ->second->updateBlockRight(hitChunk, blockPos[1], blockPos[2]);
 			}
 		}
 	}
@@ -208,7 +205,7 @@ void Map::rayCastBlock(RayCast& rayCast, glm::vec3 start, glm::vec3 forward)
 			auto chunkZ = chunkX->second.find(z);
 			if (chunkZ != chunkX->second.end())
 			{
-				chunkZ->second->updateLeft(hitChunk);
+				chunkZ->second->updateBlockLeft(hitChunk, blockPos[1], blockPos[2]);
 			}
 		}
 	}
@@ -240,14 +237,13 @@ void Map::rayCastBlockRemove(RayCast& rayCast, glm::vec3 start, glm::vec3 forwar
 		}
 	}
 
-	std::cout << blockPos[0] << " " << blockPos[1] << " " << blockPos[2] << std::endl;
+	//std::cout << blockPos[0] << " " << blockPos[1] << " " << blockPos[2] << std::endl;
 	if (blockPos[2] == 0)
 	{
 		auto chunkZ = chunkX->second.find(z - 1);
 		if (chunkZ != chunkX->second.end())
 		{
-			chunkZ->second->updateBack(hitChunk);
-			//std::cout << "updateing!" << std::endl;
+			chunkZ->second->updateBlockBack(hitChunk, blockPos[0], blockPos[1]);
 		}
 	}
 
@@ -256,8 +252,7 @@ void Map::rayCastBlockRemove(RayCast& rayCast, glm::vec3 start, glm::vec3 forwar
 		auto chunkZ = chunkX->second.find(z + 1);
 		if (chunkZ != chunkX->second.end())
 		{
-			chunkZ->second->updateFront(hitChunk);
-			//std::cout << "updateing!" << std::endl;
+			chunkZ->second->updateBlockFront(hitChunk, blockPos[0], blockPos[1]);
 		}
 	}
 
@@ -269,7 +264,7 @@ void Map::rayCastBlockRemove(RayCast& rayCast, glm::vec3 start, glm::vec3 forwar
 			auto chunkZ = chunkX->second.find(z);
 			if (chunkZ != chunkX->second.end())
 			{
-				chunkZ->second->updateRight(hitChunk);
+				chunkZ->second->updateBlockRight(hitChunk, blockPos[1], blockPos[2]);
 			}
 		}
 	}
@@ -282,7 +277,7 @@ void Map::rayCastBlockRemove(RayCast& rayCast, glm::vec3 start, glm::vec3 forwar
 			auto chunkZ = chunkX->second.find(z);
 			if (chunkZ != chunkX->second.end())
 			{
-				chunkZ->second->updateLeft(hitChunk);
+				chunkZ->second->updateBlockLeft(hitChunk, blockPos[1], blockPos[2]);
 			}
 		}
 	}

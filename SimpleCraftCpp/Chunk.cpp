@@ -95,8 +95,6 @@ void Chunk::update( int chunkX, int chunkZ, Chunk* frontChunk, Chunk* backChunk,
 					facesExposed |= LEFT_FACE;
 				}
 
-				///*
-
 				if (rightChunk != nullptr && x == CHUNK_WIDTH - 1)
 				{
 					int j = 0 + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
@@ -106,14 +104,11 @@ void Chunk::update( int chunkX, int chunkZ, Chunk* frontChunk, Chunk* backChunk,
 					}
 
 				}
-				//*/
 				else if (x != CHUNK_WIDTH - 1 && i + 1 < CHUNK_WIDTH * CHUNK_DEPTH * CHUNK_HEIGHT && !blocks[i + 1].getRender())
 				{
 					facesExposed |= RIGHT_FACE;
 				}
-				//
 
-				///*
 				if (frontChunk != nullptr && z == 0)
 				{
 					int j = x + (CHUNK_DEPTH - 1) * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
@@ -127,11 +122,9 @@ void Chunk::update( int chunkX, int chunkZ, Chunk* frontChunk, Chunk* backChunk,
 				{
 					facesExposed |= FRONT_FACE;
 				}
-				//*/
 
 				if (backChunk != nullptr && z == CHUNK_DEPTH - 1)
 				{
-					//int j = x + 0 * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
 					int j = x + 0 * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
 					if (!backChunk->blocks[j].getRender())
 					{
@@ -503,6 +496,104 @@ void Chunk::updateRight(Chunk* rightChunk)
 			blocks[i].setExposedFaces(facesExposed);
 		}
 	}
+	update2();
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+void Chunk::updateBlockFront(Chunk* frontChunk, int x, int y)
+{
+
+	int i = x + 0 * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
+
+	if (!blocks[i].getRender())
+	{
+		return;
+	}
+
+	unsigned int facesExposed = blocks[i].getExposedFaces();
+	int j = x + (CHUNK_DEPTH - 1) * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
+	if (!frontChunk->blocks[j].getRender())
+	{
+		facesExposed |= FRONT_FACE;
+	}
+	else
+	{
+		facesExposed &= ~FRONT_FACE;
+	}
+	blocks[i].setExposedFaces(facesExposed);
+
+	update2();
+}
+
+void Chunk::updateBlockBack(Chunk* backChunk, int x, int y)
+{
+	int i = x + (CHUNK_DEPTH - 1) * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
+
+	if (!blocks[i].getRender())
+	{
+		return;
+	}
+
+	unsigned int facesExposed = blocks[i].getExposedFaces();
+	int j = x + 0 * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
+	if (!backChunk->blocks[j].getRender())
+	{
+		facesExposed |= BACK_FACE;
+	}
+	else
+	{
+		facesExposed &= ~BACK_FACE;
+	}
+
+	blocks[i].setExposedFaces(facesExposed);
+
+	update2();
+}
+
+void Chunk::updateBlockLeft(Chunk* leftChunk, int y, int z)
+{
+	int i = 0 + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
+
+	if (!blocks[i].getRender())
+	{
+		return;
+	}
+
+	unsigned int facesExposed = blocks[i].getExposedFaces();
+	int j = (CHUNK_WIDTH - 1) + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
+	if (!leftChunk->blocks[j].getRender())
+	{
+		facesExposed |= LEFT_FACE;
+	}
+	else
+	{
+		facesExposed &= ~LEFT_FACE;
+	}
+	blocks[i].setExposedFaces(facesExposed);
+
+	update2();
+}
+
+void Chunk::updateBlockRight(Chunk* rightChunk, int y, int z)
+{
+	int i = (CHUNK_WIDTH - 1) + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
+
+	if (!blocks[i].getRender())
+	{
+		return;
+	}
+
+	unsigned int facesExposed = blocks[i].getExposedFaces();
+	int j = 0 + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
+	if (!rightChunk->blocks[j].getRender())
+	{
+		facesExposed |= RIGHT_FACE;
+	}
+	else
+	{
+		facesExposed &= ~RIGHT_FACE;
+	}
+	blocks[i].setExposedFaces(facesExposed);
+
 	update2();
 }
 

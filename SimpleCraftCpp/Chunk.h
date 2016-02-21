@@ -83,6 +83,10 @@ public:
 	void updateBack(Chunk * backChunk);
 	void updateLeft(Chunk * leftChunk);
 	void updateRight(Chunk * rightChunk);
+	void updateBlockFront(Chunk * frontChunk, int x, int y);
+	void updateBlockBack(Chunk * backChunk, int x, int y);
+	void updateBlockLeft(Chunk * leftChunk, int y, int z);
+	void updateBlockRight(Chunk * rightChunk, int y, int z);
 	void addFace(int vertrexIndex, int x, int y, int z, int chunkX, int chunkZ, const GLfloat vertices[]);
 	void updateBlock(int x, int y, int z);
 	void rayCastBlock(RayCast& rayCast, glm::vec3 start, glm::vec3 end);
