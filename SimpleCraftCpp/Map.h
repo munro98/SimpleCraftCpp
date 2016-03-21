@@ -15,9 +15,10 @@ public:
 	~Map();
 	void initialize();
 	void update(float playerX, float playerZ);
-	void render(GLuint modelLocation, GLuint blockPositionLocation, float x, float y);
-	void rayCastBlock(RayCast & rayCast, glm::vec3 start, glm::vec3 forward);
-	void rayCastBlockRemove(RayCast & rayCast, glm::vec3 start, glm::vec3 forward);
+	void updateChunk(int x, int z);
+	void render(float x, float y);
+	void rayCastBlock(glm::vec3 start, glm::vec3 forward);
+	void rayCastBlockRemove(glm::vec3 start, glm::vec3 forward);
 private:
 	std::unordered_map<int, std::unordered_map<int, Chunk*>> mChunks;
 };

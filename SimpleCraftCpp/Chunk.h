@@ -76,7 +76,7 @@ class Chunk
 public:
 	Chunk();
 	~Chunk();
-	void render(GLuint modelLocation, GLuint blockPositionLocation);
+	void render();
 	void update(int chunkX, int chunkZ, Chunk* frontChunk, Chunk* backChunk, Chunk* leftChunk, Chunk* rightChunk);
 	void update2();
 	void updateFront(Chunk * frontChunk);
@@ -89,10 +89,8 @@ public:
 	void updateBlockRight(Chunk * rightChunk, int y, int z);
 	void addFace(int vertrexIndex, int x, int y, int z, int chunkX, int chunkZ, const GLfloat vertices[]);
 	void updateBlock(int x, int y, int z);
-	void rayCastBlock(RayCast& rayCast, glm::vec3 start, glm::vec3 end);
-	void rayCastBlock2(RayCast & rayCast, glm::vec3 start, glm::vec3 forward, int * blockHitPosition);
-	void rayCastBlockRemove(RayCast & rayCast, glm::vec3 start, glm::vec3 forward);
-	void rayCastBlockRemove2(RayCast & rayCast, glm::vec3 start, glm::vec3 forward, int * blockHitPosition);
+	void rayCastBlock(glm::vec3 start, glm::vec3 forward, int * blockHitPosition);
+	void rayCastBlockRemove(glm::vec3 start, glm::vec3 forward, int * blockHitPosition);
 private:
 	Block* blocks;
 	GLfloat* mVertices;

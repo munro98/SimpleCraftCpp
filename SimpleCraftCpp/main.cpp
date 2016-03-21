@@ -207,8 +207,6 @@ int main(int argc, char** argv) {
 	//glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
 
-	RayCast rayCast;
-
 	Map map;
 	map.initialize();
 
@@ -279,12 +277,12 @@ int main(int argc, char** argv) {
 		
 		if (MOUSEBUTTON[SDL_BUTTON_LEFT] && !LASTMOUSEBUTTON[SDL_BUTTON_LEFT])
 		{
-			map.rayCastBlock(rayCast, camera.getPosition(), camera.getFront());
+			map.rayCastBlock(camera.getPosition(), camera.getFront());
 		}
 		
 		if (MOUSEBUTTON[SDL_BUTTON_RIGHT] && !LASTMOUSEBUTTON[SDL_BUTTON_RIGHT])
 		{
-			map.rayCastBlockRemove(rayCast, camera.getPosition(), camera.getFront());
+			map.rayCastBlockRemove(camera.getPosition(), camera.getFront());
 		}
 		
 
@@ -293,7 +291,7 @@ int main(int argc, char** argv) {
 		
 		glm::mat4 lightView;
 		lightView = glm::lookAt(camera.getPosition(), camera.getPosition() + camera.getFront(), camera.getUp());
-
+		//assert(0);
 		//Render Map
 		shader.use();
 
@@ -311,7 +309,7 @@ int main(int argc, char** argv) {
 		glBindVertexArray(0);
 
 		map.update(camera.getPosition().x, camera.getPosition().z);
-		map.render(modelLocation, 0, camera.getPosition().x, camera.getPosition().z);
+		map.render(camera.getPosition().x, camera.getPosition().z);
 		glBindTexture(GL_TEXTURE_2D, 0);
 
 		//Render Light

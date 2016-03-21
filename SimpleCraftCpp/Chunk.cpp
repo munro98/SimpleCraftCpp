@@ -16,7 +16,7 @@ Chunk::~Chunk()
 	delete[] blocks;
 }
 
-void Chunk::render(GLuint modelLocation, GLuint blockPositionLocation)
+void Chunk::render()
 {
 	glBindVertexArray(mVAO);
 	glDrawArrays(GL_TRIANGLES, 0, 6 * mFaceCount);
@@ -29,11 +29,12 @@ void Chunk::update( int chunkX, int chunkZ, Chunk* frontChunk, Chunk* backChunk,
 	mChunkX = chunkX;
 	mChunkZ = chunkZ;
 
-	for (int x = 0; x < CHUNK_WIDTH; x++)
+	
+	for (int z = 0; z < CHUNK_DEPTH; z++)
 	{
-		for (int z = 0; z < CHUNK_DEPTH; z++)
+		for (int y = 0; y < CHUNK_HEIGHT; y++)
 		{
-			for (int y = 0; y < CHUNK_HEIGHT; y++)
+			for (int x = 0; x < CHUNK_WIDTH; x++)
 			{
 				int i = x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
 				/*
@@ -54,11 +55,12 @@ void Chunk::update( int chunkX, int chunkZ, Chunk* frontChunk, Chunk* backChunk,
 
 	mFaceCount = 0;
 
-	for (int x = 0; x < CHUNK_WIDTH; x++)
+	
+	for (int z = 0; z < CHUNK_DEPTH; z++)
 	{
-		for (int z = 0; z < CHUNK_DEPTH; z++)
+		for (int y = 0; y < CHUNK_HEIGHT; y++)
 		{
-			for (int y = 0; y < CHUNK_HEIGHT; y++)
+			for (int x = 0; x < CHUNK_WIDTH; x++)
 			{
 				int i = x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
 				if (!blocks[i].getRender())
@@ -181,11 +183,12 @@ void Chunk::update( int chunkX, int chunkZ, Chunk* frontChunk, Chunk* backChunk,
 	//mVertices = new GLfloat[sizeof(topVertices) / sizeof(topVertices[0])];
 	int counter = 0;
 
-	for (int x = 0; x < CHUNK_WIDTH; x++)
+	
+	for (int z = 0; z < CHUNK_DEPTH; z++)
 	{
-		for (int z = 0; z < CHUNK_DEPTH; z++)
+		for (int y = 0; y < CHUNK_HEIGHT; y++)
 		{
-			for (int y = 0; y < CHUNK_HEIGHT; y++)
+			for (int x = 0; x < CHUNK_WIDTH; x++)
 			{
 				int i = x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
 
@@ -256,11 +259,12 @@ void Chunk::update2()
 {
 	mFaceCount = 0;
 
-	for (int x = 0; x < CHUNK_WIDTH; x++)
+	
+	for (int z = 0; z < CHUNK_DEPTH; z++)
 	{
-		for (int z = 0; z < CHUNK_DEPTH; z++)
+		for (int y = 0; y < CHUNK_HEIGHT; y++)
 		{
-			for (int y = 0; y < CHUNK_HEIGHT; y++)
+			for (int x = 0; x < CHUNK_WIDTH; x++)
 			{
 				int i = x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
 				if (!blocks[i].getRender())
@@ -306,16 +310,17 @@ void Chunk::update2()
 		}
 	}
 
-	std::cout << mFaceCount << std::endl;
+	//std::cout << mFaceCount << std::endl;
 	mVertices = new GLfloat[8 * 6 * mFaceCount];
 
 	int counter = 0;
 
-	for (int x = 0; x < CHUNK_WIDTH; x++)
+	
+	for (int z = 0; z < CHUNK_DEPTH; z++)
 	{
-		for (int z = 0; z < CHUNK_DEPTH; z++)
+		for (int y = 0; y < CHUNK_HEIGHT; y++)
 		{
-			for (int y = 0; y < CHUNK_HEIGHT; y++)
+			for (int x = 0; x < CHUNK_WIDTH; x++)
 			{
 				int i = x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
 
@@ -385,9 +390,10 @@ void Chunk::update2()
 
 void Chunk::updateFront(Chunk* frontChunk)
 {
-	for (int x = 0; x < CHUNK_WIDTH; x++)
+	
+	for (int y = 0; y < CHUNK_HEIGHT; y++)
 	{
-		for (int y = 0; y < CHUNK_HEIGHT; y++)
+		for (int x = 0; x < CHUNK_WIDTH; x++)
 		{
 			int i = x + 0 * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
 
@@ -414,29 +420,30 @@ void Chunk::updateFront(Chunk* frontChunk)
 
 void Chunk::updateBack(Chunk* backChunk)
 {
-	for (int x = 0; x < CHUNK_WIDTH; x++)
+	
+	for (int y = 0; y < CHUNK_HEIGHT; y++)
 	{
-			for (int y = 0; y < CHUNK_HEIGHT; y++)
+		for (int x = 0; x < CHUNK_WIDTH; x++)
+		{
+			int i = x + (CHUNK_DEPTH - 1) * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
+
+			if (!blocks[i].getRender())
 			{
-				int i = x + (CHUNK_DEPTH - 1) * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
-
-				if (!blocks[i].getRender())
-				{
-					continue;
-				}
-
-				unsigned int facesExposed = blocks[i].getExposedFaces();
-				int j = x + 0 * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
-				if (!backChunk->blocks[j].getRender())
-				{
-					facesExposed |= BACK_FACE;
-				} else
-				{
-					facesExposed &= ~BACK_FACE;
-				}
-
-				blocks[i].setExposedFaces(facesExposed);
+				continue;
 			}
+
+			unsigned int facesExposed = blocks[i].getExposedFaces();
+			int j = x + 0 * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
+			if (!backChunk->blocks[j].getRender())
+			{
+				facesExposed |= BACK_FACE;
+			} else
+			{
+				facesExposed &= ~BACK_FACE;
+			}
+
+			blocks[i].setExposedFaces(facesExposed);
+		}
 	}
 	update2();
 }
@@ -704,19 +711,21 @@ void Chunk::updateBlock(int x, int y, int z)
 	blocks[i].setExposedFaces(facesExposed);//
 }
 
-void Chunk::rayCastBlock(RayCast& rayCast, glm::vec3 start, glm::vec3 forward)
+void Chunk::rayCastBlock(glm::vec3 start, glm::vec3 forward, int* blockHitPosition)
 {
 	glm::vec3 vecIntersection;
 	float fraction = 1.0f;
 	static int count = 0;
 
-	for (int x = 0; x < CHUNK_WIDTH; x++)
+	
+	for (int z = 0; z < CHUNK_DEPTH; z++)
 	{
-		for (int z = 0; z < CHUNK_DEPTH; z++)
+		for (int y = 0; y < CHUNK_HEIGHT; y++)
 		{
-			for (int y = 0; y < CHUNK_HEIGHT; y++)
+			for (int x = 0; x < CHUNK_WIDTH; x++)
 			{
-				if (blocks[x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH].getRender() && rayCast.lineBlockIntersection((float)(x + mChunkX * CHUNK_WIDTH), (float)-y, (float)(z + mChunkZ * CHUNK_DEPTH), start, start + forward  * 10.0f, vecIntersection, fraction)) {
+				//if (blocks[x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH].getRender() && rayCast.lineBlockIntersection((float)(x + mChunkX * CHUNK_WIDTH), (float)-y, (float)(z + mChunkZ * CHUNK_DEPTH), start, start + forward  * 10.0f, vecIntersection, fraction)) {
+				if (blocks[x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH].getRender() && RayCast::lineBlockIntersection((float)(x + mChunkX * CHUNK_WIDTH), (float)-y, (float)(z + mChunkZ * CHUNK_DEPTH), start, start + forward  * 10.0f, vecIntersection, fraction)) {
 					//std::cout << "hit " << count++ <<  " "  << std::endl;
 				}
 			}
@@ -734,112 +743,37 @@ void Chunk::rayCastBlock(RayCast& rayCast, glm::vec3 start, glm::vec3 forward)
 
 		x -= mChunkX * CHUNK_WIDTH;
 		z -= mChunkZ * CHUNK_DEPTH;
-
-		if (x >=  CHUNK_WIDTH)
-		{
-			return;
-		}
-
-		if (x < 0)
-		{
-			return;
-		}
-
-		if (y < 0)
-		{
-			return;
-		}
-
-		if (z >=  CHUNK_DEPTH)
-		{
-			return;
-		}
-
-		if (z < 0)
-		{
-			return;
-		}
-		
-		int i = x  + (z * CHUNK_WIDTH) + (y * CHUNK_WIDTH * CHUNK_DEPTH);
-
-		//std::cout << x << " " << z << " " << y << " " << std::endl;
-
-		blocks[i].setRender(true);
-
-		updateBlock(x, y, z);
-
-		updateBlock(x - 1, y, z);
-		updateBlock(x + 1, y, z);
-
-		updateBlock(x, y, z - 1);
-		updateBlock(x, y, z + 1);
-
-		updateBlock(x, y - 1, z);
-		updateBlock(x, y + 1, z);
-
-		update2();
-	}
-}
-
-void Chunk::rayCastBlock2(RayCast& rayCast, glm::vec3 start, glm::vec3 forward, int* blockHitPosition)
-{
-	glm::vec3 vecIntersection;
-	float fraction = 1.0f;
-	static int count = 0;
-
-	for (int x = 0; x < CHUNK_WIDTH; x++)
-	{
-		for (int z = 0; z < CHUNK_DEPTH; z++)
-		{
-			for (int y = 0; y < CHUNK_HEIGHT; y++)
-			{
-				if (blocks[x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH].getRender() && rayCast.lineBlockIntersection((float)(x + mChunkX * CHUNK_WIDTH), (float)-y, (float)(z + mChunkZ * CHUNK_DEPTH), start, start + forward  * 10.0f, vecIntersection, fraction)) {
-					//std::cout << "hit " << count++ <<  " "  << std::endl;
-				}
-			}
-		}
-
-	}
-
-	if (fraction < 1.0f) {
-
-		vecIntersection = start + forward  * 10.0f * fraction - forward  * 0.01f;
-		int x, y, z;
-		x = (int)round(vecIntersection.x);
-		z = (int)round(vecIntersection.z);
-		y = (int)round(-vecIntersection.y);
-
-		x -= mChunkX * CHUNK_WIDTH;
-		z -= mChunkZ * CHUNK_DEPTH;
-
-		if (x >= CHUNK_WIDTH)
-		{
-			return;
-		}
-
-		if (x < 0)
-		{
-			return;
-		}
-
-		if (y < 0)
-		{
-			return;
-		}
-
-		if (z >= CHUNK_DEPTH)
-		{
-			return;
-		}
-
-		if (z < 0)
-		{
-			return;
-		}
 
 		blockHitPosition[0] = x;
 		blockHitPosition[1] = y;
 		blockHitPosition[2] = z;
+
+		if (x >= CHUNK_WIDTH)
+		{
+			return;
+		}
+
+		if (x < 0)
+		{
+			return;
+		}
+
+		if (y < 0)
+		{
+			return;
+		}
+
+		if (z >= CHUNK_DEPTH)
+		{
+			return;
+		}
+
+		if (z < 0)
+		{
+			return;
+		}
+
+		
 		int i = x + (z * CHUNK_WIDTH) + (y * CHUNK_WIDTH * CHUNK_DEPTH);
 
 		//std::cout << x << " " << z << " " << y << " " << std::endl;
@@ -861,93 +795,19 @@ void Chunk::rayCastBlock2(RayCast& rayCast, glm::vec3 start, glm::vec3 forward, 
 	}
 }
 
-void Chunk::rayCastBlockRemove(RayCast& rayCast, glm::vec3 start, glm::vec3 forward)
+void Chunk::rayCastBlockRemove(glm::vec3 start, glm::vec3 forward, int* blockHitPosition)
 {
 	glm::vec3 vecIntersection;
 	float fraction = 1.0f;
 	static int count = 0;
-	for (int x = 0; x < CHUNK_WIDTH; x++)
+	
+	for (int z = 0; z < CHUNK_DEPTH; z++)
 	{
-		for (int z = 0; z < CHUNK_DEPTH; z++)
+		for (int y = 0; y < CHUNK_HEIGHT; y++)
 		{
-			for (int y = 0; y < CHUNK_HEIGHT; y++)
+			for (int x = 0; x < CHUNK_WIDTH; x++)
 			{
-				if (blocks[x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH].getRender() && rayCast.lineBlockIntersection((float)(x + mChunkX * CHUNK_WIDTH), (float)-y, (float)(z + mChunkZ * CHUNK_DEPTH), start, start + forward  * 10.0f, vecIntersection, fraction)) {
-					//std::cout << "hit " << count++ << " " << std::endl;
-				}
-			}
-		}
-
-	}
-	if (fraction < 1.0f) {
-		vecIntersection = start + forward  * 10.0f * fraction + forward  * 0.01f;
-		int x, y, z;
-		x = (int)round(vecIntersection.x);
-		z = (int)round(vecIntersection.z);
-		y = (int)round(-vecIntersection.y);
-
-		x -= mChunkX * CHUNK_WIDTH;
-		z -= mChunkZ * CHUNK_DEPTH;
-
-		///*
-		if (x < 0)
-		{
-			return;
-		}
-
-		if (x >= CHUNK_WIDTH)
-		{
-			return;
-		}
-
-		if (y < 0)
-		{
-			return;
-		}
-
-		if (z < 0)
-		{
-			return;
-		}
-
-		if (z >= CHUNK_DEPTH)
-		{
-			return;
-		}
-
-		int i = x + (z * CHUNK_WIDTH) + (y * CHUNK_WIDTH * CHUNK_DEPTH);
-
-		//std::cout << x << " " << z << " " << y << " " << i << std::endl;
-
-		blocks[i].setRender(false);
-
-		updateBlock(x, y, z);
-		
-		updateBlock(x - 1, y, z);
-		updateBlock(x + 1, y, z);
-
-		updateBlock(x, y, z - 1);
-		updateBlock(x, y, z + 1);
-
-		updateBlock(x, y - 1, z);
-		updateBlock(x, y + 1, z);
-		
-		update2();
-	}
-}
-
-void Chunk::rayCastBlockRemove2(RayCast& rayCast, glm::vec3 start, glm::vec3 forward, int* blockHitPosition)
-{
-	glm::vec3 vecIntersection;
-	float fraction = 1.0f;
-	static int count = 0;
-	for (int x = 0; x < CHUNK_WIDTH; x++)
-	{
-		for (int z = 0; z < CHUNK_DEPTH; z++)
-		{
-			for (int y = 0; y < CHUNK_HEIGHT; y++)
-			{
-				if (blocks[x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH].getRender() && rayCast.lineBlockIntersection((float)(x + mChunkX * CHUNK_WIDTH), (float)-y, (float)(z + mChunkZ * CHUNK_DEPTH), start, start + forward  * 10.0f, vecIntersection, fraction)) {
+				if (blocks[x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH].getRender() && RayCast::lineBlockIntersection((float)(x + mChunkX * CHUNK_WIDTH), (float)-y, (float)(z + mChunkZ * CHUNK_DEPTH), start, start + forward  * 10.0f, vecIntersection, fraction)) {
 					//std::cout << "hit " << count++ << " " << std::endl;
 				}
 			}

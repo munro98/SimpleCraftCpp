@@ -46,7 +46,6 @@ bool Display::isClosed() {
 void Display::update() {
 
 	SDL_GL_SwapWindow(mWindow);
-	SDL_Event e;
 }
 
 SDL_Window* Display::getWindow()
