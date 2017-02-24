@@ -75,10 +75,11 @@ class Chunk
 {
 public:
 	Chunk();
+	Chunk(int chunkX, int chunkZ, Chunk * frontChunk, Chunk * backChunk, Chunk * leftChunk, Chunk * rightChunk);
 	~Chunk();
 	void render();
 	void update(int chunkX, int chunkZ, Chunk* frontChunk, Chunk* backChunk, Chunk* leftChunk, Chunk* rightChunk);
-	void update2();
+	void updateMesh();
 	void updateFront(Chunk * frontChunk);
 	void updateBack(Chunk * backChunk);
 	void updateLeft(Chunk * leftChunk);
@@ -89,8 +90,16 @@ public:
 	void updateBlockRight(Chunk * rightChunk, int y, int z);
 	void addFace(int vertrexIndex, int x, int y, int z, int chunkX, int chunkZ, const GLfloat vertices[]);
 	void updateBlock(int x, int y, int z);
+	void updateBlockLeft(int x, int y, int z);
+	void updateBlockRight(int x, int y, int z);
+	void updateBlockTop(int x, int y, int z);
+	void updateBlockBottom(int x, int y, int z);
+
+	void updateBlockFront(int x, int y, int z);
+	void updateBlockBack(int x, int y, int z);
 	void rayCastBlock(glm::vec3 start, glm::vec3 forward, int * blockHitPosition);
 	void rayCastBlockRemove(glm::vec3 start, glm::vec3 forward, int * blockHitPosition);
+	void updateSurroundingBlockFaces(int x, int y, int z);
 private:
 	Block* blocks;
 	GLfloat* mVertices;

@@ -6,30 +6,12 @@
 #include "Chunk.h"
 
 
-Chunk::Chunk(): blocks(new Block[CHUNK_WIDTH * CHUNK_DEPTH * CHUNK_HEIGHT]), mChunkX(0), mChunkZ(0), mFaceCount(0), mVertices(nullptr), mVBO(0), mVAO(0)
-{
-
-}
-
-Chunk::~Chunk()
-{
-	delete[] blocks;
-}
-
-void Chunk::render()
-{
-	glBindVertexArray(mVAO);
-	glDrawArrays(GL_TRIANGLES, 0, 6 * mFaceCount);
-	glBindVertexArray(0);
-
-}
-
-void Chunk::update( int chunkX, int chunkZ, Chunk* frontChunk, Chunk* backChunk, Chunk* leftChunk, Chunk* rightChunk)
+Chunk::Chunk(int chunkX, int chunkZ, Chunk* frontChunk, Chunk* backChunk, Chunk* leftChunk, Chunk* rightChunk): blocks(new Block[CHUNK_WIDTH * CHUNK_DEPTH * CHUNK_HEIGHT]), mChunkX(0), mChunkZ(0), mFaceCount(0), mVertices(nullptr), mVBO(0), mVAO(0)
 {
 	mChunkX = chunkX;
 	mChunkZ = chunkZ;
 
-	
+
 	for (int z = 0; z < CHUNK_DEPTH; z++)
 	{
 		for (int y = 0; y < CHUNK_HEIGHT; y++)
@@ -40,22 +22,22 @@ void Chunk::update( int chunkX, int chunkZ, Chunk* frontChunk, Chunk* backChunk,
 				/*
 				if (y > 125)
 				{
-					blocks[i].SetRender(true);
+				blocks[i].SetRender(true);
 				}
 				*/
 				/*
-				if (x == 1) 
-					blocks[i].SetRender(false);
-				else 
-					blocks[i].SetRender(true);
-					*/
+				if (x == 1)
+				blocks[i].SetRender(false);
+				else
+				blocks[i].SetRender(true);
+				*/
 			}
 		}
 	}
 
 	mFaceCount = 0;
 
-	
+
 	for (int z = 0; z < CHUNK_DEPTH; z++)
 	{
 		for (int y = 0; y < CHUNK_HEIGHT; y++)
@@ -67,7 +49,7 @@ void Chunk::update( int chunkX, int chunkZ, Chunk* frontChunk, Chunk* backChunk,
 					continue;
 
 				unsigned int facesExposed = 0;
-				
+
 				if (y == 0)
 				{
 					facesExposed |= TOP_FACE;
@@ -90,7 +72,7 @@ void Chunk::update( int chunkX, int chunkZ, Chunk* frontChunk, Chunk* backChunk,
 					{
 						facesExposed |= LEFT_FACE;
 					}
-	
+
 				}
 				else if (x != 0 && i - 1 > -1 && !blocks[i - 1].getRender())
 				{
@@ -172,18 +154,18 @@ void Chunk::update( int chunkX, int chunkZ, Chunk* frontChunk, Chunk* backChunk,
 				}
 				//std::cout << "blocks[i] " << i << " " << std::endl;
 				blocks[i].setExposedFaces(facesExposed);//
-				
+
 			}
 		}
 	}
-	
+
 	//std::cout << mFaceCount << std::endl;
 	mVertices = new GLfloat[8 * 6 * mFaceCount];
 	//mVertices = new GLfloat[48];
 	//mVertices = new GLfloat[sizeof(topVertices) / sizeof(topVertices[0])];
 	int counter = 0;
 
-	
+
 	for (int z = 0; z < CHUNK_DEPTH; z++)
 	{
 		for (int y = 0; y < CHUNK_HEIGHT; y++)
@@ -206,13 +188,13 @@ void Chunk::update( int chunkX, int chunkZ, Chunk* frontChunk, Chunk* backChunk,
 					int vertrexIndex = (counter++) * 48;
 					addFace(vertrexIndex, x, y, z, chunkX, chunkZ, backVertices);
 				}
-				
+
 				if (facesExposed & LEFT_FACE)
 				{
 					int vertrexIndex = (counter++) * 48;
 					addFace(vertrexIndex, x, y, z, chunkX, chunkZ, leftVertices);
 				}
-				
+
 				if (facesExposed & RIGHT_FACE)
 				{
 					int vertrexIndex = (counter++) * 48;
@@ -255,7 +237,22 @@ void Chunk::update( int chunkX, int chunkZ, Chunk* frontChunk, Chunk* backChunk,
 	delete[] mVertices;
 }
 
-void Chunk::update2()
+Chunk::~Chunk()
+{
+	delete[] blocks;
+}
+
+void Chunk::render()
+{
+	glBindVertexArray(mVAO);
+	glDrawArrays(GL_TRIANGLES, 0, 6 * mFaceCount);
+	glBindVertexArray(0);
+
+}
+
+
+
+void Chunk::updateMesh()
 {
 	mFaceCount = 0;
 
@@ -351,9 +348,8 @@ void Chunk::update2()
 					addFace(vertrexIndex, x, y, z, mChunkX, mChunkZ, rightVertices);
 				}
 
-				if (facesExposed & TOP_FACE) //  && z == 0
+				if (facesExposed & TOP_FACE)
 				{
-					//int test = (x + z * CHUNK_WIDTH)* 48;
 					int vertrexIndex = (counter++) * 48;
 					addFace(vertrexIndex, x, y, z, mChunkX, mChunkZ, topVertices);
 				}
@@ -415,7 +411,7 @@ void Chunk::updateFront(Chunk* frontChunk)
 			blocks[i].setExposedFaces(facesExposed);
 		}
 	}
-	update2();
+	updateMesh();
 }
 
 void Chunk::updateBack(Chunk* backChunk)
@@ -445,7 +441,7 @@ void Chunk::updateBack(Chunk* backChunk)
 			blocks[i].setExposedFaces(facesExposed);
 		}
 	}
-	update2();
+	updateMesh();
 }
 
 void Chunk::updateLeft(Chunk* leftChunk)
@@ -474,7 +470,7 @@ void Chunk::updateLeft(Chunk* leftChunk)
 			blocks[i].setExposedFaces(facesExposed);
 		}
 	}
-	update2();
+	updateMesh();
 }
 
 void Chunk::updateRight(Chunk* rightChunk)
@@ -503,7 +499,7 @@ void Chunk::updateRight(Chunk* rightChunk)
 			blocks[i].setExposedFaces(facesExposed);
 		}
 	}
-	update2();
+	updateMesh();
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 void Chunk::updateBlockFront(Chunk* frontChunk, int x, int y)
@@ -528,8 +524,9 @@ void Chunk::updateBlockFront(Chunk* frontChunk, int x, int y)
 	}
 	blocks[i].setExposedFaces(facesExposed);
 
-	update2();
+	updateMesh();
 }
+
 
 void Chunk::updateBlockBack(Chunk* backChunk, int x, int y)
 {
@@ -553,7 +550,7 @@ void Chunk::updateBlockBack(Chunk* backChunk, int x, int y)
 
 	blocks[i].setExposedFaces(facesExposed);
 
-	update2();
+	updateMesh();
 }
 
 void Chunk::updateBlockLeft(Chunk* leftChunk, int y, int z)
@@ -577,7 +574,7 @@ void Chunk::updateBlockLeft(Chunk* leftChunk, int y, int z)
 	}
 	blocks[i].setExposedFaces(facesExposed);
 
-	update2();
+	updateMesh();
 }
 
 void Chunk::updateBlockRight(Chunk* rightChunk, int y, int z)
@@ -601,8 +598,10 @@ void Chunk::updateBlockRight(Chunk* rightChunk, int y, int z)
 	}
 	blocks[i].setExposedFaces(facesExposed);
 
-	update2();
+	updateMesh();
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Chunk::addFace(int vertrexIndex ,int x, int y, int z,int chunkX, int chunkZ, const GLfloat vertices[])
 {
@@ -711,6 +710,179 @@ void Chunk::updateBlock(int x, int y, int z)
 	blocks[i].setExposedFaces(facesExposed);//
 }
 
+void Chunk::updateBlockFront(int x, int y, int z)
+{
+	if (z < 0)
+	{
+		return;
+	}
+
+	int i = x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
+	unsigned int facesExposed = blocks[i].getExposedFaces();
+
+	if (!blocks[i].getRender())
+	{
+		blocks[i].setExposedFaces(0);
+		return;
+	}
+
+	if (!blocks[i + CHUNK_WIDTH].getRender())
+	{
+		facesExposed |= BACK_FACE;
+	}
+	else
+	{
+		facesExposed &= ~BACK_FACE;
+	}
+
+	//std::cout << "blocks[i] " << i << " " << std::endl;
+	blocks[i].setExposedFaces(facesExposed);//
+}
+
+void Chunk::updateBlockBack(int x, int y, int z)
+{
+	if (z >= CHUNK_DEPTH)
+	{
+		return;
+	}
+
+	int i = x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
+	unsigned int facesExposed = blocks[i].getExposedFaces();
+
+	if (!blocks[i].getRender())
+	{
+		blocks[i].setExposedFaces(0);
+		return;
+	}
+
+	if (!blocks[i - CHUNK_WIDTH].getRender())
+	{
+		facesExposed |= FRONT_FACE;
+	}
+	else
+	{
+		facesExposed &= ~FRONT_FACE;
+	}
+
+	//std::cout << "blocks[i] " << i << " " << std::endl;
+	blocks[i].setExposedFaces(facesExposed);//
+}
+
+void Chunk::updateBlockLeft(int x, int y, int z)
+{
+	if (x < 0)
+	{
+		return;
+	}
+
+	int i = x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
+	unsigned int facesExposed = blocks[i].getExposedFaces();
+
+	if (!blocks[i].getRender())
+	{
+		blocks[i].setExposedFaces(0);
+		return;
+	}
+
+	if (!blocks[i + 1].getRender())
+	{
+		facesExposed |= RIGHT_FACE;
+	}
+	else
+	{
+		facesExposed &= ~RIGHT_FACE;
+	}
+
+	//std::cout << "blocks[i] " << i << " " << std::endl;
+	blocks[i].setExposedFaces(facesExposed);//
+}
+
+void Chunk::updateBlockRight(int x, int y, int z)
+{
+	if (x >= CHUNK_WIDTH)
+	{
+		return;
+	}
+
+	int i = x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
+	unsigned int facesExposed = blocks[i].getExposedFaces();
+
+	if (!blocks[i].getRender())
+	{
+		blocks[i].setExposedFaces(0);
+		return;
+	}
+
+	if (!blocks[i - 1].getRender())
+	{
+		facesExposed |= LEFT_FACE;
+	}
+	else
+	{
+		facesExposed &= ~LEFT_FACE;
+	}
+
+	//std::cout << "blocks[i] " << i << " " << std::endl;
+	blocks[i].setExposedFaces(facesExposed);//
+}
+
+void Chunk::updateBlockTop(int x, int y, int z)
+{
+	if (y <= 0)
+	{
+		return;
+	}
+
+	int i = x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
+	unsigned int facesExposed = blocks[i].getExposedFaces();
+
+	if (!blocks[i].getRender())
+	{
+		blocks[i].setExposedFaces(0);
+		return;
+	}
+
+	if (!blocks[i + CHUNK_WIDTH * CHUNK_DEPTH].getRender())
+	{
+		facesExposed |= BOTTOM_FACE;
+	}
+	else
+	{
+		facesExposed &= ~BOTTOM_FACE;
+	}
+
+	blocks[i].setExposedFaces(facesExposed);//
+}
+
+void Chunk::updateBlockBottom(int x, int y, int z)
+{
+
+	if (y >= CHUNK_HEIGHT)
+	{
+		return;
+	}
+
+	int i = x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
+	unsigned int facesExposed = blocks[i].getExposedFaces();
+
+	if (!blocks[i].getRender())
+	{
+		blocks[i].setExposedFaces(0);
+		return;
+	}
+
+	if (!blocks[i - CHUNK_WIDTH * CHUNK_DEPTH].getRender())
+	{
+		facesExposed |= TOP_FACE;
+	}
+	else
+	{
+		facesExposed &= ~TOP_FACE;
+	}
+
+	blocks[i].setExposedFaces(facesExposed);//
+}
+
 void Chunk::rayCastBlock(glm::vec3 start, glm::vec3 forward, int* blockHitPosition)
 {
 	glm::vec3 vecIntersection;
@@ -782,16 +954,9 @@ void Chunk::rayCastBlock(glm::vec3 start, glm::vec3 forward, int* blockHitPositi
 
 		updateBlock(x, y, z);
 
-		updateBlock(x - 1, y, z);
-		updateBlock(x + 1, y, z);
 
-		updateBlock(x, y, z - 1);
-		updateBlock(x, y, z + 1);
+		updateSurroundingBlockFaces(x, y, z);
 
-		updateBlock(x, y - 1, z);
-		updateBlock(x, y + 1, z);
-
-		update2();
 	}
 }
 
@@ -861,15 +1026,20 @@ void Chunk::rayCastBlockRemove(glm::vec3 start, glm::vec3 forward, int* blockHit
 
 		updateBlock(x, y, z);
 
-		updateBlock(x - 1, y, z);
-		updateBlock(x + 1, y, z);
+		// Update block faces around this block
 
-		updateBlock(x, y, z - 1);
-		updateBlock(x, y, z + 1);
-
-		updateBlock(x, y - 1, z);
-		updateBlock(x, y + 1, z);
-
-		update2();
+		updateSurroundingBlockFaces(x, y, z);
 	}
+}
+
+void Chunk::updateSurroundingBlockFaces(int x, int y, int z)
+{
+	updateBlockLeft(x - 1, y, z);
+	updateBlockRight(x + 1, y, z);
+
+	updateBlockFront(x, y, z - 1);
+	updateBlockBack(x, y, z + 1);
+
+	updateBlockTop(x, y - 1, z);
+	updateBlockBottom(x, y + 1, z);
 }

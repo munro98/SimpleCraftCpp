@@ -3,6 +3,7 @@
 
 Map::Map()
 {
+	/*
 	for (int x = 0; x < MAP_WIDTH; x++)
 	{
 		auto chunkX = mChunks.find(x);
@@ -22,6 +23,7 @@ Map::Map()
 			chunkX->second.insert({ z,  chunk });
 		}
 	}
+	*/
 }
 
 Map::~Map()
@@ -54,11 +56,12 @@ void Map::update(float playerX, float playerZ)
 	int x = (int)((int)(playerX > 0.0f ? playerX + 0.5f : (playerX + 0.5f) - (float)CHUNK_WIDTH) / CHUNK_WIDTH);
 	int z = (int)((int)(playerZ > 0.0f ? playerZ + 0.5f : (playerZ + 0.5f) - (float)CHUNK_DEPTH) / CHUNK_DEPTH);
 
-	for (int xx = -1; xx <= 1; xx++)
+	//for (int xx = -1; xx <= 1; xx++)
 	{
-		for (int zz = -1; zz <= 1; zz++)
+		//for (int zz = -1; zz <= 1; zz++)
 		{
-			updateChunk(x + xx, z + zz);
+			updateChunk(x, z);
+			//updateChunk(x + xx, z + zz);
 		}
 	}
 
@@ -116,8 +119,7 @@ void Map::updateChunk(int x, int z) {
 		}
 
 
-		Chunk* chunk = new Chunk();
-		chunk->update(x, z, frontChunk, backChunk, leftChunk, rightChunk);
+		Chunk* chunk = new Chunk(x, z, frontChunk, backChunk, leftChunk, rightChunk);
 		chunkX->second.insert({ z,  chunk });
 
 		if (frontChunk != nullptr)
@@ -165,7 +167,7 @@ void Map::rayCastBlock(glm::vec3 start, glm::vec3 forward)
 	int z = (int)((int)(playerZ > 0.0f ? playerZ + 0.5f : (playerZ + 0.5f) - (float)CHUNK_DEPTH) / CHUNK_DEPTH);
 
 
-	int blockPos[3] = {-1, -1, -1};
+	int blockPos[3] = { -1, -1, -1 };
 
 	Chunk* hitChunk = nullptr;
 
@@ -176,29 +178,37 @@ void Map::rayCastBlock(glm::vec3 start, glm::vec3 forward)
 		if (chunkZ != chunkX->second.end())
 		{
 			hitChunk = chunkZ->second;
-			chunkZ->second->rayCastBlock( start, forward, blockPos);
-		} else
+			hitChunk->rayCastBlock(start, forward, blockPos);
+		}
+		else
 		{
 			return;
 		}
 	}
 
 	std::cout << blockPos[0] << " " << blockPos[1] << " " << blockPos[2] << std::endl;
+
+
 	if (blockPos[2] == 0)
 	{
 		auto chunkZ = chunkX->second.find(z - 1);
 		if (chunkZ != chunkX->second.end())
 		{
 			chunkZ->second->updateBlockBack(hitChunk, blockPos[0], blockPos[1]);
+
+			hitChunk->updateBlockFront(chunkZ->second, blockPos[0], blockPos[1]);
 		}
 	}
-	
+
 	else if (blockPos[2] == CHUNK_DEPTH - 1)
 	{
 		auto chunkZ = chunkX->second.find(z + 1);
 		if (chunkZ != chunkX->second.end())
 		{
+
 			chunkZ->second->updateBlockFront(hitChunk, blockPos[0], blockPos[1]);
+
+			hitChunk->updateBlockBack(chunkZ->second, blockPos[0], blockPos[1]);
 		}
 	}
 
@@ -211,11 +221,13 @@ void Map::rayCastBlock(glm::vec3 start, glm::vec3 forward)
 			if (chunkZ != chunkX->second.end())
 			{
 				chunkZ->second->updateBlockRight(hitChunk, blockPos[1], blockPos[2]);
+
+				hitChunk->updateBlockLeft(chunkZ->second, blockPos[1], blockPos[2]);
 			}
 		}
 	}
 
-	else if (blockPos[0] == CHUNK_DEPTH - 1)
+	else if (blockPos[0] == CHUNK_WIDTH - 1)
 	{
 		chunkX = mChunks.find(x + 1);
 		if (chunkX != mChunks.end())
@@ -223,10 +235,15 @@ void Map::rayCastBlock(glm::vec3 start, glm::vec3 forward)
 			auto chunkZ = chunkX->second.find(z);
 			if (chunkZ != chunkX->second.end())
 			{
+
 				chunkZ->second->updateBlockLeft(hitChunk, blockPos[1], blockPos[2]);
+
+				hitChunk->updateBlockRight(chunkZ->second, blockPos[1], blockPos[2]);
 			}
 		}
 	}
+
+	hitChunk->updateMesh();
 }
 
 void Map::rayCastBlockRemove(glm::vec3 start, glm::vec3 forward)
@@ -237,11 +254,11 @@ void Map::rayCastBlockRemove(glm::vec3 start, glm::vec3 forward)
 
 	//int x = (int)((int)(playerX > 0.0f ? playerX : playerX - (float)CHUNK_WIDTH) / CHUNK_WIDTH);
 	//int z = (int)((int)(playerZ > 0.0f ? playerZ : playerZ - (float)CHUNK_DEPTH) / CHUNK_DEPTH);
-
+	
 	int x = (int)((int)(playerX > 0.0f ? playerX + 0.5f : (playerX + 0.5f) - (float)CHUNK_WIDTH) / CHUNK_WIDTH);
 	int z = (int)((int)(playerZ > 0.0f ? playerZ + 0.5f : (playerZ + 0.5f) - (float)CHUNK_DEPTH) / CHUNK_DEPTH);
 	int blockPos[3] = { -1, -1, -1 };
-
+	//std::cout << z << " " << std::endl;
 	Chunk* hitChunk = nullptr;
 	auto chunkX = mChunks.find(x);
 	if (chunkX != mChunks.end())
@@ -290,7 +307,7 @@ void Map::rayCastBlockRemove(glm::vec3 start, glm::vec3 forward)
 		}
 	}
 
-	else if (blockPos[0] == CHUNK_DEPTH - 1)
+	else if (blockPos[0] == CHUNK_WIDTH - 1)
 	{
 		chunkX = mChunks.find(x + 1);
 		if (chunkX != mChunks.end())
@@ -302,5 +319,7 @@ void Map::rayCastBlockRemove(glm::vec3 start, glm::vec3 forward)
 			}
 		}
 	}
+
+	hitChunk->updateMesh();
 
 }
