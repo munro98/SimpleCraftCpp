@@ -35,9 +35,8 @@ Chunk::Chunk(int chunkX, int chunkZ, Chunk* frontChunk, Chunk* backChunk, Chunk*
 		}
 	}
 
+
 	mFaceCount = 0;
-
-
 	for (int z = 0; z < CHUNK_DEPTH; z++)
 	{
 		for (int y = 0; y < CHUNK_HEIGHT; y++)
@@ -217,28 +216,13 @@ Chunk::Chunk(int chunkX, int chunkZ, Chunk* frontChunk, Chunk* backChunk, Chunk*
 		}
 	}
 
-	glGenVertexArrays(1, &mVAO);
-	glBindVertexArray(mVAO);
-
-	glGenBuffers(1, &mVBO);
-	glBindBuffer(GL_ARRAY_BUFFER, mVBO);
-	//Copy Vertex array to the GPU
-	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 8 * 6 * mFaceCount, mVertices, GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
-	glEnableVertexAttribArray(0);
-
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-	glEnableVertexAttribArray(1);
-
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
-	glEnableVertexAttribArray(2);
-
-	delete[] mVertices;
+	createVAO();
 }
 
 Chunk::~Chunk()
 {
+	glDeleteBuffers(1, &mVBO);
+	glDeleteVertexArrays(1, &mVAO);
 	delete[] blocks;
 }
 
@@ -364,6 +348,13 @@ void Chunk::updateMesh()
 		}
 	}
 
+	glDeleteBuffers(1, &mVBO);
+	glDeleteVertexArrays(1, &mVAO);
+	createVAO();
+}
+
+void Chunk::createVAO()
+{
 	glGenVertexArrays(1, &mVAO);
 	glBindVertexArray(mVAO);
 

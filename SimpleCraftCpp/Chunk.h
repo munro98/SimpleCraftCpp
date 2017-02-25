@@ -80,6 +80,7 @@ public:
 	void render();
 	void update(int chunkX, int chunkZ, Chunk* frontChunk, Chunk* backChunk, Chunk* leftChunk, Chunk* rightChunk);
 	void updateMesh();
+	void createVAO();
 	void updateFront(Chunk * frontChunk);
 	void updateBack(Chunk * backChunk);
 	void updateLeft(Chunk * leftChunk);
