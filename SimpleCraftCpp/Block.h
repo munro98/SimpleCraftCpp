@@ -31,7 +31,6 @@ public:
 
 	bool getRender();
 private:
-	bool mIsExposed;
 	unsigned int mExposedFaces;
 	bool mRender;
 

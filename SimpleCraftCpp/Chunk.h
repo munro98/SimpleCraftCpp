@@ -4,10 +4,10 @@
 #define CHUNK_DEPTH 16
 #define CHUNK_HEIGHT 16
 
+#include <glm/glm.hpp>
 #include <GL/glew.h>
 
 #include "Block.h"
-#include "RayCast.h"
 
 const 	GLfloat frontVertices[] = {
 	// Positions           // Normals           // Texture Coords
@@ -78,7 +78,6 @@ public:
 	Chunk(int chunkX, int chunkZ, Chunk * frontChunk, Chunk * backChunk, Chunk * leftChunk, Chunk * rightChunk);
 	~Chunk();
 	void render();
-	void update(int chunkX, int chunkZ, Chunk* frontChunk, Chunk* backChunk, Chunk* leftChunk, Chunk* rightChunk);
 	void updateMesh();
 	void createVAO();
 	void updateFront(Chunk * frontChunk);
@@ -91,6 +90,7 @@ public:
 	void updateBlockRight(Chunk * rightChunk, int y, int z);
 	void addFace(int vertrexIndex, int x, int y, int z, int chunkX, int chunkZ, const GLfloat vertices[]);
 	void updateBlock(int x, int y, int z);
+	void updateBlock(bool value, int x, int y, int z);
 	void updateBlockLeft(int x, int y, int z);
 	void updateBlockRight(int x, int y, int z);
 	void updateBlockTop(int x, int y, int z);
@@ -98,8 +98,9 @@ public:
 
 	void updateBlockFront(int x, int y, int z);
 	void updateBlockBack(int x, int y, int z);
-	void rayCastBlock(glm::vec3 start, glm::vec3 forward, int * blockHitPosition);
-	void rayCastBlockRemove(glm::vec3 start, glm::vec3 forward, int * blockHitPosition);
+	bool rayCastBlock(glm::vec3 hitBlock, int * blockHitPosition) const;
+	bool rayCastBlockRemove(glm::vec3 hitBlock, int * blockHitPosition);
+	void setRender(bool value, int * blockHitPosition);
 	void updateSurroundingBlockFaces(int x, int y, int z);
 private:
 	Block* blocks;

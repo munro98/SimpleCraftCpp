@@ -12,7 +12,6 @@
 #include "Display.h"
 #include "Shader.h"
 #include "Camera.h"
-#include "RayCast.h"
 #include "Map.h"
 
 int width = 800, height = 800;

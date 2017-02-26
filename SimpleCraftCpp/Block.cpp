@@ -1,7 +1,7 @@
 #include "Block.h"
 #include <glm/gtc/matrix_transform.inl>
 
-Block::Block() : mExposedFaces(0), mRender(false), mIsExposed(false)
+Block::Block() : mExposedFaces(0), mRender(false)
 {
 	///*
 	int random = rand() % 100;
@@ -80,10 +80,6 @@ void Block::updateRight(Block* rightBlock)
 void Block::setExposedFaces(unsigned int exposedFaces)
 {
 	mExposedFaces = exposedFaces;
-	if (mExposedFaces & FRONT_FACE || mExposedFaces & BACK_FACE || mExposedFaces & LEFT_FACE || mExposedFaces & RIGHT_FACE || mExposedFaces & BOTTOM_FACE || mExposedFaces & TOP_FACE)
-		mIsExposed = true;
-	else
-		mIsExposed = false;
 }
 
 unsigned int Block::getExposedFaces()

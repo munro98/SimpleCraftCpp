@@ -234,13 +234,10 @@ void Chunk::render()
 
 }
 
-
-
 void Chunk::updateMesh()
 {
 	mFaceCount = 0;
 
-	
 	for (int z = 0; z < CHUNK_DEPTH; z++)
 	{
 		for (int y = 0; y < CHUNK_HEIGHT; y++)
@@ -252,7 +249,6 @@ void Chunk::updateMesh()
 					continue;
 
 				unsigned int facesExposed = blocks[i].getExposedFaces();
-
 
 				/////////////////////////////
 
@@ -697,8 +693,87 @@ void Chunk::updateBlock(int x, int y, int z)
 		facesExposed |= BACK_FACE;
 	}
 
-	//std::cout << "blocks[i] " << i << " " << std::endl;
-	blocks[i].setExposedFaces(facesExposed);//
+	blocks[i].setExposedFaces(facesExposed);
+}
+
+void Chunk::updateBlock(bool value, int x, int y, int z)
+{
+	if (x < 0)
+	{
+		return;
+	}
+
+	if (x >= CHUNK_WIDTH)
+	{
+		return;
+	}
+
+	if (z < 0)
+	{
+		return;
+	}
+
+	if (z >= CHUNK_DEPTH)
+	{
+		return;
+	}
+
+	if (y < 0)
+	{
+		return;
+	}
+
+	if (y >= CHUNK_HEIGHT)
+	{
+		return;
+	}
+
+	int i = x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
+	unsigned int facesExposed = 0;
+
+	blocks[i].setRender(value);
+	if (!blocks[i].getRender())
+	{
+		blocks[i].setExposedFaces(facesExposed);
+		return;
+	}
+
+	if (y == 0)
+	{
+		facesExposed |= TOP_FACE;
+	}
+
+	if (i - CHUNK_WIDTH * CHUNK_DEPTH > -1 && !blocks[i - CHUNK_WIDTH * CHUNK_DEPTH].getRender())
+	{
+		facesExposed |= TOP_FACE;
+	}
+
+	if (i + CHUNK_WIDTH * CHUNK_DEPTH < CHUNK_WIDTH * CHUNK_DEPTH * CHUNK_HEIGHT && !blocks[i + CHUNK_WIDTH * CHUNK_DEPTH].getRender())
+	{
+		facesExposed |= BOTTOM_FACE;
+	}
+
+	if (x > 0 && i - 1 > -1 && !blocks[i - 1].getRender())
+	{
+		facesExposed |= LEFT_FACE;
+	}
+
+	if (x < CHUNK_WIDTH - 1 && i + 1 < CHUNK_WIDTH * CHUNK_DEPTH * CHUNK_HEIGHT && !blocks[i + 1].getRender())
+	{
+		facesExposed |= RIGHT_FACE;
+	}
+
+	if (z > 0 && i - CHUNK_WIDTH > -1 && !blocks[i - CHUNK_WIDTH].getRender())
+	{
+		facesExposed |= FRONT_FACE;
+	}
+
+	if (z < CHUNK_DEPTH - 1 && i + CHUNK_WIDTH < CHUNK_WIDTH * CHUNK_DEPTH * CHUNK_HEIGHT && !blocks[i + CHUNK_WIDTH].getRender())
+	{
+		facesExposed |= BACK_FACE;
+	}
+
+	blocks[i].setExposedFaces(facesExposed);
 }
 
 void Chunk::updateBlockFront(int x, int y, int z)
@@ -755,7 +830,6 @@ void Chunk::updateBlockBack(int x, int y, int z)
 		facesExposed &= ~FRONT_FACE;
 	}
 
-	//std::cout << "blocks[i] " << i << " " << std::endl;
 	blocks[i].setExposedFaces(facesExposed);//
 }
 
@@ -819,10 +893,11 @@ void Chunk::updateBlockRight(int x, int y, int z)
 
 void Chunk::updateBlockTop(int x, int y, int z)
 {
-	if (y <= 0)
+	if (y < 0)
 	{
 		return;
 	}
+	//std::cout << "updateBlockTop" << std::endl;
 
 	int i = x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
 	unsigned int facesExposed = blocks[i].getExposedFaces();
@@ -874,153 +949,214 @@ void Chunk::updateBlockBottom(int x, int y, int z)
 	blocks[i].setExposedFaces(facesExposed);//
 }
 
-void Chunk::rayCastBlock(glm::vec3 start, glm::vec3 forward, int* blockHitPosition)
+bool Chunk::rayCastBlock(glm::vec3 hitBlock, int* blockHitPosition) const
 {
-	glm::vec3 vecIntersection;
-	float fraction = 1.0f;
-	static int count = 0;
 
-	
-	for (int z = 0; z < CHUNK_DEPTH; z++)
+	hitBlock.x = hitBlock.x - (float)(mChunkX * CHUNK_WIDTH);
+	hitBlock.z = hitBlock.z - (float)(mChunkZ * CHUNK_DEPTH);
+
+	int x, y, z;
+	x = (int)round(hitBlock.x);
+	z = (int)round(hitBlock.z);
+	y = (int)round(-hitBlock.y);
+
+	//std::cout << "hitBlock " << hitBlock. x << " " << hitBlock.y << " " << hitBlock.z << std::endl;
+	//std::cout << "block " << x << " " << y << " " << z << std::endl;
+
+	if (x >= CHUNK_WIDTH)
 	{
-		for (int y = 0; y < CHUNK_HEIGHT; y++)
+		return false;
+	}
+
+	if (x < 0)
+	{
+		return false;
+	}
+
+	if (y < 0)
+	{
+		return false;
+	}
+
+	if (z >= CHUNK_DEPTH)
+	{
+		return false;
+	}
+
+	if (z < 0)
+	{
+		return false;
+	}
+
+	int i = x + (z * CHUNK_WIDTH) + (y * CHUNK_WIDTH * CHUNK_DEPTH);
+
+	// We hit a block
+	if (blocks[i].getRender())
+	{
+		int j = blockHitPosition[0] + (blockHitPosition[2] * CHUNK_WIDTH) + (blockHitPosition[1] * CHUNK_WIDTH * CHUNK_DEPTH);
+
+		//std::cout << "hit " << hitBlock.x - (float)x << " " << hitBlock.y + (float)y << " " << hitBlock.z - (float)z << std::endl;
+
+		bool right = false;
+		bool back = false;
+		bool top = false;
+
+		if (hitBlock.x - (float)x > 0.0f)
 		{
-			for (int x = 0; x < CHUNK_WIDTH; x++)
+			right = true;
+		}
+
+		if (hitBlock.z - (float)z > 0.0f)
+		{
+			back = true;
+		}
+
+		if (hitBlock.y + (float)y > 0.0f)
+		{
+			top = true;
+		}
+
+
+		float relativeX = abs(hitBlock.x - (float)x);
+		float relativeY = abs(hitBlock.y + (float)y);
+		float relativeZ = abs(hitBlock.z - (float)z);
+	
+		//could be x or y or z
+		if (relativeX > relativeZ)
+		{
+			//could be x or y
+			if (relativeX > relativeY)
 			{
-				//if (blocks[x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH].getRender() && rayCast.lineBlockIntersection((float)(x + mChunkX * CHUNK_WIDTH), (float)-y, (float)(z + mChunkZ * CHUNK_DEPTH), start, start + forward  * 10.0f, vecIntersection, fraction)) {
-				if (blocks[x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH].getRender() && RayCast::lineBlockIntersection((float)(x + mChunkX * CHUNK_WIDTH), (float)-y, (float)(z + mChunkZ * CHUNK_DEPTH), start, start + forward  * 10.0f, vecIntersection, fraction)) {
-					//std::cout << "hit " << count++ <<  " "  << std::endl;
+				// its x
+				if (right)
+				{
+					x++;
+				}
+				else
+				{
+					x--;
+				}
+			}
+			else
+			{
+				// its y
+				if (top)
+				{
+					y--;
+				}
+				else
+				{
+					y++;
+				}
+			} 
+		}
+		else
+		{
+			//could be y or z
+			if (relativeY > relativeZ)
+			{
+				// its y
+				if (top)
+				{
+					y--;
+				}
+				else
+				{
+					y++;
+				}
+			}
+			else
+			{
+				//its z
+				if (back)
+				{
+					z++;
+				}
+				else
+				{
+					z--;
 				}
 			}
 		}
-
-	}
-
-	if (fraction < 1.0f) {
-
-		vecIntersection = start + forward  * 10.0f * fraction - forward  * 0.01f;
-		int x, y, z;
-		x = (int)round(vecIntersection.x);
-		z = (int)round(vecIntersection.z);
-		y = (int)round(-vecIntersection.y);
-
-		x -= mChunkX * CHUNK_WIDTH;
-		z -= mChunkZ * CHUNK_DEPTH;
-
+		std::cout << "rayCastBlock " << x << " " << y << " " << z << std::endl;
 		blockHitPosition[0] = x;
 		blockHitPosition[1] = y;
 		blockHitPosition[2] = z;
-
-		if (x >= CHUNK_WIDTH)
-		{
-			return;
-		}
-
-		if (x < 0)
-		{
-			return;
-		}
-
-		if (y < 0)
-		{
-			return;
-		}
-
-		if (z >= CHUNK_DEPTH)
-		{
-			return;
-		}
-
-		if (z < 0)
-		{
-			return;
-		}
-
+		return true;
 		
-		int i = x + (z * CHUNK_WIDTH) + (y * CHUNK_WIDTH * CHUNK_DEPTH);
-
-		//std::cout << x << " " << z << " " << y << " " << std::endl;
-
-		blocks[i].setRender(true);
-
-		updateBlock(x, y, z);
-
-
-		updateSurroundingBlockFaces(x, y, z);
-
 	}
+	//*/
+	//blocks[i].setRender(true);
+	//updateBlock(x, y, z);
+	return false;
 }
 
-void Chunk::rayCastBlockRemove(glm::vec3 start, glm::vec3 forward, int* blockHitPosition)
+bool Chunk::rayCastBlockRemove(glm::vec3 hitBlock, int* blockHitPosition)
 {
-	glm::vec3 vecIntersection;
-	float fraction = 1.0f;
-	static int count = 0;
-	
-	for (int z = 0; z < CHUNK_DEPTH; z++)
+	hitBlock.x = hitBlock.x - (float)(mChunkX * CHUNK_WIDTH);
+	hitBlock.z = hitBlock.z - (float)(mChunkZ * CHUNK_DEPTH);
+
+	int x, y, z;
+	x = (int)round(hitBlock.x);
+	z = (int)round(hitBlock.z);
+	y = (int)round(-hitBlock.y);
+
+	//std::cout << "block " << x << " " << y << " " << z << std::endl;
+
+	// do we need this?
+	//should we stop early here?
+	if (x >= CHUNK_WIDTH)
 	{
-		for (int y = 0; y < CHUNK_HEIGHT; y++)
-		{
-			for (int x = 0; x < CHUNK_WIDTH; x++)
-			{
-				if (blocks[x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH].getRender() && RayCast::lineBlockIntersection((float)(x + mChunkX * CHUNK_WIDTH), (float)-y, (float)(z + mChunkZ * CHUNK_DEPTH), start, start + forward  * 10.0f, vecIntersection, fraction)) {
-					//std::cout << "hit " << count++ << " " << std::endl;
-				}
-			}
-		}
-
+		return false;
 	}
-	if (fraction < 1.0f) {
-		vecIntersection = start + forward  * 10.0f * fraction + forward  * 0.01f;
-		int x, y, z;
-		x = (int)round(vecIntersection.x);
-		z = (int)round(vecIntersection.z);
-		y = (int)round(-vecIntersection.y);
 
-		x -= mChunkX * CHUNK_WIDTH;
-		z -= mChunkZ * CHUNK_DEPTH;
+	if (x < 0)
+	{
+		return false;
+	}
 
-		///*
-		if (x < 0)
-		{
-			return;
-		}
+	if (y < 0)
+	{
+		return false;
+	}
 
-		if (x >= CHUNK_WIDTH)
-		{
-			return;
-		}
+	if (z >= CHUNK_DEPTH)
+	{
+		return false;
+	}
 
-		if (y < 0)
-		{
-			return;
-		}
+	if (z < 0)
+	{
+		return false;
+	}
 
-		if (z < 0)
-		{
-			return;
-		}
+	int i = x + (z * CHUNK_WIDTH) + (y * CHUNK_WIDTH * CHUNK_DEPTH);
 
-		if (z >= CHUNK_DEPTH)
-		{
-			return;
-		}
+	// We hit a block
+	if (blocks[i].getRender())
+	{
+		int j = blockHitPosition[0] + (blockHitPosition[2] * CHUNK_WIDTH) + (blockHitPosition[1] * CHUNK_WIDTH * CHUNK_DEPTH);
+
+		std::cout << "hit " << hitBlock.x - (float)x << " " << hitBlock.y + (float)y << " " << hitBlock.z - (float)z << std::endl;
 
 		blockHitPosition[0] = x;
 		blockHitPosition[1] = y;
 		blockHitPosition[2] = z;
-		int i = x + (z * CHUNK_WIDTH) + (y * CHUNK_WIDTH * CHUNK_DEPTH);
+		return true;
 
-		//std::cout << x << " " << z << " " << y << " " << i << std::endl;
-
-		blocks[i].setRender(false);
-
-		updateBlock(x, y, z);
-
-		// Update block faces around this block
-
-		updateSurroundingBlockFaces(x, y, z);
 	}
+	//*/
+	//blocks[i].setRender(true);
+	//updateBlock(x, y, z);
+	return false;
+}
+
+void Chunk::setRender(bool value, int* blockHitPosition)
+{
+
+	updateBlock(value, blockHitPosition[0], blockHitPosition[1], blockHitPosition[2]);
+	// Update block faces around this block
+	updateSurroundingBlockFaces(blockHitPosition[0], blockHitPosition[1], blockHitPosition[2]);
 }
 
 void Chunk::updateSurroundingBlockFaces(int x, int y, int z)

@@ -49,12 +49,30 @@ void Map::initialize()
 
 void Map::update(float playerX, float playerZ)
 {	
+	///*
+	playerX += 0.5f;
+	playerZ += 0.5f;
 
-	//int x = (int)((int)(playerX > 0.0f ? playerX : playerX - (float)CHUNK_WIDTH) / (float)CHUNK_WIDTH);
-	//int z = (int)((int)(playerZ > 0.0f ? playerZ : playerZ - (float)CHUNK_DEPTH) / (float)CHUNK_DEPTH);
+	//int x = (int)((int)(playerX > 0.0f ? playerX : playerX - (float)CHUNK_WIDTH) / CHUNK_WIDTH);
+	//int z = (int)((int)(playerZ > 0.0f ? playerZ : playerZ - (float)CHUNK_DEPTH) / CHUNK_DEPTH);
 
-	int x = (int)((int)(playerX > 0.0f ? playerX + 0.5f : (playerX + 0.5f) - (float)CHUNK_WIDTH) / CHUNK_WIDTH);
-	int z = (int)((int)(playerZ > 0.0f ? playerZ + 0.5f : (playerZ + 0.5f) - (float)CHUNK_DEPTH) / CHUNK_DEPTH);
+	int x = (int)playerX  / CHUNK_WIDTH;
+	int z = (int)playerZ / CHUNK_DEPTH;
+
+	if (playerX < 0.0f)
+	{
+		x = (int)abs(playerX - (float)CHUNK_WIDTH) / CHUNK_WIDTH;
+		x = -x;
+	}
+
+	if (playerZ < 0.0f)
+	{
+		z = (int)abs(playerZ - (float)CHUNK_DEPTH) / CHUNK_DEPTH;
+		z = -z;
+	}
+
+	//std::cout << x << ", " << z << std::endl;
+	//*/
 
 	//for (int xx = -1; xx <= 1; xx++)
 	{
@@ -157,169 +175,256 @@ void Map::render(float playerX, float playerZ)
 void Map::rayCastBlock(glm::vec3 start, glm::vec3 forward)
 {
 
-	float playerX = start.x;
-	float playerZ = start.z;
-
-	//int x = (int)((int)(playerX > 0.0f ? playerX : playerX - (float)CHUNK_WIDTH) / CHUNK_WIDTH);
-	//int z = (int)((int)(playerZ > 0.0f ? playerZ : playerZ - (float)CHUNK_DEPTH) / CHUNK_DEPTH);
-
-	int x = (int)((int)(playerX > 0.0f ? playerX + 0.5f : (playerX + 0.5f) - (float)CHUNK_WIDTH) / CHUNK_WIDTH);
-	int z = (int)((int)(playerZ > 0.0f ? playerZ + 0.5f : (playerZ + 0.5f) - (float)CHUNK_DEPTH) / CHUNK_DEPTH);
-
+	static float stepValue = 0.1f;
+	glm::vec3 step = forward * stepValue;
+	glm::vec3 hitBlock = start + forward;
 
 	int blockPos[3] = { -1, -1, -1 };
-
 	Chunk* hitChunk = nullptr;
 
-	auto chunkX = mChunks.find(x);
-	if (chunkX != mChunks.end())
+	int x;
+	int z;
+	std::unordered_map<int, std::unordered_map<int, Chunk*>>::iterator chunkX;
+
+	for (int i = 0; i < 100; i++)
 	{
-		auto chunkZ = chunkX->second.find(z);
-		if (chunkZ != chunkX->second.end())
+		hitBlock = hitBlock + step;
+
+		float playerX = hitBlock.x + 0.5f;
+		float playerZ = hitBlock.z + 0.5f;
+
+		x = (int)playerX / CHUNK_WIDTH;
+		z = (int)playerZ / CHUNK_DEPTH;
+
+		if (playerX < 0.0f)
 		{
-			hitChunk = chunkZ->second;
-			hitChunk->rayCastBlock(start, forward, blockPos);
+			x = (int)abs(playerX - (float)CHUNK_WIDTH) / CHUNK_WIDTH;
+			x = -x;
 		}
-		else
+
+		if (playerZ < 0.0f)
 		{
-			return;
+			z = (int)abs(playerZ - (float)CHUNK_DEPTH) / CHUNK_DEPTH;
+			z = -z;
 		}
-	}
+		//std::unordered_map<int , std::unordered_map<int, Chunk*>>::iterator chunkX;
 
-	std::cout << blockPos[0] << " " << blockPos[1] << " " << blockPos[2] << std::endl;
-
-
-	if (blockPos[2] == 0)
-	{
-		auto chunkZ = chunkX->second.find(z - 1);
-		if (chunkZ != chunkX->second.end())
-		{
-			chunkZ->second->updateBlockBack(hitChunk, blockPos[0], blockPos[1]);
-
-			hitChunk->updateBlockFront(chunkZ->second, blockPos[0], blockPos[1]);
-		}
-	}
-
-	else if (blockPos[2] == CHUNK_DEPTH - 1)
-	{
-		auto chunkZ = chunkX->second.find(z + 1);
-		if (chunkZ != chunkX->second.end())
-		{
-
-			chunkZ->second->updateBlockFront(hitChunk, blockPos[0], blockPos[1]);
-
-			hitChunk->updateBlockBack(chunkZ->second, blockPos[0], blockPos[1]);
-		}
-	}
-
-	if (blockPos[0] == 0)
-	{
-		chunkX = mChunks.find(x - 1);
+		chunkX = mChunks.find(x);
+		//auto chunkX = mChunks.find(x);
 		if (chunkX != mChunks.end())
 		{
 			auto chunkZ = chunkX->second.find(z);
 			if (chunkZ != chunkX->second.end())
 			{
-				chunkZ->second->updateBlockRight(hitChunk, blockPos[1], blockPos[2]);
+				hitChunk = chunkZ->second;
 
-				hitChunk->updateBlockLeft(chunkZ->second, blockPos[1], blockPos[2]);
+				//std::cout << chunkSpace.x << " " << chunkSpace.y << " " << chunkSpace.z << std::endl;
+				//std::cout << hitBlock.x << " " << hitBlock.y << " " << hitBlock.z << std::endl;
+
+				if (hitChunk->rayCastBlock(hitBlock, blockPos))
+				{
+
+					break;
+				}
+				else
+				{
+					//std::cout << "no block hit" << std::endl;
+				}
+
+			}
+			else
+			{
+				return;
 			}
 		}
+
 	}
 
-	else if (blockPos[0] == CHUNK_WIDTH - 1)
+
+	if (hitChunk != nullptr)
 	{
-		chunkX = mChunks.find(x + 1);
-		if (chunkX != mChunks.end())
+		hitChunk->setRender(true, blockPos);
+
+		if (blockPos[2] == 0)
 		{
-			auto chunkZ = chunkX->second.find(z);
+			auto chunkZ = chunkX->second.find(z - 1);
+			if (chunkZ != chunkX->second.end())
+			{
+				chunkZ->second->updateBlockBack(hitChunk, blockPos[0], blockPos[1]);
+
+				hitChunk->updateBlockFront(chunkZ->second, blockPos[0], blockPos[1]);
+			}
+		}
+
+		else if (blockPos[2] == CHUNK_DEPTH - 1)
+		{
+			auto chunkZ = chunkX->second.find(z + 1);
 			if (chunkZ != chunkX->second.end())
 			{
 
-				chunkZ->second->updateBlockLeft(hitChunk, blockPos[1], blockPos[2]);
+				chunkZ->second->updateBlockFront(hitChunk, blockPos[0], blockPos[1]);
 
-				hitChunk->updateBlockRight(chunkZ->second, blockPos[1], blockPos[2]);
+				hitChunk->updateBlockBack(chunkZ->second, blockPos[0], blockPos[1]);
 			}
 		}
-	}
 
-	hitChunk->updateMesh();
+		if (blockPos[0] == 0)
+		{
+			chunkX = mChunks.find(x - 1);
+			if (chunkX != mChunks.end())
+			{
+				auto chunkZ = chunkX->second.find(z);
+				if (chunkZ != chunkX->second.end())
+				{
+					chunkZ->second->updateBlockRight(hitChunk, blockPos[1], blockPos[2]);
+
+					hitChunk->updateBlockLeft(chunkZ->second, blockPos[1], blockPos[2]);
+				}
+			}
+		}
+
+		else if (blockPos[0] == CHUNK_WIDTH - 1)
+		{
+			chunkX = mChunks.find(x + 1);
+			if (chunkX != mChunks.end())
+			{
+				auto chunkZ = chunkX->second.find(z);
+				if (chunkZ != chunkX->second.end())
+				{
+
+					chunkZ->second->updateBlockLeft(hitChunk, blockPos[1], blockPos[2]);
+
+					hitChunk->updateBlockRight(chunkZ->second, blockPos[1], blockPos[2]);
+				}
+			}
+		}
+
+		hitChunk->updateMesh();
+		//std::cout << blockPos[0] << " " << blockPos[1] << " " << blockPos[2] << std::endl;
+	}
+	//hitChunk->setRender(true, blockPos);
+	//hitChunk->updateMesh();
+
 }
 
 void Map::rayCastBlockRemove(glm::vec3 start, glm::vec3 forward)
 {
 
-	float playerX = start.x;
-	float playerZ = start.z;
+	static float stepValue = 0.1f;
+	glm::vec3 step = forward * stepValue;
+	glm::vec3 hitBlock = start + forward;
 
-	//int x = (int)((int)(playerX > 0.0f ? playerX : playerX - (float)CHUNK_WIDTH) / CHUNK_WIDTH);
-	//int z = (int)((int)(playerZ > 0.0f ? playerZ : playerZ - (float)CHUNK_DEPTH) / CHUNK_DEPTH);
-	
-	int x = (int)((int)(playerX > 0.0f ? playerX + 0.5f : (playerX + 0.5f) - (float)CHUNK_WIDTH) / CHUNK_WIDTH);
-	int z = (int)((int)(playerZ > 0.0f ? playerZ + 0.5f : (playerZ + 0.5f) - (float)CHUNK_DEPTH) / CHUNK_DEPTH);
 	int blockPos[3] = { -1, -1, -1 };
-	//std::cout << z << " " << std::endl;
+
 	Chunk* hitChunk = nullptr;
-	auto chunkX = mChunks.find(x);
-	if (chunkX != mChunks.end())
-	{
-		auto chunkZ = chunkX->second.find(z);
-		if (chunkZ != chunkX->second.end())
-		{
-			hitChunk = chunkZ->second;
-			chunkZ->second->rayCastBlockRemove(start, forward, blockPos);
-		}
-		else
-		{
-			return;
-		}
-	}
 
-	//std::cout << blockPos[0] << " " << blockPos[1] << " " << blockPos[2] << std::endl;
-	if (blockPos[2] == 0)
-	{
-		auto chunkZ = chunkX->second.find(z - 1);
-		if (chunkZ != chunkX->second.end())
-		{
-			chunkZ->second->updateBlockBack(hitChunk, blockPos[0], blockPos[1]);
-		}
-	}
+	int x;
+	int z;
+	std::unordered_map<int, std::unordered_map<int, Chunk*>>::iterator chunkX;
 
-	else if (blockPos[2] == CHUNK_DEPTH - 1)
+	for (int i = 0; i < 100; i++)
 	{
-		auto chunkZ = chunkX->second.find(z + 1);
-		if (chunkZ != chunkX->second.end())
-		{
-			chunkZ->second->updateBlockFront(hitChunk, blockPos[0], blockPos[1]);
-		}
-	}
+		hitBlock = hitBlock + step;
 
-	if (blockPos[0] == 0)
-	{
-		chunkX = mChunks.find(x - 1);
+		float playerX = hitBlock.x + 0.5f;
+		float playerZ = hitBlock.z + 0.5f;
+
+		x = (int)playerX / CHUNK_WIDTH;
+		z = (int)playerZ / CHUNK_DEPTH;
+
+		if (playerX < 0.0f)
+		{
+			x = (int)abs(playerX - (float)CHUNK_WIDTH) / CHUNK_WIDTH;
+			x = -x;
+		}
+
+		if (playerZ < 0.0f)
+		{
+			z = (int)abs(playerZ - (float)CHUNK_DEPTH) / CHUNK_DEPTH;
+			z = -z;
+		}
+
+		chunkX = mChunks.find(x);
 		if (chunkX != mChunks.end())
 		{
 			auto chunkZ = chunkX->second.find(z);
 			if (chunkZ != chunkX->second.end())
 			{
-				chunkZ->second->updateBlockRight(hitChunk, blockPos[1], blockPos[2]);
+				hitChunk = chunkZ->second;
+				if (hitChunk->rayCastBlockRemove(hitBlock, blockPos))
+				{
+
+					break;
+				}
+				else
+				{
+					//std::cout << "no block hit" << std::endl;
+				}
+
+			}
+			else
+			{
+				return;
 			}
 		}
 	}
 
-	else if (blockPos[0] == CHUNK_WIDTH - 1)
+	if (hitChunk != nullptr)
 	{
-		chunkX = mChunks.find(x + 1);
-		if (chunkX != mChunks.end())
+		hitChunk->setRender(false, blockPos);
+
+		if (blockPos[2] == 0)
 		{
-			auto chunkZ = chunkX->second.find(z);
+			auto chunkZ = chunkX->second.find(z - 1);
 			if (chunkZ != chunkX->second.end())
 			{
-				chunkZ->second->updateBlockLeft(hitChunk, blockPos[1], blockPos[2]);
+				chunkZ->second->updateBlockBack(hitChunk, blockPos[0], blockPos[1]);
+
 			}
 		}
-	}
 
-	hitChunk->updateMesh();
+		else if (blockPos[2] == CHUNK_DEPTH - 1)
+		{
+			auto chunkZ = chunkX->second.find(z + 1);
+			if (chunkZ != chunkX->second.end())
+			{
+
+				chunkZ->second->updateBlockFront(hitChunk, blockPos[0], blockPos[1]);
+
+			}
+		}
+
+		if (blockPos[0] == 0)
+		{
+			chunkX = mChunks.find(x - 1);
+			if (chunkX != mChunks.end())
+			{
+				auto chunkZ = chunkX->second.find(z);
+				if (chunkZ != chunkX->second.end())
+				{
+					chunkZ->second->updateBlockRight(hitChunk, blockPos[1], blockPos[2]);
+
+				}
+			}
+		}
+
+		else if (blockPos[0] == CHUNK_WIDTH - 1)
+		{
+			chunkX = mChunks.find(x + 1);
+			if (chunkX != mChunks.end())
+			{
+				auto chunkZ = chunkX->second.find(z);
+				if (chunkZ != chunkX->second.end())
+				{
+
+					chunkZ->second->updateBlockLeft(hitChunk, blockPos[1], blockPos[2]);
+
+				}
+			}
+		}
+
+		hitChunk->updateMesh();
+		//std::cout << blockPos[0] << " " << blockPos[1] << " " << blockPos[2] << std::endl;
+	}
 
 }

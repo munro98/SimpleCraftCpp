@@ -4,6 +4,7 @@
 #define MAP_DEPTH 1
 
 #include <unordered_map>
+#include <glm/glm.hpp>
 #include <GL/glew.h>
 
 #include "Chunk.h"
@@ -13,6 +14,7 @@ class Map
 public:
 	Map();
 	~Map();
+
 	void initialize();
 	void update(float playerX, float playerZ);
 	void updateChunk(int x, int z);
