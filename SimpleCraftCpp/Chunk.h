@@ -102,6 +102,9 @@ public:
 	bool rayCastBlockRemove(glm::vec3 hitBlock, int * blockHitPosition);
 	void setRender(bool value, int * blockHitPosition);
 	void updateSurroundingBlockFaces(int x, int y, int z);
+
+	int getChunkX();
+	int getChunkZ();
 private:
 	Block* blocks;
 	GLfloat* mVertices;

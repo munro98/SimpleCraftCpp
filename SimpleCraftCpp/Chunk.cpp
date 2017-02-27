@@ -242,9 +242,14 @@ Chunk::Chunk(int chunkX, int chunkZ, Chunk* frontChunk, Chunk* backChunk, Chunk*
 
 Chunk::~Chunk()
 {
+	//std::cout << mVertices << "\n";
+	delete[] blocks;
 	glDeleteBuffers(1, &mVBO);
 	glDeleteVertexArrays(1, &mVAO);
-	delete[] blocks;
+	
+
+	//char c;
+	//std::cin >> c;
 }
 
 void Chunk::render()
@@ -1190,4 +1195,14 @@ void Chunk::updateSurroundingBlockFaces(int x, int y, int z)
 
 	updateBlockTop(x, y - 1, z);
 	updateBlockBottom(x, y + 1, z);
+}
+
+int Chunk::getChunkX()
+{
+	return mChunkX;
+}
+
+int Chunk::getChunkZ()
+{
+	return mChunkZ;
 }

@@ -3,6 +3,9 @@
 #define MAP_WIDTH 2
 #define MAP_DEPTH 1
 
+#define MAP_UPDATE_RADIUS 1
+#define MAP_DELETE_RADIUS 2
+
 #include <unordered_map>
 #include <glm/glm.hpp>
 #include <GL/glew.h>

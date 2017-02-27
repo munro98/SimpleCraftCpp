@@ -53,36 +53,57 @@ void Map::update(float playerX, float playerZ)
 	playerX += 0.5f;
 	playerZ += 0.5f;
 
-	//int x = (int)((int)(playerX > 0.0f ? playerX : playerX - (float)CHUNK_WIDTH) / CHUNK_WIDTH);
-	//int z = (int)((int)(playerZ > 0.0f ? playerZ : playerZ - (float)CHUNK_DEPTH) / CHUNK_DEPTH);
-
-	int x = (int)playerX  / CHUNK_WIDTH;
-	int z = (int)playerZ / CHUNK_DEPTH;
-
-	if (playerX < 0.0f)
-	{
-		x = (int)abs(playerX - (float)CHUNK_WIDTH) / CHUNK_WIDTH;
-		x = -x;
-	}
-
-	if (playerZ < 0.0f)
-	{
-		z = (int)abs(playerZ - (float)CHUNK_DEPTH) / CHUNK_DEPTH;
-		z = -z;
-	}
+	int x = (int)std::floor(playerX / CHUNK_WIDTH);
+	int z = (int)std::floor(playerZ / CHUNK_DEPTH);
 
 	//std::cout << x << ", " << z << std::endl;
-	//*/
 
-	for (int xx = -1; xx <= 1; xx++)
+	/*
+	for (auto it = mChunks.begin(); it != mChunks.end();) {
+		auto chunkZ = it->second;
+		for (auto it2 = chunkZ.begin(); it2 != chunkZ.end();) {
+
+			if (abs(it2->second->getChunkX() - x) > MAP_DELETE_RADIUS || abs(it2->second->getChunkZ() - z) > MAP_DELETE_RADIUS)
+			{
+				delete it2->second;
+				auto toErase = it2;
+				++it2;
+				chunkZ.erase(toErase);
+				//std::cout << x << "removing " << z << std::endl;
+			}
+			else
+			{
+				++it2;
+			}
+		}
+		//auto toErase = it;
+		++it;
+		//mChunks.erase(toErase);
+
+		//if (chunkZ.empty())
+		//{
+		//	auto toErase = it;
+		//	++it;
+		//	mChunks.erase(toErase);
+		//}
+		//else
+		//{
+		//	++it;
+		//}
+	}
+	*/
+
+
+	///*
+	for (int xx = -MAP_UPDATE_RADIUS; xx <= MAP_UPDATE_RADIUS; xx++)
 	{
-		for (int zz = -1; zz <= 1; zz++)
+		for (int zz = -MAP_UPDATE_RADIUS; zz <= MAP_UPDATE_RADIUS; zz++)
 		{
 			//updateChunk(x, z);
 			updateChunk(x + xx, z + zz);
 		}
 	}
-
+	//*/
 }
 
 void Map::updateChunk(int x, int z) {
@@ -193,20 +214,8 @@ void Map::rayCastBlock(glm::vec3 start, glm::vec3 forward)
 		float playerX = hitBlock.x + 0.5f;
 		float playerZ = hitBlock.z + 0.5f;
 
-		x = (int)playerX / CHUNK_WIDTH;
-		z = (int)playerZ / CHUNK_DEPTH;
-
-		if (playerX < 0.0f)
-		{
-			x = (int)abs(playerX - (float)CHUNK_WIDTH) / CHUNK_WIDTH;
-			x = -x;
-		}
-
-		if (playerZ < 0.0f)
-		{
-			z = (int)abs(playerZ - (float)CHUNK_DEPTH) / CHUNK_DEPTH;
-			z = -z;
-		}
+		x = (int)std::floor(playerX / CHUNK_WIDTH);
+		z = (int)std::floor(playerZ / CHUNK_DEPTH);
 		//std::unordered_map<int , std::unordered_map<int, Chunk*>>::iterator chunkX;
 
 		chunkX = mChunks.find(x);
@@ -342,20 +351,8 @@ void Map::rayCastBlockRemove(glm::vec3 start, glm::vec3 forward)
 		float playerX = hitBlock.x + 0.5f;
 		float playerZ = hitBlock.z + 0.5f;
 
-		x = (int)playerX / CHUNK_WIDTH;
-		z = (int)playerZ / CHUNK_DEPTH;
-
-		if (playerX < 0.0f)
-		{
-			x = (int)abs(playerX - (float)CHUNK_WIDTH) / CHUNK_WIDTH;
-			x = -x;
-		}
-
-		if (playerZ < 0.0f)
-		{
-			z = (int)abs(playerZ - (float)CHUNK_DEPTH) / CHUNK_DEPTH;
-			z = -z;
-		}
+		x = (int)std::floor(playerX / CHUNK_WIDTH);
+		z = (int)std::floor(playerZ / CHUNK_DEPTH);
 
 		chunkX = mChunks.find(x);
 		if (chunkX != mChunks.end())
@@ -441,3 +438,4 @@ void Map::rayCastBlockRemove(glm::vec3 start, glm::vec3 forward)
 	}
 
 }
+
