@@ -3,14 +3,6 @@
 
 Block::Block() : mExposedFaces(0), mRender(false)
 {
-	///*
-	int random = rand() % 100;
-	if (random > 50)
-	{
-		mRender = true;
-	}
-	//*/
-	//mRender = true;
 }
 
 Block::~Block()

@@ -74,12 +74,12 @@ void Map::update(float playerX, float playerZ)
 	//std::cout << x << ", " << z << std::endl;
 	//*/
 
-	//for (int xx = -1; xx <= 1; xx++)
+	for (int xx = -1; xx <= 1; xx++)
 	{
-		//for (int zz = -1; zz <= 1; zz++)
+		for (int zz = -1; zz <= 1; zz++)
 		{
-			updateChunk(x, z);
-			//updateChunk(x + xx, z + zz);
+			//updateChunk(x, z);
+			updateChunk(x + xx, z + zz);
 		}
 	}
 
@@ -223,6 +223,19 @@ void Map::rayCastBlock(glm::vec3 start, glm::vec3 forward)
 
 				if (hitChunk->rayCastBlock(hitBlock, blockPos))
 				{
+
+					/*
+					TODO: Fix raycast adding on chunk edges
+					if (blockLiesOnChunkEdge) {
+
+					find that chunk and recalculate blockPos
+
+
+
+					}
+					*/
+
+				
 
 					break;
 				}

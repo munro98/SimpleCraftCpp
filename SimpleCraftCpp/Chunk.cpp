@@ -4,6 +4,8 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "Chunk.h"
+#include <chrono>
+#include "HeightGenerator.h"
 
 
 Chunk::Chunk(int chunkX, int chunkZ, Chunk* frontChunk, Chunk* backChunk, Chunk* leftChunk, Chunk* rightChunk): blocks(new Block[CHUNK_WIDTH * CHUNK_DEPTH * CHUNK_HEIGHT]), mChunkX(0), mChunkZ(0), mFaceCount(0), mVertices(nullptr), mVBO(0), mVAO(0)
@@ -11,35 +13,52 @@ Chunk::Chunk(int chunkX, int chunkZ, Chunk* frontChunk, Chunk* backChunk, Chunk*
 	mChunkX = chunkX;
 	mChunkZ = chunkZ;
 
-
-	for (int z = 0; z < CHUNK_DEPTH; z++)
+	auto startTime = std::chrono::high_resolution_clock::now();
+	for (int x = 0; x < CHUNK_WIDTH; x++)
 	{
-		for (int y = 0; y < CHUNK_HEIGHT; y++)
+		
+		for (int z = 0; z < CHUNK_DEPTH; z++)
 		{
-			for (int x = 0; x < CHUNK_WIDTH; x++)
+			int height = HeightGenerator::generateHeight(x + (chunkX * CHUNK_WIDTH), z + (chunkZ * CHUNK_DEPTH));
+			for (int y = 0; y < CHUNK_HEIGHT; y++)
 			{
-				int i = x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
-				/*
-				if (y > 125)
-				{
-				blocks[i].SetRender(true);
+			
+					int i = x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
+					//std::cout << i << std::endl;
+					/*
+					if (y > 125)
+					{
+					blocks[i].SetRender(true);
+					}
+					*/
+					/*
+					if (x == 1)
+					blocks[i].SetRender(false);
+					else
+					blocks[i].SetRender(true);
+
+					int random = rand() % 100;
+					if (random > 50)
+					{
+					blocks[i].setRender(true);
+					}
+					*/
+					if (y > 8 - height)
+					{
+						blocks[i].setRender(true);
+					}
 				}
-				*/
-				/*
-				if (x == 1)
-				blocks[i].SetRender(false);
-				else
-				blocks[i].SetRender(true);
-				*/
 			}
-		}
 	}
 
+	auto endTime = std::chrono::high_resolution_clock::now();
+	auto deltaTime = std::chrono::duration_cast<std::chrono::duration<double>>(endTime - startTime);
+	std::cout << deltaTime.count() << std::endl;
 
 	mFaceCount = 0;
-	for (int z = 0; z < CHUNK_DEPTH; z++)
+	for (int y = 0; y < CHUNK_HEIGHT; y++)
 	{
-		for (int y = 0; y < CHUNK_HEIGHT; y++)
+		for (int z = 0; z < CHUNK_DEPTH; z++)
 		{
 			for (int x = 0; x < CHUNK_WIDTH; x++)
 			{
@@ -165,9 +184,9 @@ Chunk::Chunk(int chunkX, int chunkZ, Chunk* frontChunk, Chunk* backChunk, Chunk*
 	int counter = 0;
 
 
-	for (int z = 0; z < CHUNK_DEPTH; z++)
+	for (int y = 0; y < CHUNK_HEIGHT; y++)
 	{
-		for (int y = 0; y < CHUNK_HEIGHT; y++)
+		for (int z = 0; z < CHUNK_DEPTH; z++)
 		{
 			for (int x = 0; x < CHUNK_WIDTH; x++)
 			{
@@ -216,6 +235,8 @@ Chunk::Chunk(int chunkX, int chunkZ, Chunk* frontChunk, Chunk* backChunk, Chunk*
 		}
 	}
 
+	
+
 	createVAO();
 }
 
@@ -238,9 +259,9 @@ void Chunk::updateMesh()
 {
 	mFaceCount = 0;
 
-	for (int z = 0; z < CHUNK_DEPTH; z++)
+	for (int y = 0; y < CHUNK_HEIGHT; y++)
 	{
-		for (int y = 0; y < CHUNK_HEIGHT; y++)
+		for (int z = 0; z < CHUNK_DEPTH; z++)
 		{
 			for (int x = 0; x < CHUNK_WIDTH; x++)
 			{
@@ -293,9 +314,9 @@ void Chunk::updateMesh()
 	int counter = 0;
 
 	
-	for (int z = 0; z < CHUNK_DEPTH; z++)
+	for (int y = 0; y < CHUNK_HEIGHT; y++)
 	{
-		for (int y = 0; y < CHUNK_HEIGHT; y++)
+		for (int z = 0; z < CHUNK_DEPTH; z++)
 		{
 			for (int x = 0; x < CHUNK_WIDTH; x++)
 			{

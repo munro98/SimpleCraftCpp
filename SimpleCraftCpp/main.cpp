@@ -13,6 +13,7 @@
 #include "Shader.h"
 #include "Camera.h"
 #include "Map.h"
+#include "HeightGenerator.h"
 
 int width = 800, height = 800;
 
@@ -23,6 +24,11 @@ double updateRate = 1.0 / 60.0;
 
 int main(int argc, char** argv) {
 	std::cout << "Initializing!" << std::endl;
+
+	//std::cout << HeightGenerator::generateNoise(5, 5) << std::endl;
+	//std::cout << HeightGenerator::generateNoise(5, 5) << std::endl;
+	//std::cout << HeightGenerator::generateNoise(5, 6) << std::endl;
+
 	Display display(width, height, "SimpleCraftCpp");
 
 	bool KEYS[4096];
