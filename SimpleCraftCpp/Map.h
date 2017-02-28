@@ -4,7 +4,7 @@
 #define MAP_DEPTH 1
 
 #define MAP_UPDATE_RADIUS 0
-#define MAP_DELETE_RADIUS 2
+#define MAP_DELETE_RADIUS 4
 
 #include <unordered_map>
 #include <glm/glm.hpp>

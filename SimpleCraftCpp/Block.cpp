@@ -1,7 +1,7 @@
 #include "Block.h"
 #include <glm/gtc/matrix_transform.inl>
 
-Block::Block() : mExposedFaces(0), mRender(false)
+Block::Block() : m_ExposedFaces(0), m_Render(false)
 {
 }
 
@@ -25,11 +25,11 @@ void Block::updateFront(Block* frontBlock)
 {
 	if (frontBlock->getRender())
 	{
-		mExposedFaces |= FRONT_FACE;
+		m_ExposedFaces |= FRONT_FACE;
 	}
 	else
 	{
-		mExposedFaces &= ~FRONT_FACE;
+		m_ExposedFaces &= ~FRONT_FACE;
 	}
 }
 
@@ -37,11 +37,11 @@ void Block::updateBack(Block* backBlock)
 {
 	if (backBlock->getRender())
 	{
-		mExposedFaces |= BACK_FACE;
+		m_ExposedFaces |= BACK_FACE;
 	}
 	else
 	{
-		mExposedFaces &= ~BACK_FACE;
+		m_ExposedFaces &= ~BACK_FACE;
 	}
 }
 
@@ -49,11 +49,11 @@ void Block::updateLeft(Block* leftBlock)
 {
 	if (leftBlock->getRender())
 	{
-		mExposedFaces |= LEFT_FACE;
+		m_ExposedFaces |= LEFT_FACE;
 	}
 	else
 	{
-		mExposedFaces &= ~LEFT_FACE;
+		m_ExposedFaces &= ~LEFT_FACE;
 	}
 }
 
@@ -61,30 +61,30 @@ void Block::updateRight(Block* rightBlock)
 {
 	if (rightBlock->getRender())
 	{
-		mExposedFaces |= RIGHT_FACE;
+		m_ExposedFaces |= RIGHT_FACE;
 	}
 	else
 	{
-		mExposedFaces &= ~RIGHT_FACE;
+		m_ExposedFaces &= ~RIGHT_FACE;
 	}
 }
 
 void Block::setExposedFaces(unsigned int exposedFaces)
 {
-	mExposedFaces = exposedFaces;
+	m_ExposedFaces = exposedFaces;
 }
 
 unsigned int Block::getExposedFaces()
 {
-	return mExposedFaces;
+	return m_ExposedFaces;
 }
 
 void Block::setRender(bool render)
 {
-	mRender = render;
+	m_Render = render;
 }
 
 bool Block::getRender()
 {
-	return mRender;
+	return m_Render;
 }

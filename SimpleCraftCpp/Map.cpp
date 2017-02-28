@@ -29,13 +29,6 @@ Map::Map()
 Map::~Map()
 {
 	for (auto it = m_Chunks.begin(); it != m_Chunks.end();) {
-		
-		//for (auto it2 = chunkZ.begin(); it2 != chunkZ.end();) {
-		//	delete it2->second;
-		//	auto toErase = it2;
-		//	++it2;
-		//	chunkZ.erase(toErase);
-		//}
 		auto chunk = it->second;
 		delete chunk;
 		auto toErase = it;
@@ -60,40 +53,19 @@ void Map::update(float playerX, float playerZ)
 
 	//std::cout << x << ", " << z << std::endl;
 
-	/*
-	for (auto it = mChunks.begin(); it != mChunks.end();) {
-		auto chunkZ = it->second;
-		for (auto it2 = chunkZ.begin(); it2 != chunkZ.end();) {
-
-			if (abs(it2->second->getChunkX() - x) > MAP_DELETE_RADIUS || abs(it2->second->getChunkZ() - z) > MAP_DELETE_RADIUS)
-			{
-				delete it2->second;
-				auto toErase = it2;
-				++it2;
-				chunkZ.erase(toErase);
-				//std::cout << x << "removing " << z << std::endl;
-			}
-			else
-			{
-				++it2;
-			}
+	//Remove far chunks
+	for (auto it = m_Chunks.begin(); it != m_Chunks.end();) {
+		auto chunk = it->second;
+		if (abs(chunk->getChunkX() - x) > MAP_DELETE_RADIUS || abs(chunk->getChunkZ() - z) > MAP_DELETE_RADIUS) {
+			delete chunk;
+			auto toErase = it;
+			++it;
+			m_Chunks.erase(toErase);
+		} else
+		{
+			++it;
 		}
-		//auto toErase = it;
-		++it;
-		//mChunks.erase(toErase);
-
-		//if (chunkZ.empty())
-		//{
-		//	auto toErase = it;
-		//	++it;
-		//	mChunks.erase(toErase);
-		//}
-		//else
-		//{
-		//	++it;
-		//}
 	}
-	*/
 
 
 	///*
@@ -121,6 +93,17 @@ void Map::updateChunk(int x, int z) {
 
 		m_Chunks.insert({ ChunkPosition(x, z),  chunk });
 
+		/*
+		//frontChunk
+		auto chunkIt = m_Chunks.find(ChunkPosition(x, z - 1));
+		if (chunkIt != m_Chunks.end())
+		{
+			//frontChunk->updateBack(chunk);
+			chunkIt->second->updateBack(chunk);
+		}
+		*/
+		
+		///*
 		if (frontChunk != nullptr)
 		{
 			frontChunk->updateBack(chunk);
@@ -141,56 +124,8 @@ void Map::updateChunk(int x, int z) {
 		{
 			rightChunk->updateLeft(chunk);
 		}
+		//*/
 	}
-	/*
-	auto chunkZ = chunkX->second.find(z);
-	if (chunkZ == chunkX->second.end())
-	{
-		Chunk* frontChunk = nullptr;
-		Chunk* backChunk = nullptr;
-		Chunk* leftChunk = nullptr;
-		Chunk* rightChunk = nullptr;
-
-		auto chunkXTemp = mChunks.find(x - 1);
-		if (chunkXTemp != mChunks.end())
-		{
-			auto chunkZTemp = chunkXTemp->second.find(z);
-			if (chunkZTemp != chunkXTemp->second.end())
-			{
-				leftChunk = chunkZTemp->second;
-			}
-		}
-
-		chunkXTemp = mChunks.find(x + 1);
-		if (chunkXTemp != mChunks.end())
-		{
-			auto chunkZTemp = chunkXTemp->second.find(z);
-			if (chunkZTemp != chunkXTemp->second.end())
-			{
-				rightChunk = chunkZTemp->second;
-			}
-		}
-
-
-		auto chunkZTemp = chunkX->second.find(z - 1);
-		if (chunkZTemp != chunkX->second.end())
-		{
-			frontChunk = chunkZTemp->second;
-		}
-
-		chunkZTemp = chunkX->second.find(z + 1);
-		if (chunkZTemp != chunkX->second.end())
-		{
-			backChunk = chunkZTemp->second;
-		}
-
-
-		Chunk* chunk = new Chunk(x, z, frontChunk, backChunk, leftChunk, rightChunk);
-		chunkX->second.insert({ z,  chunk });
-
-		
-	}
-	*/
 }
 
 void Map::render(float playerX, float playerZ)
@@ -222,7 +157,6 @@ void Map::rayCastBlock(glm::vec3 start, glm::vec3 forward)
 
 		x = (int)std::floor(playerX / CHUNK_WIDTH);
 		z = (int)std::floor(playerZ / CHUNK_DEPTH);
-		//std::unordered_map<int , std::unordered_map<int, Chunk*>>::iterator chunkX;
 
 		auto chunkIt = m_Chunks.find(ChunkPosition(x, z));
 		if (chunkIt == m_Chunks.end())
@@ -243,6 +177,7 @@ void Map::rayCastBlock(glm::vec3 start, glm::vec3 forward)
 				{
 					hitChunk = chunkIt->second;
 					blockPos[2] = CHUNK_DEPTH - 1;
+					z--;
 				}
 			}
 
@@ -253,6 +188,7 @@ void Map::rayCastBlock(glm::vec3 start, glm::vec3 forward)
 				{
 					hitChunk = chunkIt->second;
 					blockPos[2] = 0;
+					z++;
 				}
 			}
 
@@ -263,6 +199,7 @@ void Map::rayCastBlock(glm::vec3 start, glm::vec3 forward)
 				{
 					hitChunk = chunkIt->second;
 					blockPos[0] = CHUNK_WIDTH - 1;
+					x--;
 				}
 
 			}
@@ -275,9 +212,11 @@ void Map::rayCastBlock(glm::vec3 start, glm::vec3 forward)
 				{
 					hitChunk = chunkIt->second;
 					blockPos[0] = 0;
+					x++;
 				}
 
 			}
+			std::cout << "rayCastBlock2 " << blockPos[0] << " " << blockPos[1] << " " << blockPos[2] << std::endl;
 			
 			break;
 		}
@@ -311,6 +250,7 @@ void Map::rayCastBlock(glm::vec3 start, glm::vec3 forward)
 			chunkIt->second->updateBlockFront(hitChunk, blockPos[0], blockPos[1]);
 
 			hitChunk->updateBlockBack(chunkIt->second, blockPos[0], blockPos[1]);
+			std::cout << "hitChunk->updateBlockBack" << std::endl;
 		}
 	}
 

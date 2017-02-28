@@ -17,7 +17,7 @@ HeightGenerator::~HeightGenerator()
 int HeightGenerator::generateHeight(int x, int z)
 {
 	//return generateSmoothNoise(x, z);
-	float value = generateInterpolatedNoise((float)x / 4.0f, (float)z / 4.0f) * AMPLITUDE;
+	float value = generateInterpolatedNoise((float)x / 8.0f, (float)z / 8.0f) * AMPLITUDE;
 	//std::cout << value << "\n";
 	return (int)value;
 }

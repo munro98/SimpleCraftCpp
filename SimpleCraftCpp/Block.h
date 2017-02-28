@@ -31,7 +31,7 @@ public:
 
 	bool getRender();
 private:
-	unsigned int mExposedFaces;
-	bool mRender;
+	unsigned int m_ExposedFaces;
+	bool m_Render;
 
 };

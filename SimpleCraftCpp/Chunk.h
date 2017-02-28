@@ -106,12 +106,14 @@ public:
 	int getChunkX();
 	int getChunkZ();
 private:
-	Block* blocks;
-	GLfloat* mVertices;
-	GLuint mVBO;
-	GLuint mVAO;
-	int mFaceCount;
-	int mChunkX;
-	int mChunkZ;
+	int m_ChunkX;
+	int m_ChunkZ;
+
+	Block* m_blocks;
+	GLfloat* m_Vertices;
+	GLuint m_VBO;
+	GLuint m_VAO;
+	int m_FaceCount;
+	
 };
 
