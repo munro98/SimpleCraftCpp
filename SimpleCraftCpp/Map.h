@@ -3,8 +3,8 @@
 #define MAP_WIDTH 2
 #define MAP_DEPTH 1
 
-#define MAP_UPDATE_RADIUS 0
-#define MAP_DELETE_RADIUS 4
+#define MAP_UPDATE_RADIUS 6
+#define MAP_DELETE_RADIUS 8
 
 #include <unordered_map>
 #include <glm/glm.hpp>
@@ -25,7 +25,7 @@ public:
 	void render(float x, float y);
 	void rayCastBlock(glm::vec3 start, glm::vec3 forward);
 	void rayCastBlockRemove(glm::vec3 start, glm::vec3 forward);
-	Chunk * findChunkAt(int x, int z);
+	Chunk* findChunkAt(int x, int z);
 private:
 	std::unordered_map<ChunkPosition,  Chunk*> m_Chunks;
 };

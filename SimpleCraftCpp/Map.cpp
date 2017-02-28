@@ -45,8 +45,6 @@ void Map::initialize()
 void Map::update(float playerX, float playerZ)
 {	
 	///*
-	playerX += 0.5f;
-	playerZ += 0.5f;
 
 	int x = (int)std::floor(playerX / CHUNK_WIDTH);
 	int z = (int)std::floor(playerZ / CHUNK_DEPTH);
@@ -152,19 +150,21 @@ void Map::rayCastBlock(glm::vec3 start, glm::vec3 forward)
 	{
 		hitBlock = hitBlock + step;
 
-		float playerX = hitBlock.x + 0.5f;
-		float playerZ = hitBlock.z + 0.5f;
+		float playerX = hitBlock.x;
+		float playerZ = hitBlock.z;
 
 		x = (int)std::floor(playerX / CHUNK_WIDTH);
 		z = (int)std::floor(playerZ / CHUNK_DEPTH);
 
-		auto chunkIt = m_Chunks.find(ChunkPosition(x, z));
-		if (chunkIt == m_Chunks.end())
 		{
-			return;
-		}
+			auto chunkIt = m_Chunks.find(ChunkPosition(x, z));
+			if (chunkIt == m_Chunks.end())
+			{
+				return;
+			}
 		
-		hitChunk = chunkIt->second;
+			hitChunk = chunkIt->second;
+		}
 
 		if (hitChunk->rayCastBlock(hitBlock, blockPos))
 		{
@@ -201,12 +201,10 @@ void Map::rayCastBlock(glm::vec3 start, glm::vec3 forward)
 					blockPos[0] = CHUNK_WIDTH - 1;
 					x--;
 				}
-
 			}
 
 			else if (blockPos[0] == CHUNK_WIDTH)
 			{
-
 				auto chunkIt = m_Chunks.find(ChunkPosition(x + 1, z));
 				if (chunkIt != m_Chunks.end())
 				{
@@ -214,16 +212,13 @@ void Map::rayCastBlock(glm::vec3 start, glm::vec3 forward)
 					blockPos[0] = 0;
 					x++;
 				}
-
 			}
-			std::cout << "rayCastBlock2 " << blockPos[0] << " " << blockPos[1] << " " << blockPos[2] << std::endl;
+			//std::cout << "rayCastBlock2 " << blockPos[0] << " " << blockPos[1] << " " << blockPos[2] << std::endl;
 			
 			break;
 		}
-		else
-		{
-			//std::cout << "no block hit" << std::endl;
-		}
+		//No block has been hit
+		
 		
 
 	}
@@ -307,8 +302,8 @@ void Map::rayCastBlockRemove(glm::vec3 start, glm::vec3 forward)
 	{
 		hitBlock = hitBlock + step;
 
-		float playerX = hitBlock.x + 0.5f;
-		float playerZ = hitBlock.z + 0.5f;
+		float playerX = hitBlock.x;
+		float playerZ = hitBlock.z;
 
 		x = (int)std::floor(playerX / CHUNK_WIDTH);
 		z = (int)std::floor(playerZ / CHUNK_DEPTH);

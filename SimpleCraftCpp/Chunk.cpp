@@ -13,7 +13,7 @@ Chunk::Chunk(int chunkX, int chunkZ, Chunk* frontChunk, Chunk* backChunk, Chunk*
 	m_ChunkX = chunkX;
 	m_ChunkZ = chunkZ;
 
-	auto startTime = std::chrono::high_resolution_clock::now();
+	//auto startTime = std::chrono::high_resolution_clock::now();
 	for (int x = 0; x < CHUNK_WIDTH; x++)
 	{
 		
@@ -51,9 +51,9 @@ Chunk::Chunk(int chunkX, int chunkZ, Chunk* frontChunk, Chunk* backChunk, Chunk*
 			}
 	}
 
-	auto endTime = std::chrono::high_resolution_clock::now();
-	auto deltaTime = std::chrono::duration_cast<std::chrono::duration<double>>(endTime - startTime);
-	std::cout << deltaTime.count() << std::endl;
+	//auto endTime = std::chrono::high_resolution_clock::now();
+	//auto deltaTime = std::chrono::duration_cast<std::chrono::duration<double>>(endTime - startTime);
+	//std::cout << deltaTime.count() << std::endl;
 
 	m_FaceCount = 0;
 	for (int y = 0; y < CHUNK_HEIGHT; y++)
@@ -884,7 +884,6 @@ void Chunk::updateBlockLeft(int x, int y, int z)
 		facesExposed &= ~RIGHT_FACE;
 	}
 
-	//std::cout << "blocks[i] " << i << " " << std::endl;
 	m_blocks[i].setExposedFaces(facesExposed);//
 }
 
@@ -913,7 +912,6 @@ void Chunk::updateBlockRight(int x, int y, int z)
 		facesExposed &= ~LEFT_FACE;
 	}
 
-	//std::cout << "blocks[i] " << i << " " << std::endl;
 	m_blocks[i].setExposedFaces(facesExposed);//
 }
 
@@ -982,9 +980,10 @@ bool Chunk::rayCastBlock(glm::vec3 hitBlock, int* blockHitPosition) const
 	hitBlock.z = hitBlock.z - (float)(m_ChunkZ * CHUNK_DEPTH);
 
 	int x, y, z;
-	x = (int)round(hitBlock.x);
-	z = (int)round(hitBlock.z);
-	y = (int)round(-hitBlock.y);
+	x = (int)std::floor(hitBlock.x);
+	z = (int)std::floor(hitBlock.z);
+	y = (int)std::floor(hitBlock.y);
+	y = -y;
 
 	//std::cout << "hitBlock " << hitBlock. x << " " << hitBlock.y << " " << hitBlock.z << std::endl;
 	//std::cout << "block " << x << " " << y << " " << z << std::endl;
@@ -1023,29 +1022,32 @@ bool Chunk::rayCastBlock(glm::vec3 hitBlock, int* blockHitPosition) const
 
 		//std::cout << "hit " << hitBlock.x - (float)x << " " << hitBlock.y + (float)y << " " << hitBlock.z - (float)z << std::endl;
 
+		//Depending on what face of the block hit
+		//We need to find what block lies adjacent to it
 		bool right = false;
 		bool back = false;
 		bool top = false;
 
-		if (hitBlock.x - (float)x > 0.0f)
+		if (hitBlock.x - (float)x > 0.5f)
 		{
 			right = true;
 		}
 
-		if (hitBlock.z - (float)z > 0.0f)
+		if (hitBlock.z - (float)z > 0.5f)
 		{
 			back = true;
 		}
 
-		if (hitBlock.y + (float)y > 0.0f)
+		if (hitBlock.y + (float)y > 0.5f)
 		{
 			top = true;
 		}
 
+		float relativeX = std::abs((hitBlock.x - 0.5f) - (float)x);
+		float relativeY = std::abs((hitBlock.y - 0.5f) + (float)y);
+		float relativeZ = std::abs((hitBlock.z - 0.5f) - (float)z);
 
-		float relativeX = abs(hitBlock.x - (float)x);
-		float relativeY = abs(hitBlock.y + (float)y);
-		float relativeZ = abs(hitBlock.z - (float)z);
+		//std::cout << "relative " << relativeX << " " << relativeY << " " << relativeZ << std::endl;
 	
 		//could be x or y or z
 		if (relativeX > relativeZ)
@@ -1104,7 +1106,8 @@ bool Chunk::rayCastBlock(glm::vec3 hitBlock, int* blockHitPosition) const
 				}
 			}
 		}
-		std::cout << "rayCastBlock " << x << " " << y << " " << z << std::endl;
+		//std::cout << "hitBlock " << hitBlock.x << " " << hitBlock.y << " " << hitBlock.z << std::endl;
+		//std::cout << "rayCastBlock " << x << " " << y << " " << z << std::endl;
 		blockHitPosition[0] = x;
 		blockHitPosition[1] = y;
 		blockHitPosition[2] = z;
@@ -1123,9 +1126,10 @@ bool Chunk::rayCastBlockRemove(glm::vec3 hitBlock, int* blockHitPosition)
 	hitBlock.z = hitBlock.z - (float)(m_ChunkZ * CHUNK_DEPTH);
 
 	int x, y, z;
-	x = (int)round(hitBlock.x);
-	z = (int)round(hitBlock.z);
-	y = (int)round(-hitBlock.y);
+	x = (int)std::floor(hitBlock.x);
+	z = (int)std::floor(hitBlock.z);
+	y = (int)std::floor(hitBlock.y);
+	y = -y;
 
 	//std::cout << "block " << x << " " << y << " " << z << std::endl;
 
