@@ -76,7 +76,6 @@ class RayCast;
 class Chunk
 {
 public:
-	Chunk();
 	Chunk(int chunkX, int chunkZ);
 	~Chunk();
 	void render();
@@ -109,14 +108,14 @@ public:
 	int getChunkX();
 	int getChunkZ();
 private:
-	int m_ChunkX;
-	int m_ChunkZ;
+	int m_chunkX;
+	int m_chunkZ;
 
 	Block* m_blocks;
-	GLfloat* m_Vertices;
+	GLfloat* m_vertices;
 	GLuint m_VBO;
 	GLuint m_VAO;
-	int m_FaceCount;
+	int m_faceCount;
 	
 };
 

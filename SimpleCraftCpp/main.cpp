@@ -215,7 +215,6 @@ int main(int argc, char** argv) {
 	glFrontFace(GL_CCW);
 
 	Map map;
-	map.initialize();
 
 	display.setClearColor(0.05f, 0.4f, 0.9f, 1.0f);
 
@@ -329,6 +328,7 @@ int main(int argc, char** argv) {
 		glBindVertexArray(0);
 		
 	}
+	//map.stopThreads();
 	
 	return 0;
 }

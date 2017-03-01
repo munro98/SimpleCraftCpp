@@ -1,7 +1,8 @@
 #include <iostream>
 #include "Map.h"
 
-Map::Map()
+
+Map::Map() : m_isRunning(true), m_thread(&Map::threadUpdateChunks, this)
 {
 	/*
 	for (int x = 0; x < MAP_WIDTH; x++)
@@ -24,23 +25,26 @@ Map::Map()
 		}
 	}
 	*/
+	//thread = new std::thread(&Map::threadUpdateChunks);
 }
 
 Map::~Map()
 {
-	for (auto it = m_Chunks.begin(); it != m_Chunks.end();) {
+	//m_isRunning = false;
+	//m_thread.join();
+	stopThreads();
+	std::this_thread::sleep_for(std::chrono::milliseconds(50)); // hack
+	///*
+	for (auto it = m_chunks.begin(); it != m_chunks.end();) {
 		auto chunk = it->second;
 		delete chunk;
 		auto toErase = it;
 		++it;
-		m_Chunks.erase(toErase);
+		m_chunks.erase(toErase);
 	}
+	//*/
 }
 
-void Map::initialize()
-{
-	
-}
 
 void Map::update(float playerX, float playerZ)
 {	
@@ -52,13 +56,13 @@ void Map::update(float playerX, float playerZ)
 	//std::cout << x << ", " << z << std::endl;
 
 	//Remove far chunks
-	for (auto it = m_Chunks.begin(); it != m_Chunks.end();) {
+	for (auto it = m_chunks.begin(); it != m_chunks.end();) {
 		auto chunk = it->second;
 		if (abs(chunk->getChunkX() - x) > MAP_DELETE_RADIUS || abs(chunk->getChunkZ() - z) > MAP_DELETE_RADIUS) {
 			delete chunk;
 			auto toErase = it;
 			++it;
-			m_Chunks.erase(toErase);
+			m_chunks.erase(toErase);
 		} else
 		{
 			++it;
@@ -76,33 +80,22 @@ void Map::update(float playerX, float playerZ)
 		}
 	}
 	//*/
-}
 
-void Map::updateChunk(int x, int z) {
-	auto chunkIt = m_Chunks.find(ChunkPosition(x, z));
-	if (chunkIt == m_Chunks.end())
+	/*
+	while(!m_ChunkSetQueue.empty())
 	{
-		Chunk* frontChunk = findChunkAt(x,z - 1);
-		Chunk* backChunk = findChunkAt(x, z + 1);
-		Chunk* leftChunk = findChunkAt(x - 1, z);
-		Chunk* rightChunk = findChunkAt(x + 1, z);
+		ChunkPosition chunkPos = m_ChunkSetQueue.pop();
 
-		Chunk* chunk = new Chunk(x, z);
+		Chunk* frontChunk = findChunkAt(chunkPos.x, chunkPos.z - 1);
+		Chunk* backChunk = findChunkAt(chunkPos.x, chunkPos.z + 1);
+		Chunk* leftChunk = findChunkAt(chunkPos.x - 1, chunkPos.z);
+		Chunk* rightChunk = findChunkAt(chunkPos.x + 1, chunkPos.z);
+
+		
+		Chunk* chunk = new Chunk(chunkPos.x, chunkPos.z);
 		chunk->updateBlockFaces(frontChunk, backChunk, leftChunk, rightChunk);
 		chunk->updateMesh();
-		m_Chunks.insert({ ChunkPosition(x, z),  chunk });
 
-		/*
-		//frontChunk
-		auto chunkIt = m_Chunks.find(ChunkPosition(x, z - 1));
-		if (chunkIt != m_Chunks.end())
-		{
-			//frontChunk->updateBack(chunk);
-			chunkIt->second->updateBack(chunk);
-		}
-		*/
-		
-		///*
 		if (frontChunk != nullptr)
 		{
 			frontChunk->updateBack(chunk);
@@ -123,13 +116,151 @@ void Map::updateChunk(int x, int z) {
 		{
 			rightChunk->updateLeft(chunk);
 		}
-		//*/
+
+		m_Chunks.insert({ chunkPos,  chunk });
 	}
+	*/
+
+
+	///*
+	m_chunkQueueMutex.lock();
+	if(!m_chunkQueue.empty())
+	{
+		Chunk* chunk = m_chunkQueue.front();
+		m_chunkQueue.pop();
+		m_chunkQueueMutex.unlock();
+		ChunkPosition chunkPos(chunk->getChunkX(), chunk->getChunkZ());
+
+		Chunk* frontChunk = findChunkAt(chunkPos.x, chunkPos.z - 1);
+		Chunk* backChunk = findChunkAt(chunkPos.x, chunkPos.z + 1);
+		Chunk* leftChunk = findChunkAt(chunkPos.x - 1, chunkPos.z);
+		Chunk* rightChunk = findChunkAt(chunkPos.x + 1, chunkPos.z);
+
+		chunk->updateBlockFaces(frontChunk, backChunk, leftChunk, rightChunk);
+		chunk->updateMesh();
+
+		if (frontChunk != nullptr)
+		{
+		frontChunk->updateBack(chunk);
+		}
+
+		if (backChunk != nullptr)
+		{
+
+		backChunk->updateFront(chunk);
+		}
+
+		if (leftChunk != nullptr)
+		{
+		leftChunk->updateRight(chunk);
+		}
+
+		if (rightChunk != nullptr)
+		{
+		rightChunk->updateLeft(chunk);
+		}
+
+
+		m_chunks.insert({ chunkPos,  chunk });
+		
+	
+	} else {
+		m_chunkQueueMutex.unlock();
+		
+	}
+	
+	//*/
+}
+
+void Map::updateChunk(int x, int z) {
+	/*
+	auto chunkIt = m_Chunks.find(ChunkPosition(x, z));
+	if (chunkIt == m_Chunks.end())
+	{
+		Chunk* frontChunk = findChunkAt(x,z - 1);
+		Chunk* backChunk = findChunkAt(x, z + 1);
+		Chunk* leftChunk = findChunkAt(x - 1, z);
+		Chunk* rightChunk = findChunkAt(x + 1, z);
+
+		Chunk* chunk = new Chunk(x, z);
+		chunk->updateBlockFaces(frontChunk, backChunk, leftChunk, rightChunk);
+		chunk->updateMesh();
+		m_Chunks.insert({ ChunkPosition(x, z),  chunk });
+
+		
+	
+		if (frontChunk != nullptr)
+		{
+			frontChunk->updateBack(chunk);
+		}
+
+		if (backChunk != nullptr)
+		{
+
+			backChunk->updateFront(chunk);
+		}
+
+		if (leftChunk != nullptr)
+		{
+			leftChunk->updateRight(chunk);
+		}
+
+		if (rightChunk != nullptr)
+		{
+			rightChunk->updateLeft(chunk);
+		}
+		
+	}
+	*/
+
+	///*
+	auto chunkIt = m_chunks.find(ChunkPosition(x, z));
+	if (chunkIt == m_chunks.end())
+	{
+		m_chunkSetQueueMutex.lock();
+		m_chunkSetQueue.add(ChunkPosition(x, z));
+		m_chunkSetQueueMutex.unlock();
+		m_threadVariable.notify_all();
+	}
+	//m_Chunks unlock 
+	//*/
+
+}
+
+void Map::threadUpdateChunks() {
+
+	while (m_isRunning) {
+		//m_ChunkSetQueue lock
+		m_chunkSetQueueMutex.lock();
+		if (!m_chunkSetQueue.empty())
+		{
+			ChunkPosition chunkPos = m_chunkSetQueue.pop();
+			m_chunkSetQueueMutex.unlock();
+
+			Chunk* chunk = new Chunk(chunkPos.x, chunkPos.z);
+
+			m_chunkQueueMutex.lock();
+			m_chunkQueue.push(chunk);
+			m_chunkQueueMutex.unlock();
+		} else
+		{
+			m_chunkSetQueueMutex.unlock();
+			std::unique_lock<std::mutex> lck(m_threadMutex);
+			m_threadVariable.wait(lck);
+		}
+	}
+
+}
+
+void Map::stopThreads()
+{
+	m_isRunning = false;
+	m_thread.join();
 }
 
 void Map::render(float playerX, float playerZ)
 {
-	for (auto it = m_Chunks.begin(); it != m_Chunks.end(); ++it) {
+	for (auto it = m_chunks.begin(); it != m_chunks.end(); ++it) {
 		it->second->render();
 	}
 }
@@ -158,8 +289,8 @@ void Map::rayCastBlock(glm::vec3 start, glm::vec3 forward)
 		z = (int)std::floor(playerZ / CHUNK_DEPTH);
 
 		{
-			auto chunkIt = m_Chunks.find(ChunkPosition(x, z));
-			if (chunkIt == m_Chunks.end())
+			auto chunkIt = m_chunks.find(ChunkPosition(x, z));
+			if (chunkIt == m_chunks.end())
 			{
 				return;
 			}
@@ -173,8 +304,8 @@ void Map::rayCastBlock(glm::vec3 start, glm::vec3 forward)
 			//raycast adding on chunk edges
 			if (blockPos[2] == -1)
 			{
-				auto chunkIt = m_Chunks.find(ChunkPosition(x, z - 1));
-				if (chunkIt != m_Chunks.end())
+				auto chunkIt = m_chunks.find(ChunkPosition(x, z - 1));
+				if (chunkIt != m_chunks.end())
 				{
 					hitChunk = chunkIt->second;
 					blockPos[2] = CHUNK_DEPTH - 1;
@@ -184,8 +315,8 @@ void Map::rayCastBlock(glm::vec3 start, glm::vec3 forward)
 
 			else if (blockPos[2] == CHUNK_DEPTH)
 			{
-				auto chunkIt = m_Chunks.find(ChunkPosition(x, z + 1));
-				if (chunkIt != m_Chunks.end())
+				auto chunkIt = m_chunks.find(ChunkPosition(x, z + 1));
+				if (chunkIt != m_chunks.end())
 				{
 					hitChunk = chunkIt->second;
 					blockPos[2] = 0;
@@ -195,8 +326,8 @@ void Map::rayCastBlock(glm::vec3 start, glm::vec3 forward)
 
 			else if (blockPos[0] == -1)
 			{
-				auto chunkIt = m_Chunks.find(ChunkPosition(x - 1, z));
-				if (chunkIt != m_Chunks.end())
+				auto chunkIt = m_chunks.find(ChunkPosition(x - 1, z));
+				if (chunkIt != m_chunks.end())
 				{
 					hitChunk = chunkIt->second;
 					blockPos[0] = CHUNK_WIDTH - 1;
@@ -206,8 +337,8 @@ void Map::rayCastBlock(glm::vec3 start, glm::vec3 forward)
 
 			else if (blockPos[0] == CHUNK_WIDTH)
 			{
-				auto chunkIt = m_Chunks.find(ChunkPosition(x + 1, z));
-				if (chunkIt != m_Chunks.end())
+				auto chunkIt = m_chunks.find(ChunkPosition(x + 1, z));
+				if (chunkIt != m_chunks.end())
 				{
 					hitChunk = chunkIt->second;
 					blockPos[0] = 0;
@@ -226,8 +357,8 @@ void Map::rayCastBlock(glm::vec3 start, glm::vec3 forward)
 
 	if (blockPos[2] == 0)
 	{
-		auto chunkIt = m_Chunks.find(ChunkPosition(x, z - 1));
-		if (chunkIt != m_Chunks.end())
+		auto chunkIt = m_chunks.find(ChunkPosition(x, z - 1));
+		if (chunkIt != m_chunks.end())
 		{
 			chunkIt->second->updateBlockBack(hitChunk, blockPos[0], blockPos[1]);
 
@@ -237,8 +368,8 @@ void Map::rayCastBlock(glm::vec3 start, glm::vec3 forward)
 
 	else if (blockPos[2] == CHUNK_DEPTH - 1)
 	{
-		auto chunkIt = m_Chunks.find(ChunkPosition(x, z + 1));
-		if (chunkIt != m_Chunks.end())
+		auto chunkIt = m_chunks.find(ChunkPosition(x, z + 1));
+		if (chunkIt != m_chunks.end())
 		{
 
 			chunkIt->second->updateBlockFront(hitChunk, blockPos[0], blockPos[1]);
@@ -250,8 +381,8 @@ void Map::rayCastBlock(glm::vec3 start, glm::vec3 forward)
 	if (blockPos[0] == 0)
 	{
 	
-		auto chunkIt = m_Chunks.find(ChunkPosition(x - 1, z));
-		if (chunkIt != m_Chunks.end())
+		auto chunkIt = m_chunks.find(ChunkPosition(x - 1, z));
+		if (chunkIt != m_chunks.end())
 		{
 			chunkIt->second->updateBlockRight(hitChunk, blockPos[1], blockPos[2]);
 
@@ -263,8 +394,8 @@ void Map::rayCastBlock(glm::vec3 start, glm::vec3 forward)
 	else if (blockPos[0] == CHUNK_WIDTH - 1)
 	{
 
-		auto chunkIt = m_Chunks.find(ChunkPosition(x + 1, z));
-		if (chunkIt != m_Chunks.end())
+		auto chunkIt = m_chunks.find(ChunkPosition(x + 1, z));
+		if (chunkIt != m_chunks.end())
 		{
 			chunkIt->second->updateBlockLeft(hitChunk, blockPos[1], blockPos[2]);
 
@@ -302,8 +433,8 @@ void Map::rayCastBlockRemove(glm::vec3 start, glm::vec3 forward)
 		x = (int)std::floor(playerX / CHUNK_WIDTH);
 		z = (int)std::floor(playerZ / CHUNK_DEPTH);
 
-		auto chunkIt = m_Chunks.find(ChunkPosition(x, z));
-		if (chunkIt == m_Chunks.end())
+		auto chunkIt = m_chunks.find(ChunkPosition(x, z));
+		if (chunkIt == m_chunks.end())
 		{
 			return;
 		}
@@ -325,8 +456,8 @@ void Map::rayCastBlockRemove(glm::vec3 start, glm::vec3 forward)
 
 	if (blockPos[2] == 0)
 	{
-		auto chunkIt = m_Chunks.find(ChunkPosition(x, z - 1));
-		if (chunkIt != m_Chunks.end())
+		auto chunkIt = m_chunks.find(ChunkPosition(x, z - 1));
+		if (chunkIt != m_chunks.end())
 		{
 			chunkIt->second->updateBlockBack(hitChunk, blockPos[0], blockPos[1]);
 		}
@@ -334,8 +465,8 @@ void Map::rayCastBlockRemove(glm::vec3 start, glm::vec3 forward)
 
 	else if (blockPos[2] == CHUNK_DEPTH - 1)
 	{
-		auto chunkIt = m_Chunks.find(ChunkPosition(x, z + 1));
-		if (chunkIt != m_Chunks.end())
+		auto chunkIt = m_chunks.find(ChunkPosition(x, z + 1));
+		if (chunkIt != m_chunks.end())
 		{
 			chunkIt->second->updateBlockFront(hitChunk, blockPos[0], blockPos[1]);
 		}
@@ -344,8 +475,8 @@ void Map::rayCastBlockRemove(glm::vec3 start, glm::vec3 forward)
 	if (blockPos[0] == 0)
 	{
 
-		auto chunkIt = m_Chunks.find(ChunkPosition(x - 1, z));
-		if (chunkIt != m_Chunks.end())
+		auto chunkIt = m_chunks.find(ChunkPosition(x - 1, z));
+		if (chunkIt != m_chunks.end())
 		{
 			chunkIt->second->updateBlockRight(hitChunk, blockPos[1], blockPos[2]);
 		}
@@ -355,8 +486,8 @@ void Map::rayCastBlockRemove(glm::vec3 start, glm::vec3 forward)
 	else if (blockPos[0] == CHUNK_WIDTH - 1)
 	{
 
-		auto chunkIt = m_Chunks.find(ChunkPosition(x + 1, z));
-		if (chunkIt != m_Chunks.end())
+		auto chunkIt = m_chunks.find(ChunkPosition(x + 1, z));
+		if (chunkIt != m_chunks.end())
 		{
 			chunkIt->second->updateBlockLeft(hitChunk, blockPos[1], blockPos[2]);
 		}
@@ -370,8 +501,8 @@ void Map::rayCastBlockRemove(glm::vec3 start, glm::vec3 forward)
 
 Chunk* Map::findChunkAt(int x , int z)
 {
-	auto chunkIt = m_Chunks.find(ChunkPosition(x, z));
-	if (chunkIt == m_Chunks.end())
+	auto chunkIt = m_chunks.find(ChunkPosition(x, z));
+	if (chunkIt == m_chunks.end())
 	{
 		return nullptr;
 	}

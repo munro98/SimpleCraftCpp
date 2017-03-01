@@ -8,10 +8,10 @@
 #include "HeightGenerator.h"
 
 
-Chunk::Chunk(int chunkX, int chunkZ): m_blocks(new Block[CHUNK_WIDTH * CHUNK_DEPTH * CHUNK_HEIGHT]), m_ChunkX(0), m_ChunkZ(0), m_Vertices(nullptr), m_VBO(0), m_VAO(0)
+Chunk::Chunk(int chunkX, int chunkZ): m_blocks(new Block[CHUNK_WIDTH * CHUNK_DEPTH * CHUNK_HEIGHT]), m_chunkX(0), m_chunkZ(0), m_vertices(nullptr), m_VBO(0), m_VAO(0)
 {
-	m_ChunkX = chunkX;
-	m_ChunkZ = chunkZ;
+	m_chunkX = chunkX;
+	m_chunkZ = chunkZ;
 
 	//auto startTime = std::chrono::high_resolution_clock::now();
 	for (int x = 0; x < CHUNK_WIDTH; x++)
@@ -75,7 +75,7 @@ Chunk::~Chunk()
 void Chunk::render()
 {
 	glBindVertexArray(m_VAO);
-	glDrawArrays(GL_TRIANGLES, 0, 6 * m_FaceCount);
+	glDrawArrays(GL_TRIANGLES, 0, 6 * m_faceCount);
 	glBindVertexArray(0);
 
 }
@@ -173,7 +173,7 @@ void Chunk::updateBlockFaces(Chunk* frontChunk, Chunk* backChunk, Chunk* leftChu
 
 void Chunk::updateMesh()
 {
-	m_FaceCount = 0;
+	m_faceCount = 0;
 
 	for (int y = 0; y < CHUNK_HEIGHT; y++)
 	{
@@ -191,32 +191,32 @@ void Chunk::updateMesh()
 
 				if (facesExposed & FRONT_FACE)
 				{
-					m_FaceCount++;
+					m_faceCount++;
 				}
 
 				if (facesExposed & BACK_FACE)
 				{
-					m_FaceCount++;
+					m_faceCount++;
 				}
 
 				if (facesExposed & LEFT_FACE)
 				{
-					m_FaceCount++;
+					m_faceCount++;
 				}
 
 				if (facesExposed & RIGHT_FACE)
 				{
-					m_FaceCount++;
+					m_faceCount++;
 				}
 
 				if (facesExposed & TOP_FACE)
 				{
-					m_FaceCount++;
+					m_faceCount++;
 				}
 
 				if (facesExposed & BOTTOM_FACE)
 				{
-					m_FaceCount++;
+					m_faceCount++;
 				}
 				//std::cout << "blocks[i] " << i << " " << std::endl;
 				//blocks[i].SetExposedFaces(facesExposed);//
@@ -225,7 +225,7 @@ void Chunk::updateMesh()
 	}
 
 	//std::cout << mFaceCount << std::endl;
-	m_Vertices = new GLfloat[8 * 6 * m_FaceCount];
+	m_vertices = new GLfloat[8 * 6 * m_faceCount];
 
 	int counter = 0;
 
@@ -244,37 +244,37 @@ void Chunk::updateMesh()
 				if (facesExposed & FRONT_FACE)
 				{
 					int vertrexIndex = (counter++) * 48;
-					addFace(vertrexIndex, x, y, z, m_ChunkX, m_ChunkZ, frontVertices);
+					addFace(vertrexIndex, x, y, z, m_chunkX, m_chunkZ, frontVertices);
 				}
 
 				if (facesExposed & BACK_FACE)
 				{
 					int vertrexIndex = (counter++) * 48;
-					addFace(vertrexIndex, x, y, z, m_ChunkX, m_ChunkZ, backVertices);
+					addFace(vertrexIndex, x, y, z, m_chunkX, m_chunkZ, backVertices);
 				}
 
 				if (facesExposed & LEFT_FACE)
 				{
 					int vertrexIndex = (counter++) * 48;
-					addFace(vertrexIndex, x, y, z, m_ChunkX, m_ChunkZ, leftVertices);
+					addFace(vertrexIndex, x, y, z, m_chunkX, m_chunkZ, leftVertices);
 				}
 
 				if (facesExposed & RIGHT_FACE)
 				{
 					int vertrexIndex = (counter++) * 48;
-					addFace(vertrexIndex, x, y, z, m_ChunkX, m_ChunkZ, rightVertices);
+					addFace(vertrexIndex, x, y, z, m_chunkX, m_chunkZ, rightVertices);
 				}
 
 				if (facesExposed & TOP_FACE)
 				{
 					int vertrexIndex = (counter++) * 48;
-					addFace(vertrexIndex, x, y, z, m_ChunkX, m_ChunkZ, topVertices);
+					addFace(vertrexIndex, x, y, z, m_chunkX, m_chunkZ, topVertices);
 				}
 
 				if (facesExposed & BOTTOM_FACE)
 				{
 					int vertrexIndex = (counter++) * 48;
-					addFace(vertrexIndex, x, y, z, m_ChunkX, m_ChunkZ, bottomVertices);
+					addFace(vertrexIndex, x, y, z, m_chunkX, m_chunkZ, bottomVertices);
 				}
 
 			}
@@ -294,7 +294,7 @@ void Chunk::createVAO()
 	glGenBuffers(1, &m_VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
 	//Copy Chunk data to the GPU
-	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 8 * 6 * m_FaceCount, m_Vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 8 * 6 * m_faceCount, m_vertices, GL_STATIC_DRAW);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
 	glEnableVertexAttribArray(0);
@@ -305,7 +305,7 @@ void Chunk::createVAO()
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(2);
 
-	delete[] m_Vertices;
+	delete[] m_vertices;
 }
 
 void Chunk::updateFront(Chunk* frontChunk)
@@ -530,28 +530,28 @@ void Chunk::updateBlockRight(Chunk* rightChunk, int y, int z)
 void Chunk::addFace(int vertrexIndex ,int x, int y, int z,int chunkX, int chunkZ, const GLfloat vertices[])
 {
 	y = -y;
-	memcpy(m_Vertices + vertrexIndex, vertices, 192);
+	memcpy(m_vertices + vertrexIndex, vertices, 192);
 	//std::cout << "hit " << sizeof(vertices) << " " << std::endl;
-	m_Vertices[vertrexIndex] += (GLfloat)(x + chunkX * CHUNK_WIDTH);
-	m_Vertices[vertrexIndex + 8] += (GLfloat)(x + chunkX * CHUNK_WIDTH);
-	m_Vertices[vertrexIndex + 16] += (GLfloat)(x + chunkX * CHUNK_WIDTH);
-	m_Vertices[vertrexIndex + 24] += (GLfloat)(x + chunkX * CHUNK_WIDTH);
-	m_Vertices[vertrexIndex + 32] += (GLfloat)(x + chunkX * CHUNK_WIDTH);
-	m_Vertices[vertrexIndex + 40] += (GLfloat)(x + chunkX * CHUNK_WIDTH);
+	m_vertices[vertrexIndex] += (GLfloat)(x + chunkX * CHUNK_WIDTH);
+	m_vertices[vertrexIndex + 8] += (GLfloat)(x + chunkX * CHUNK_WIDTH);
+	m_vertices[vertrexIndex + 16] += (GLfloat)(x + chunkX * CHUNK_WIDTH);
+	m_vertices[vertrexIndex + 24] += (GLfloat)(x + chunkX * CHUNK_WIDTH);
+	m_vertices[vertrexIndex + 32] += (GLfloat)(x + chunkX * CHUNK_WIDTH);
+	m_vertices[vertrexIndex + 40] += (GLfloat)(x + chunkX * CHUNK_WIDTH);
 
-	m_Vertices[vertrexIndex + 1] += (GLfloat)(y);
-	m_Vertices[vertrexIndex + 8 + 1] += (GLfloat)(y);
-	m_Vertices[vertrexIndex + 16 + 1] += (GLfloat)(y);
-	m_Vertices[vertrexIndex + 24 + 1] += (GLfloat)(y);
-	m_Vertices[vertrexIndex + 32 + 1] += (GLfloat)(y);
-	m_Vertices[vertrexIndex + 40 + 1] += (GLfloat)(y);
+	m_vertices[vertrexIndex + 1] += (GLfloat)(y);
+	m_vertices[vertrexIndex + 8 + 1] += (GLfloat)(y);
+	m_vertices[vertrexIndex + 16 + 1] += (GLfloat)(y);
+	m_vertices[vertrexIndex + 24 + 1] += (GLfloat)(y);
+	m_vertices[vertrexIndex + 32 + 1] += (GLfloat)(y);
+	m_vertices[vertrexIndex + 40 + 1] += (GLfloat)(y);
 
-	m_Vertices[vertrexIndex + 2] += (GLfloat)(z + chunkZ * CHUNK_DEPTH);
-	m_Vertices[vertrexIndex + 8 + 2] += (GLfloat)(z + chunkZ * CHUNK_DEPTH);
-	m_Vertices[vertrexIndex + 16 + 2] += (GLfloat)(z + chunkZ * CHUNK_DEPTH);
-	m_Vertices[vertrexIndex + 24 + 2] += (GLfloat)(z + chunkZ * CHUNK_DEPTH);
-	m_Vertices[vertrexIndex + 32 + 2] += (GLfloat)(z + chunkZ * CHUNK_DEPTH);
-	m_Vertices[vertrexIndex + 40 + 2] += (GLfloat)(z + chunkZ * CHUNK_DEPTH);
+	m_vertices[vertrexIndex + 2] += (GLfloat)(z + chunkZ * CHUNK_DEPTH);
+	m_vertices[vertrexIndex + 8 + 2] += (GLfloat)(z + chunkZ * CHUNK_DEPTH);
+	m_vertices[vertrexIndex + 16 + 2] += (GLfloat)(z + chunkZ * CHUNK_DEPTH);
+	m_vertices[vertrexIndex + 24 + 2] += (GLfloat)(z + chunkZ * CHUNK_DEPTH);
+	m_vertices[vertrexIndex + 32 + 2] += (GLfloat)(z + chunkZ * CHUNK_DEPTH);
+	m_vertices[vertrexIndex + 40 + 2] += (GLfloat)(z + chunkZ * CHUNK_DEPTH);
 }
 
 void Chunk::updateBlock(int x, int y, int z)
@@ -715,6 +715,10 @@ void Chunk::updateBlock(bool value, int x, int y, int z)
 
 void Chunk::updateBlockFront(int x, int y, int z)
 {
+	if (z < 0)
+	{
+		return;
+	}
 
 	int i = x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
 	assert(i >= 0);
@@ -742,6 +746,10 @@ void Chunk::updateBlockFront(int x, int y, int z)
 
 void Chunk::updateBlockBack(int x, int y, int z)
 {
+	if (z >= CHUNK_DEPTH)
+	{
+		return;
+	}
 
 	int i = x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
 	assert(i >= 0);
@@ -769,6 +777,10 @@ void Chunk::updateBlockBack(int x, int y, int z)
 
 void Chunk::updateBlockLeft(int x, int y, int z)
 {
+	if (x < 0)
+	{
+		return;
+	}
 
 	int i = x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
 	assert(i >= 0);
@@ -796,6 +808,10 @@ void Chunk::updateBlockLeft(int x, int y, int z)
 
 void Chunk::updateBlockRight(int x, int y, int z)
 {
+	if (x >= CHUNK_WIDTH)
+	{
+		return;
+	}
 
 	int i = x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
 	assert(i >= 0);
@@ -891,8 +907,8 @@ void Chunk::updateBlockBottom(int x, int y, int z)
 bool Chunk::rayCastBlock(glm::vec3 hitBlock, int* blockHitPosition) const
 {
 
-	hitBlock.x = hitBlock.x - (float)(m_ChunkX * CHUNK_WIDTH);
-	hitBlock.z = hitBlock.z - (float)(m_ChunkZ * CHUNK_DEPTH);
+	hitBlock.x = hitBlock.x - (float)(m_chunkX * CHUNK_WIDTH);
+	hitBlock.z = hitBlock.z - (float)(m_chunkZ * CHUNK_DEPTH);
 
 	int x, y, z;
 	x = (int)std::floor(hitBlock.x);
@@ -1037,8 +1053,8 @@ bool Chunk::rayCastBlock(glm::vec3 hitBlock, int* blockHitPosition) const
 
 bool Chunk::rayCastBlockRemove(glm::vec3 hitBlock, int* blockHitPosition)
 {
-	hitBlock.x = hitBlock.x - (float)(m_ChunkX * CHUNK_WIDTH);
-	hitBlock.z = hitBlock.z - (float)(m_ChunkZ * CHUNK_DEPTH);
+	hitBlock.x = hitBlock.x - (float)(m_chunkX * CHUNK_WIDTH);
+	hitBlock.z = hitBlock.z - (float)(m_chunkZ * CHUNK_DEPTH);
 
 	int x, y, z;
 	x = (int)std::floor(hitBlock.x);
@@ -1147,10 +1163,10 @@ void Chunk::updateSurroundingBlockFaces(int x, int y, int z)
 
 int Chunk::getChunkX()
 {
-	return m_ChunkX;
+	return m_chunkX;
 }
 
 int Chunk::getChunkZ()
 {
-	return m_ChunkZ;
+	return m_chunkZ;
 }
