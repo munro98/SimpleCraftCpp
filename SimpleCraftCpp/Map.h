@@ -1,9 +1,6 @@
 #pragma once
-#define MAP_CHUNK 5
-#define MAP_WIDTH 2
-#define MAP_DEPTH 1
 
-#define MAP_UPDATE_RADIUS 6
+#define MAP_UPDATE_RADIUS 2
 #define MAP_DELETE_RADIUS 8
 
 #include <unordered_map>

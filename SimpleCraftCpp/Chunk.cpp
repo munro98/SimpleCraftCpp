@@ -804,12 +804,10 @@ void Chunk::updateBlock(bool value, int x, int y, int z)
 
 void Chunk::updateBlockFront(int x, int y, int z)
 {
-	if (z < 0)
-	{
-		return;
-	}
 
 	int i = x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
+	assert(i >= 0);
+	assert(i < CHUNK_BLOCK_COUNT);
 	unsigned int facesExposed = m_blocks[i].getExposedFaces();
 
 	if (!m_blocks[i].getRender())
@@ -817,7 +815,8 @@ void Chunk::updateBlockFront(int x, int y, int z)
 		m_blocks[i].setExposedFaces(0);
 		return;
 	}
-
+	assert(i + CHUNK_WIDTH >= 0);
+	assert(i + CHUNK_WIDTH < CHUNK_BLOCK_COUNT);
 	if (!m_blocks[i + CHUNK_WIDTH].getRender())
 	{
 		facesExposed |= BACK_FACE;
@@ -827,18 +826,15 @@ void Chunk::updateBlockFront(int x, int y, int z)
 		facesExposed &= ~BACK_FACE;
 	}
 
-	//std::cout << "blocks[i] " << i << " " << std::endl;
 	m_blocks[i].setExposedFaces(facesExposed);//
 }
 
 void Chunk::updateBlockBack(int x, int y, int z)
 {
-	if (z >= CHUNK_DEPTH)
-	{
-		return;
-	}
 
 	int i = x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
+	assert(i >= 0);
+	assert(i < CHUNK_BLOCK_COUNT);
 	unsigned int facesExposed = m_blocks[i].getExposedFaces();
 
 	if (!m_blocks[i].getRender())
@@ -846,7 +842,8 @@ void Chunk::updateBlockBack(int x, int y, int z)
 		m_blocks[i].setExposedFaces(0);
 		return;
 	}
-
+	assert(i - 1 >= 0);
+	assert(i - 1 < CHUNK_BLOCK_COUNT);
 	if (!m_blocks[i - CHUNK_WIDTH].getRender())
 	{
 		facesExposed |= FRONT_FACE;
@@ -861,12 +858,10 @@ void Chunk::updateBlockBack(int x, int y, int z)
 
 void Chunk::updateBlockLeft(int x, int y, int z)
 {
-	if (x < 0)
-	{
-		return;
-	}
 
 	int i = x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
+	assert(i >= 0);
+	assert(i < CHUNK_BLOCK_COUNT);
 	unsigned int facesExposed = m_blocks[i].getExposedFaces();
 
 	if (!m_blocks[i].getRender())
@@ -874,7 +869,8 @@ void Chunk::updateBlockLeft(int x, int y, int z)
 		m_blocks[i].setExposedFaces(0);
 		return;
 	}
-
+	assert(i + 1 >= 0);
+	assert(i+1 < CHUNK_BLOCK_COUNT);
 	if (!m_blocks[i + 1].getRender())
 	{
 		facesExposed |= RIGHT_FACE;
@@ -884,17 +880,15 @@ void Chunk::updateBlockLeft(int x, int y, int z)
 		facesExposed &= ~RIGHT_FACE;
 	}
 
-	m_blocks[i].setExposedFaces(facesExposed);//
+	m_blocks[i].setExposedFaces(facesExposed);
 }
 
 void Chunk::updateBlockRight(int x, int y, int z)
 {
-	if (x >= CHUNK_WIDTH)
-	{
-		return;
-	}
 
 	int i = x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
+	assert(i >= 0);
+	assert(i < CHUNK_BLOCK_COUNT);
 	unsigned int facesExposed = m_blocks[i].getExposedFaces();
 
 	if (!m_blocks[i].getRender())
@@ -902,7 +896,8 @@ void Chunk::updateBlockRight(int x, int y, int z)
 		m_blocks[i].setExposedFaces(0);
 		return;
 	}
-
+	assert(i - 1 >= 0);
+	assert(i-1 < CHUNK_BLOCK_COUNT);
 	if (!m_blocks[i - 1].getRender())
 	{
 		facesExposed |= LEFT_FACE;
@@ -912,11 +907,13 @@ void Chunk::updateBlockRight(int x, int y, int z)
 		facesExposed &= ~LEFT_FACE;
 	}
 
-	m_blocks[i].setExposedFaces(facesExposed);//
+	m_blocks[i].setExposedFaces(facesExposed);
 }
 
 void Chunk::updateBlockTop(int x, int y, int z)
 {
+	assert(!(y >= CHUNK_HEIGHT - 1));
+
 	if (y < 0)
 	{
 		return;
@@ -924,6 +921,8 @@ void Chunk::updateBlockTop(int x, int y, int z)
 	//std::cout << "updateBlockTop" << std::endl;
 
 	int i = x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
+	assert(i >= 0);
+	assert(i < CHUNK_BLOCK_COUNT);
 	unsigned int facesExposed = m_blocks[i].getExposedFaces();
 
 	if (!m_blocks[i].getRender())
@@ -931,7 +930,8 @@ void Chunk::updateBlockTop(int x, int y, int z)
 		m_blocks[i].setExposedFaces(0);
 		return;
 	}
-
+	assert(i + CHUNK_WIDTH * CHUNK_DEPTH >= 0);
+	assert(i + CHUNK_WIDTH * CHUNK_DEPTH < CHUNK_BLOCK_COUNT);
 	if (!m_blocks[i + CHUNK_WIDTH * CHUNK_DEPTH].getRender())
 	{
 		facesExposed |= BOTTOM_FACE;
@@ -941,18 +941,21 @@ void Chunk::updateBlockTop(int x, int y, int z)
 		facesExposed &= ~BOTTOM_FACE;
 	}
 
-	m_blocks[i].setExposedFaces(facesExposed);//
+	m_blocks[i].setExposedFaces(facesExposed);
 }
 
 void Chunk::updateBlockBottom(int x, int y, int z)
 {
-
 	if (y >= CHUNK_HEIGHT)
 	{
 		return;
 	}
 
+	//std::cout << "updateBlock " << x << " " << y << " " << z << std::endl;
+
 	int i = x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
+	assert(i >= 0);
+	assert(i < CHUNK_BLOCK_COUNT);
 	unsigned int facesExposed = m_blocks[i].getExposedFaces();
 
 	if (!m_blocks[i].getRender())
@@ -960,7 +963,8 @@ void Chunk::updateBlockBottom(int x, int y, int z)
 		m_blocks[i].setExposedFaces(0);
 		return;
 	}
-
+	assert(i >= 0);
+	assert(i < CHUNK_BLOCK_COUNT);
 	if (!m_blocks[i - CHUNK_WIDTH * CHUNK_DEPTH].getRender())
 	{
 		facesExposed |= TOP_FACE;
@@ -1014,12 +1018,12 @@ bool Chunk::rayCastBlock(glm::vec3 hitBlock, int* blockHitPosition) const
 	}
 
 	int i = x + (z * CHUNK_WIDTH) + (y * CHUNK_WIDTH * CHUNK_DEPTH);
-
+	//checkBounds(i);
 	// We hit a block
 	if (m_blocks[i].getRender())
 	{
 		int j = blockHitPosition[0] + (blockHitPosition[2] * CHUNK_WIDTH) + (blockHitPosition[1] * CHUNK_WIDTH * CHUNK_DEPTH);
-
+		//checkBounds(j);
 		//std::cout << "hit " << hitBlock.x - (float)x << " " << hitBlock.y + (float)y << " " << hitBlock.z - (float)z << std::endl;
 
 		//Depending on what face of the block hit
@@ -1161,13 +1165,12 @@ bool Chunk::rayCastBlockRemove(glm::vec3 hitBlock, int* blockHitPosition)
 	}
 
 	int i = x + (z * CHUNK_WIDTH) + (y * CHUNK_WIDTH * CHUNK_DEPTH);
-
+	assert(i >= 0);
+	assert(i < CHUNK_BLOCK_COUNT);
 	// We hit a block
 	if (m_blocks[i].getRender())
 	{
-		int j = blockHitPosition[0] + (blockHitPosition[2] * CHUNK_WIDTH) + (blockHitPosition[1] * CHUNK_WIDTH * CHUNK_DEPTH);
-
-		std::cout << "hit " << hitBlock.x - (float)x << " " << hitBlock.y + (float)y << " " << hitBlock.z - (float)z << std::endl;
+		//std::cout << "hit " << hitBlock.x - (float)x << " " << hitBlock.y + (float)y << " " << hitBlock.z - (float)z << std::endl;
 
 		blockHitPosition[0] = x;
 		blockHitPosition[1] = y;
@@ -1191,6 +1194,35 @@ void Chunk::setRender(bool value, int* blockHitPosition)
 
 void Chunk::updateSurroundingBlockFaces(int x, int y, int z)
 {
+	if (x >= CHUNK_WIDTH)
+	{
+		return;
+	}
+
+	if (x < 0)
+	{
+		return;
+	}
+
+	if (y >= CHUNK_HEIGHT)
+	{
+		return;
+	}
+
+	if (y < 0)
+	{
+		return;
+	}
+
+	if (z >= CHUNK_DEPTH)
+	{
+		return;
+	}
+
+	if (z < 0)
+	{
+		return;
+	}
 	updateBlockLeft(x - 1, y, z);
 	updateBlockRight(x + 1, y, z);
 
@@ -1198,6 +1230,7 @@ void Chunk::updateSurroundingBlockFaces(int x, int y, int z)
 	updateBlockBack(x, y, z + 1);
 
 	updateBlockTop(x, y - 1, z);
+	//std::cout << x << " " << y+1 << " " << z << std::endl;
 	updateBlockBottom(x, y + 1, z);
 }
 

@@ -121,7 +121,7 @@ int main(int argc, char** argv) {
 		1, 2, 3    // Second Triangle
 	};
 
-	char *textureName = "./res/TestTexture.png";
+	char *textureName = "./res/GrassColourSmudge.png";
 	int x, y, bytesPerPixel;
 	unsigned char* textureData = stbi_load(textureName, &x, &y, &bytesPerPixel, 3);
 
@@ -154,18 +154,20 @@ int main(int argc, char** argv) {
 	glUniform1f(matShineLoc, 32.0f);
 
 	glUniform1i(glGetUniformLocation(shader.mProgram, "material.diffuse"), 0);
-	glUniform1i(glGetUniformLocation(shader.mProgram, "material.specular"), 1);
+	glUniform1i(glGetUniformLocation(shader.mProgram, "material.specular"), 0.0f);
 
 	GLint lightAmbientLoc = glGetUniformLocation(shader.mProgram, "light.ambient");
 	glUniform3f(lightAmbientLoc, 0.4f, 0.4f, 0.4f);
 	GLint lightDiffuseLoc = glGetUniformLocation(shader.mProgram, "light.diffuse");
-	glUniform3f(lightDiffuseLoc, 1.f, 1.f, 1.f);
+	glUniform3f(lightDiffuseLoc, 0.8f, 0.8f, 0.8f);
 	GLint lightSpecularLoc = glGetUniformLocation(shader.mProgram, "light.specular");
-	glUniform3f(lightSpecularLoc, 1.0f, 1.0f, 1.0f);
+	glUniform3f(lightSpecularLoc, 0.0f, 0.0f, 0.0f);
 	GLint lightPosLoc = glGetUniformLocation(shader.mProgram, "light.position");
 	glUniform3f(lightPosLoc, lightPos.x, lightPos.y, lightPos.z);
 	GLint lightDirLoc = glGetUniformLocation(shader.mProgram, "light.direction");
-	glUniform3f(lightDirLoc, 0.3f, 1.f, 0.f);
+	glm::vec3 lightDir(-0.5f, 0.6f, 0.7f);
+	lightDir = glm::normalize(lightDir);
+	glUniform3f(lightDirLoc, lightDir.x, lightDir.y, lightDir.z);
 
 
 	GLint lightConstPos = glGetUniformLocation(shader.mProgram, "light.constant");

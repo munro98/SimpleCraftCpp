@@ -4,6 +4,8 @@
 #define CHUNK_DEPTH 16
 #define CHUNK_HEIGHT 16
 
+#define CHUNK_BLOCK_COUNT CHUNK_WIDTH * CHUNK_DEPTH * CHUNK_HEIGHT
+
 #include <glm/glm.hpp>
 #include <GL/glew.h>
 

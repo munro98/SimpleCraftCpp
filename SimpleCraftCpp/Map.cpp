@@ -218,8 +218,6 @@ void Map::rayCastBlock(glm::vec3 start, glm::vec3 forward)
 			break;
 		}
 		//No block has been hit
-		
-		
 
 	}
 
@@ -245,7 +243,6 @@ void Map::rayCastBlock(glm::vec3 start, glm::vec3 forward)
 			chunkIt->second->updateBlockFront(hitChunk, blockPos[0], blockPos[1]);
 
 			hitChunk->updateBlockBack(chunkIt->second, blockPos[0], blockPos[1]);
-			std::cout << "hitChunk->updateBlockBack" << std::endl;
 		}
 	}
 
@@ -277,10 +274,6 @@ void Map::rayCastBlock(glm::vec3 start, glm::vec3 forward)
 
 	hitChunk->updateMesh();
 	//std::cout << blockPos[0] << " " << blockPos[1] << " " << blockPos[2] << std::endl;
-	
-	//hitChunk->setRender(true, blockPos);
-	//hitChunk->updateMesh();
-
 }
 
 void Map::rayCastBlockRemove(glm::vec3 start, glm::vec3 forward)

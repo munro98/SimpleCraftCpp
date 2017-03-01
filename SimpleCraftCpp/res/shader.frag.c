@@ -58,9 +58,16 @@ void main()
 	//Combined
 	vec3 result = (ambient + diffuse + specular) * objectColor;
 
-	result = clamp( result, 0.0, 1.0 );
+	///*
+	//gamma
 	result = pow( result, vec3(0.8) );
+	// contrast
 	result = result* 0.25 + 0.75*result*result*(3.0-2.0*result);
+	
+    result = clamp( result, 0.0, 1.0 );
+    //*/
 
-    color = vec4(result, 1.0f);
+	color = vec4(result, 1.0f);
+
+	
 }
