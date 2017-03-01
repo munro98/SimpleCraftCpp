@@ -8,7 +8,7 @@
 #include "HeightGenerator.h"
 
 
-Chunk::Chunk(int chunkX, int chunkZ, Chunk* frontChunk, Chunk* backChunk, Chunk* leftChunk, Chunk* rightChunk): m_blocks(new Block[CHUNK_WIDTH * CHUNK_DEPTH * CHUNK_HEIGHT]), m_ChunkX(0), m_ChunkZ(0), m_Vertices(nullptr), m_VBO(0), m_VAO(0)
+Chunk::Chunk(int chunkX, int chunkZ): m_blocks(new Block[CHUNK_WIDTH * CHUNK_DEPTH * CHUNK_HEIGHT]), m_ChunkX(0), m_ChunkZ(0), m_Vertices(nullptr), m_VBO(0), m_VAO(0)
 {
 	m_ChunkX = chunkX;
 	m_ChunkZ = chunkZ;
@@ -54,8 +54,34 @@ Chunk::Chunk(int chunkX, int chunkZ, Chunk* frontChunk, Chunk* backChunk, Chunk*
 	//auto endTime = std::chrono::high_resolution_clock::now();
 	//auto deltaTime = std::chrono::duration_cast<std::chrono::duration<double>>(endTime - startTime);
 	//std::cout << deltaTime.count() << std::endl;
+	/*
+	
+	*/
 
-	m_FaceCount = 0;
+}
+
+Chunk::~Chunk()
+{
+	//std::cout << mVertices << "\n";
+	delete[] m_blocks;
+	glDeleteBuffers(1, &m_VBO);
+	glDeleteVertexArrays(1, &m_VAO);
+	
+
+	//char c;
+	//std::cin >> c;
+}
+
+void Chunk::render()
+{
+	glBindVertexArray(m_VAO);
+	glDrawArrays(GL_TRIANGLES, 0, 6 * m_FaceCount);
+	glBindVertexArray(0);
+
+}
+
+void Chunk::updateBlockFaces(Chunk* frontChunk, Chunk* backChunk, Chunk* leftChunk, Chunk* rightChunk)
+{
 	for (int y = 0; y < CHUNK_HEIGHT; y++)
 	{
 		for (int z = 0; z < CHUNK_DEPTH; z++)
@@ -138,126 +164,11 @@ Chunk::Chunk(int chunkX, int chunkZ, Chunk* frontChunk, Chunk* backChunk, Chunk*
 				{
 					facesExposed |= BACK_FACE;
 				}
-
-				/////////////////////////////
-
-				if (facesExposed & FRONT_FACE)
-				{
-					m_FaceCount++;
-				}
-
-				if (facesExposed & BACK_FACE)
-				{
-					m_FaceCount++;
-				}
-
-				if (facesExposed & LEFT_FACE)
-				{
-					m_FaceCount++;
-				}
-
-				if (facesExposed & RIGHT_FACE)
-				{
-					m_FaceCount++;
-				}
-
-				if (facesExposed & TOP_FACE)
-				{
-					m_FaceCount++;
-				}
-
-				if (facesExposed & BOTTOM_FACE)
-				{
-					m_FaceCount++;
-				}
-				//std::cout << "blocks[i] " << i << " " << std::endl;
 				m_blocks[i].setExposedFaces(facesExposed);//
 
 			}
 		}
 	}
-
-	//std::cout << mFaceCount << std::endl;
-	m_Vertices = new GLfloat[8 * 6 * m_FaceCount];
-	//mVertices = new GLfloat[48];
-	//mVertices = new GLfloat[sizeof(topVertices) / sizeof(topVertices[0])];
-	int counter = 0;
-
-
-	for (int y = 0; y < CHUNK_HEIGHT; y++)
-	{
-		for (int z = 0; z < CHUNK_DEPTH; z++)
-		{
-			for (int x = 0; x < CHUNK_WIDTH; x++)
-			{
-				int i = x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
-
-
-				unsigned int facesExposed = m_blocks[i].getExposedFaces();
-
-				if (facesExposed & FRONT_FACE)
-				{
-					int vertrexIndex = (counter++) * 48;
-					addFace(vertrexIndex, x, y, z, chunkX, chunkZ, frontVertices);
-				}
-
-				if (facesExposed & BACK_FACE)
-				{
-					int vertrexIndex = (counter++) * 48;
-					addFace(vertrexIndex, x, y, z, chunkX, chunkZ, backVertices);
-				}
-
-				if (facesExposed & LEFT_FACE)
-				{
-					int vertrexIndex = (counter++) * 48;
-					addFace(vertrexIndex, x, y, z, chunkX, chunkZ, leftVertices);
-				}
-
-				if (facesExposed & RIGHT_FACE)
-				{
-					int vertrexIndex = (counter++) * 48;
-					addFace(vertrexIndex, x, y, z, chunkX, chunkZ, rightVertices);
-				}
-
-				if (facesExposed & TOP_FACE) //  && z == 0
-				{
-					int vertrexIndex = (counter++) * 48;
-					addFace(vertrexIndex, x, y, z, chunkX, chunkZ, topVertices);
-				}
-
-				if (facesExposed & BOTTOM_FACE)
-				{
-					int vertrexIndex = (counter++) * 48;
-					addFace(vertrexIndex, x, y, z, chunkX, chunkZ, bottomVertices);
-				}
-
-			}
-		}
-	}
-
-	
-
-	createVAO();
-}
-
-Chunk::~Chunk()
-{
-	//std::cout << mVertices << "\n";
-	delete[] m_blocks;
-	glDeleteBuffers(1, &m_VBO);
-	glDeleteVertexArrays(1, &m_VAO);
-	
-
-	//char c;
-	//std::cin >> c;
-}
-
-void Chunk::render()
-{
-	glBindVertexArray(m_VAO);
-	glDrawArrays(GL_TRIANGLES, 0, 6 * m_FaceCount);
-	glBindVertexArray(0);
-
 }
 
 void Chunk::updateMesh()

@@ -77,9 +77,10 @@ class Chunk
 {
 public:
 	Chunk();
-	Chunk(int chunkX, int chunkZ, Chunk * frontChunk, Chunk * backChunk, Chunk * leftChunk, Chunk * rightChunk);
+	Chunk(int chunkX, int chunkZ);
 	~Chunk();
 	void render();
+	void updateBlockFaces(Chunk * frontChunk, Chunk * backChunk, Chunk * leftChunk, Chunk * rightChunk);
 	void updateMesh();
 	void createVAO();
 	void updateFront(Chunk * frontChunk);

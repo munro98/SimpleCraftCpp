@@ -1,7 +1,9 @@
 #pragma once
 
-#define MAP_UPDATE_RADIUS 2
+#define MAP_UPDATE_RADIUS 1
 #define MAP_DELETE_RADIUS 8
+
+#define THREADS 4
 
 #include <unordered_map>
 #include <glm/glm.hpp>

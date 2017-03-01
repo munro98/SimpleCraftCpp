@@ -87,8 +87,9 @@ void Map::updateChunk(int x, int z) {
 		Chunk* leftChunk = findChunkAt(x - 1, z);
 		Chunk* rightChunk = findChunkAt(x + 1, z);
 
-		Chunk* chunk = new Chunk(x, z, frontChunk, backChunk, leftChunk, rightChunk);
-
+		Chunk* chunk = new Chunk(x, z);
+		chunk->updateBlockFaces(frontChunk, backChunk, leftChunk, rightChunk);
+		chunk->updateMesh();
 		m_Chunks.insert({ ChunkPosition(x, z),  chunk });
 
 		/*
