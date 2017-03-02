@@ -24,14 +24,14 @@ public:
 
 private:
 
-	float mSpeed;
-	float mPitch, mYaw;
+	float m_speed;
+	float m_pitch, m_yaw;
 
-	glm::vec3 mTarget;
-	glm::vec3 mPosition;
+	glm::vec3 m_target;
+	glm::vec3 m_position;
 
-	glm::vec3 mDirection;
-	glm::vec3 mFront;
-	glm::vec3 mUp;
-	glm::vec3 mRight;
+	glm::vec3 m_direction;
+	glm::vec3 m_front;
+	glm::vec3 m_up;
+	glm::vec3 m_right;
 };

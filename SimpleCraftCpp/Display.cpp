@@ -16,8 +16,8 @@ Display::Display(int width, int height, const std::string& title)
 	SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 32);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
-	mWindow = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL);
-	mGLContext = SDL_GL_CreateContext(mWindow);
+	m_window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL);
+	m_GLContext = SDL_GL_CreateContext(m_window);
 
 	GLenum status = glewInit();
 	if (status != GLEW_OK) {
@@ -25,13 +25,13 @@ Display::Display(int width, int height, const std::string& title)
 		std::cout << "Glew failed to initalize" << std::endl;
 	}
 
-	mClosed = false;
+	m_IsClosed = false;
 }
 
 Display::~Display()
 {
-	SDL_GL_DeleteContext(mGLContext);
-	SDL_DestroyWindow(mWindow);
+	SDL_GL_DeleteContext(m_GLContext);
+	SDL_DestroyWindow(m_window);
 	SDL_Quit();
 }
 
@@ -39,18 +39,22 @@ void Display::clear() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-bool Display::isClosed() {
-	return mClosed;
+bool Display::getIsClosed() {
+	return m_IsClosed;
+}
+
+void Display::close() {
+	m_IsClosed = true;
 }
 
 void Display::update() {
 
-	SDL_GL_SwapWindow(mWindow);
+	SDL_GL_SwapWindow(m_window);
 }
 
 SDL_Window* Display::getWindow()
 {
-	return mWindow;
+	return m_window;
 }
 
 void Display::setClearColor(float r, float g, float b, float a) {

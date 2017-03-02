@@ -12,13 +12,14 @@ public:
 	void update();
 
 	SDL_Window * getWindow();
-	bool isClosed();
+	bool getIsClosed();
+	void close();
 
-	SDL_Window* mWindow;
+	SDL_Window* m_window;
 
 private:	
 	
-	SDL_GLContext mGLContext;
-	bool mClosed;
+	SDL_GLContext m_GLContext;
+	bool m_IsClosed;
 };
 

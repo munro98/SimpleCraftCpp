@@ -65,14 +65,11 @@ float HeightGenerator::generateSmoothNoise(int x, int z)
 
 float HeightGenerator::generateNoise(int x, int z)
 {
-	//return rand() % 100;
-	
 	//rng.seed(std::random_device()());
 	static std::mt19937 rng;
 	static std::uniform_real_distribution<float> dist(-1.0f, 1.0f);
 	rng.seed(x * 49632 + z * 325176);
 	//rng.seed(Hasher::hash(x,z));
-	
 
 	//std::cout << dist(rng) << std::endl;
 	float value = dist(rng);// *2.0f - 1.0f;

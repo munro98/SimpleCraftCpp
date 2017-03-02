@@ -4,18 +4,12 @@
 
 Map::Map() : m_isRunning(true), m_thread(&Map::threadUpdateChunks, this)
 {
-
 }
 
 Map::~Map()
 {
-	m_isRunning = false;
-	//m_thread.join();
-	m_thread.detach();
-
-	//std::unique_lock<std::mutex> lck(m_threadEndMutex);
-	//m_threadEndVariable.wait(lck);
-
+	//m_isRunning = false;
+	//m_thread.detach();
 	
 	///*
 	for (auto it = m_chunks.begin(); it != m_chunks.end();) {
@@ -46,6 +40,7 @@ void Map::update(float playerX, float playerZ)
 
 	//std::cout << x << ", " << z << std::endl;
 
+	//Change this algorithm
 	///*
 	for (int xx = -MAP_UPDATE_RADIUS; xx <= MAP_UPDATE_RADIUS; xx++)
 	{
@@ -212,8 +207,11 @@ void Map::threadUpdateChunks() {
 
 void Map::stopThreads()
 {
+	std::cout << "stopping" << std::endl;
 	m_isRunning = false;
+	m_threadVariable.notify_all();
 	m_thread.join();
+	
 }
 
 void Map::render(float playerX, float playerZ)

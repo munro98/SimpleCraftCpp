@@ -217,8 +217,9 @@ int main(int argc, char** argv) {
 	Map map;
 
 	display.setClearColor(0.05f, 0.4f, 0.9f, 1.0f);
+	
 
-	while (!display.isClosed()) {
+	while (!display.getIsClosed()) {
 
 		startTime = std::chrono::high_resolution_clock::now();
 		deltaTime = std::chrono::duration_cast<std::chrono::duration<double>>(startTime - endTime);
@@ -233,7 +234,7 @@ int main(int argc, char** argv) {
 
 			switch (e.type) {
 			case SDL_QUIT:
-				return 0;
+				display.close();
 			case SDL_KEYDOWN:
 				if (e.key.keysym.sym < 4096 && e.key.keysym.sym > -1)
 					KEYS[e.key.keysym.sym] = true;
@@ -257,7 +258,7 @@ int main(int argc, char** argv) {
 				mouseX = e.motion.x;
 				mouseY = e.motion.y;
 
-				SDL_WarpMouseInWindow(display.mWindow, (int)width / 2, (int)height / 2);
+				SDL_WarpMouseInWindow(display.m_window, (int)width / 2, (int)height / 2);
 
 				float sensitivity = 0.1;
 				xoffset = (float)xoffset * sensitivity;
@@ -278,7 +279,7 @@ int main(int argc, char** argv) {
 			camera.right(deltaTime.count());
 
 		if (KEYS[SDLK_ESCAPE])
-			return 0;
+			display.close();
 
 		
 		if (MOUSEBUTTON[SDL_BUTTON_LEFT] && !LASTMOUSEBUTTON[SDL_BUTTON_LEFT])
@@ -328,7 +329,7 @@ int main(int argc, char** argv) {
 		glBindVertexArray(0);
 		
 	}
-	//map.stopThreads();
+	map.stopThreads();
 	
 	return 0;
 }
