@@ -156,7 +156,6 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Chunk.cpp" />
     <ClCompile Include="ChunkPosition.cpp" />
-    <ClCompile Include="ChunkSetQueue.cpp" />
     <ClCompile Include="Display.cpp" />
     <ClCompile Include="Hasher.cpp" />
     <ClCompile Include="HeightGenerator.cpp" />
@@ -170,7 +169,6 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Chunk.h" />
     <ClInclude Include="ChunkPosition.h" />
-    <ClInclude Include="ChunkSetQueue.h" />
     <ClInclude Include="Display.h" />
     <ClInclude Include="Hasher.h" />
     <ClInclude Include="HeightGenerator.h" />

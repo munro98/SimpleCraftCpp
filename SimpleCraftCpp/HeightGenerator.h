@@ -1,6 +1,6 @@
 #pragma once
 #define PI 3.1415926535897932384626433832795 
-#define AMPLITUDE 32.0f
+#define AMPLITUDE 6.0f
 #include <random>
 
 class HeightGenerator
@@ -16,11 +16,7 @@ public:
 	static float generateSmoothNoise(int x, int z);
 	static float generateNoise(int x, int z);
 
-	static int generateInterpolatedNoise2(int x, int z);
-
-	static int interpolate2(int y1, int y2, int length, int x);
-
-	static int generateNoise2(int x, int z);
+	static float generateNoise2(int x, int z);
 
 	
 };

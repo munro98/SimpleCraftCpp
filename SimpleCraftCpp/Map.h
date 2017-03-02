@@ -1,19 +1,20 @@
 #pragma once
 
 #define MAP_UPDATE_RADIUS 4
-#define MAP_DELETE_RADIUS 10
+#define MAP_DELETE_RADIUS 18
 
 #define THREADS 4
 
+#include <mutex>
+#include <atomic>
+#include <queue>
+#include <unordered_set>
 #include <unordered_map>
 #include <glm/glm.hpp>
 #include <GL/glew.h>
 
 #include "Chunk.h"
 #include "ChunkPosition.h"
-#include "ChunkSetQueue.h"
-#include <mutex>
-#include <atomic>
 
 class Map
 {
@@ -32,15 +33,20 @@ public:
 private:
 	bool m_isRunning;
 	std::unordered_map<ChunkPosition,  Chunk*> m_chunks;
-	std::queue<Chunk*> m_chunkQueue;
-	ChunkSetQueue m_chunkSetQueue;
+	std::queue<Chunk*> m_chunksGenerated;
+	std::queue<ChunkPosition> m_chunksToGenerate;
 
-	std::mutex m_chunkQueueMutex;
-	std::mutex m_chunkSetQueueMutex;
+	std::mutex m_chunksGeneratedMutex;
+	std::mutex m_chunksToGenerateMutex;
 	std::mutex m_threadMutex;
 	std::condition_variable m_threadVariable;
-	
+
+	std::condition_variable m_threadEndVariable;
+	std::mutex m_threadEndMutex;
+
+	std::unordered_set<ChunkPosition> m_chunksToAddToMap;
+
 	std::thread m_thread;
-	//std::atomic<bool> m_isRunning;
+
 	
 };

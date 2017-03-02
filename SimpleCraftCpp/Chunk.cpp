@@ -8,12 +8,10 @@
 #include "HeightGenerator.h"
 
 
-Chunk::Chunk(int chunkX, int chunkZ): m_blocks(new Block[CHUNK_WIDTH * CHUNK_DEPTH * CHUNK_HEIGHT]), m_chunkX(0), m_chunkZ(0), m_vertices(nullptr), m_VBO(0), m_VAO(0)
+Chunk::Chunk(int chunkX, int chunkZ): m_blocks(new Block[CHUNK_WIDTH * CHUNK_DEPTH * CHUNK_HEIGHT]), m_chunkX(chunkX), m_chunkZ(chunkZ), m_vertices(nullptr), m_VBO(0), m_VAO(0)
 {
-	m_chunkX = chunkX;
-	m_chunkZ = chunkZ;
 
-	//auto startTime = std::chrono::high_resolution_clock::now();
+	auto startTime = std::chrono::high_resolution_clock::now();
 	for (int x = 0; x < CHUNK_WIDTH; x++)
 	{
 		
@@ -51,8 +49,8 @@ Chunk::Chunk(int chunkX, int chunkZ): m_blocks(new Block[CHUNK_WIDTH * CHUNK_DEP
 			}
 	}
 
-	//auto endTime = std::chrono::high_resolution_clock::now();
-	//auto deltaTime = std::chrono::duration_cast<std::chrono::duration<double>>(endTime - startTime);
+	auto endTime = std::chrono::high_resolution_clock::now();
+	auto deltaTime = std::chrono::duration_cast<std::chrono::duration<double>>(endTime - startTime);
 	//std::cout << deltaTime.count() << std::endl;
 	/*
 	

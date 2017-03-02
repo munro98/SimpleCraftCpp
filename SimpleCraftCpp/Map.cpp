@@ -33,7 +33,9 @@ Map::~Map()
 	//m_isRunning = false;
 	//m_thread.join();
 	stopThreads();
-	std::this_thread::sleep_for(std::chrono::milliseconds(50)); // hack
+	std::this_thread::sleep_for(std::chrono::milliseconds(500)); // hack
+	//std::unique_lock<std::mutex> lck(m_threadEndMutex);
+	//m_threadEndVariable.wait(lck);
 	///*
 	for (auto it = m_chunks.begin(); it != m_chunks.end();) {
 		auto chunk = it->second;
@@ -54,21 +56,6 @@ void Map::update(float playerX, float playerZ)
 	int z = (int)std::floor(playerZ / CHUNK_DEPTH);
 
 	//std::cout << x << ", " << z << std::endl;
-
-	//Remove far chunks
-	for (auto it = m_chunks.begin(); it != m_chunks.end();) {
-		auto chunk = it->second;
-		if (abs(chunk->getChunkX() - x) > MAP_DELETE_RADIUS || abs(chunk->getChunkZ() - z) > MAP_DELETE_RADIUS) {
-			delete chunk;
-			auto toErase = it;
-			++it;
-			m_chunks.erase(toErase);
-		} else
-		{
-			++it;
-		}
-	}
-
 
 	///*
 	for (int xx = -MAP_UPDATE_RADIUS; xx <= MAP_UPDATE_RADIUS; xx++)
@@ -123,12 +110,12 @@ void Map::update(float playerX, float playerZ)
 
 
 	///*
-	m_chunkQueueMutex.lock();
-	if(!m_chunkQueue.empty())
+	m_chunksGeneratedMutex.lock();
+	if(!m_chunksGenerated.empty())
 	{
-		Chunk* chunk = m_chunkQueue.front();
-		m_chunkQueue.pop();
-		m_chunkQueueMutex.unlock();
+		Chunk* chunk = m_chunksGenerated.front();
+		m_chunksGenerated.pop();
+		m_chunksGeneratedMutex.unlock();
 		ChunkPosition chunkPos(chunk->getChunkX(), chunk->getChunkZ());
 
 		Chunk* frontChunk = findChunkAt(chunkPos.x, chunkPos.z - 1);
@@ -160,15 +147,35 @@ void Map::update(float playerX, float playerZ)
 		rightChunk->updateLeft(chunk);
 		}
 
-
+		if (m_chunks.find(chunkPos) != m_chunks.end())
+		{
+			std::cout << "fml!!!!!!!!!!!!!!!!!!!";
+		}
 		m_chunks.insert({ chunkPos,  chunk });
-		
+
+		m_chunksToAddToMap.erase(chunkPos);
 	
 	} else {
-		m_chunkQueueMutex.unlock();
+		m_chunksGeneratedMutex.unlock();
 		
 	}
 	
+	//Remove far chunks
+	/*
+	for (auto it = m_chunks.begin(); it != m_chunks.end();) {
+		auto chunk = it->second;
+		if (abs(chunk->getChunkX() - x) > MAP_DELETE_RADIUS || abs(chunk->getChunkZ() - z) > MAP_DELETE_RADIUS) {
+			delete chunk;
+			auto toErase = it;
+			++it;
+			m_chunks.erase(toErase);
+		}
+		else
+		{
+			++it;
+		}
+	}
+	*/
 	//*/
 }
 
@@ -214,12 +221,17 @@ void Map::updateChunk(int x, int z) {
 	*/
 
 	///*
-	auto chunkIt = m_chunks.find(ChunkPosition(x, z));
-	if (chunkIt == m_chunks.end())
+	ChunkPosition chunkPos(x, z);
+	auto chunkIt = m_chunks.find(chunkPos);
+	auto chunkSetIt = m_chunksToAddToMap.find(chunkPos);
+	if (chunkIt == m_chunks.end() && chunkSetIt == m_chunksToAddToMap.end())
 	{
-		m_chunkSetQueueMutex.lock();
-		m_chunkSetQueue.add(ChunkPosition(x, z));
-		m_chunkSetQueueMutex.unlock();
+		m_chunksToAddToMap.insert(chunkPos);
+
+		m_chunksToGenerateMutex.lock();
+		m_chunksToGenerate.push(chunkPos);
+		m_chunksToGenerateMutex.unlock();
+
 		m_threadVariable.notify_all();
 	}
 	//m_Chunks unlock 
@@ -231,24 +243,26 @@ void Map::threadUpdateChunks() {
 
 	while (m_isRunning) {
 		//m_ChunkSetQueue lock
-		m_chunkSetQueueMutex.lock();
-		if (!m_chunkSetQueue.empty())
+		m_chunksToGenerateMutex.lock();
+		if (!m_chunksToGenerate.empty())
 		{
-			ChunkPosition chunkPos = m_chunkSetQueue.pop();
-			m_chunkSetQueueMutex.unlock();
+			ChunkPosition chunkPos = m_chunksToGenerate.front();
+			m_chunksToGenerate.pop();
+			m_chunksToGenerateMutex.unlock();
 
 			Chunk* chunk = new Chunk(chunkPos.x, chunkPos.z);
 
-			m_chunkQueueMutex.lock();
-			m_chunkQueue.push(chunk);
-			m_chunkQueueMutex.unlock();
+			m_chunksGeneratedMutex.lock();
+			m_chunksGenerated.push(chunk);
+			m_chunksGeneratedMutex.unlock();
 		} else
 		{
-			m_chunkSetQueueMutex.unlock();
+			m_chunksToGenerateMutex.unlock();
 			std::unique_lock<std::mutex> lck(m_threadMutex);
 			m_threadVariable.wait(lck);
 		}
 	}
+	//m_threadEndVariable.notify_all();
 
 }
 
