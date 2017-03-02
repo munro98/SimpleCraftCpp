@@ -4,38 +4,19 @@
 
 Map::Map() : m_isRunning(true), m_thread(&Map::threadUpdateChunks, this)
 {
-	/*
-	for (int x = 0; x < MAP_WIDTH; x++)
-	{
-		auto chunkX = mChunks.find(x);
-		if (chunkX == mChunks.end())
-		{
-			std::unordered_map<int, Chunk*> newChunkX;
-			mChunks.insert({ x,  newChunkX });
 
-			chunkX = mChunks.find(x);
-		}
-
-		for (int z = 0; z < MAP_DEPTH; z++)
-		{
-			Chunk* chunk = new Chunk();
-			chunk->update(x, z, nullptr, nullptr, nullptr, nullptr);
-
-			chunkX->second.insert({ z,  chunk });
-		}
-	}
-	*/
-	//thread = new std::thread(&Map::threadUpdateChunks);
 }
 
 Map::~Map()
 {
-	//m_isRunning = false;
+	m_isRunning = false;
 	//m_thread.join();
-	stopThreads();
-	std::this_thread::sleep_for(std::chrono::milliseconds(500)); // hack
+	m_thread.detach();
+
 	//std::unique_lock<std::mutex> lck(m_threadEndMutex);
 	//m_threadEndVariable.wait(lck);
+
+	
 	///*
 	for (auto it = m_chunks.begin(); it != m_chunks.end();) {
 		auto chunk = it->second;
@@ -45,6 +26,14 @@ Map::~Map()
 		m_chunks.erase(toErase);
 	}
 	//*/
+	//TODO: empty queues here
+	m_chunksGeneratedMutex.lock();
+	while (!m_chunksGenerated.empty())
+	{
+		delete m_chunksGenerated.front();
+		m_chunksGenerated.pop();
+	}
+	m_chunksGeneratedMutex.unlock();
 }
 
 
@@ -68,46 +57,20 @@ void Map::update(float playerX, float playerZ)
 	}
 	//*/
 
-	/*
-	while(!m_ChunkSetQueue.empty())
-	{
-		ChunkPosition chunkPos = m_ChunkSetQueue.pop();
-
-		Chunk* frontChunk = findChunkAt(chunkPos.x, chunkPos.z - 1);
-		Chunk* backChunk = findChunkAt(chunkPos.x, chunkPos.z + 1);
-		Chunk* leftChunk = findChunkAt(chunkPos.x - 1, chunkPos.z);
-		Chunk* rightChunk = findChunkAt(chunkPos.x + 1, chunkPos.z);
-
-		
-		Chunk* chunk = new Chunk(chunkPos.x, chunkPos.z);
-		chunk->updateBlockFaces(frontChunk, backChunk, leftChunk, rightChunk);
-		chunk->updateMesh();
-
-		if (frontChunk != nullptr)
-		{
-			frontChunk->updateBack(chunk);
+	//Remove far chunks
+	for (auto it = m_chunks.begin(); it != m_chunks.end();) {
+		auto chunk = it->second;
+		if (abs(chunk->getChunkX() - x) > MAP_DELETE_RADIUS || abs(chunk->getChunkZ() - z) > MAP_DELETE_RADIUS) {
+			delete chunk;
+			auto toErase = it;
+			++it;
+			m_chunks.erase(toErase);
 		}
-
-		if (backChunk != nullptr)
+		else
 		{
-
-			backChunk->updateFront(chunk);
+			++it;
 		}
-
-		if (leftChunk != nullptr)
-		{
-			leftChunk->updateRight(chunk);
-		}
-
-		if (rightChunk != nullptr)
-		{
-			rightChunk->updateLeft(chunk);
-		}
-
-		m_Chunks.insert({ chunkPos,  chunk });
 	}
-	*/
-
 
 	///*
 	m_chunksGeneratedMutex.lock();
@@ -160,23 +123,8 @@ void Map::update(float playerX, float playerZ)
 		
 	}
 	
-	//Remove far chunks
-	/*
-	for (auto it = m_chunks.begin(); it != m_chunks.end();) {
-		auto chunk = it->second;
-		if (abs(chunk->getChunkX() - x) > MAP_DELETE_RADIUS || abs(chunk->getChunkZ() - z) > MAP_DELETE_RADIUS) {
-			delete chunk;
-			auto toErase = it;
-			++it;
-			m_chunks.erase(toErase);
-		}
-		else
-		{
-			++it;
-		}
-	}
-	*/
-	//*/
+	
+
 }
 
 void Map::updateChunk(int x, int z) {
@@ -220,7 +168,6 @@ void Map::updateChunk(int x, int z) {
 	}
 	*/
 
-	///*
 	ChunkPosition chunkPos(x, z);
 	auto chunkIt = m_chunks.find(chunkPos);
 	auto chunkSetIt = m_chunksToAddToMap.find(chunkPos);
@@ -234,9 +181,6 @@ void Map::updateChunk(int x, int z) {
 
 		m_threadVariable.notify_all();
 	}
-	//m_Chunks unlock 
-	//*/
-
 }
 
 void Map::threadUpdateChunks() {

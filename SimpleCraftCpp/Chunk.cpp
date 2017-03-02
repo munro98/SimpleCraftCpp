@@ -8,7 +8,7 @@
 #include "HeightGenerator.h"
 
 
-Chunk::Chunk(int chunkX, int chunkZ): m_blocks(new Block[CHUNK_WIDTH * CHUNK_DEPTH * CHUNK_HEIGHT]), m_chunkX(chunkX), m_chunkZ(chunkZ), m_vertices(nullptr), m_VBO(0), m_VAO(0)
+Chunk::Chunk(int chunkX, int chunkZ): m_blocks(new Block[CHUNK_WIDTH * CHUNK_DEPTH * CHUNK_HEIGHT]), m_chunkX(chunkX), m_chunkZ(chunkZ), m_vertices(nullptr), m_VBO(0), m_VAO(0), m_meshUpdateCalled(false)
 {
 
 	auto startTime = std::chrono::high_resolution_clock::now();
@@ -62,8 +62,10 @@ Chunk::~Chunk()
 {
 	//std::cout << mVertices << "\n";
 	delete[] m_blocks;
-	glDeleteBuffers(1, &m_VBO);
-	glDeleteVertexArrays(1, &m_VAO);
+	if (m_meshUpdateCalled) {
+		glDeleteBuffers(1, &m_VBO);
+		glDeleteVertexArrays(1, &m_VAO);
+	}
 	
 
 	//char c;
@@ -185,8 +187,6 @@ void Chunk::updateMesh()
 
 				unsigned int facesExposed = m_blocks[i].getExposedFaces();
 
-				/////////////////////////////
-
 				if (facesExposed & FRONT_FACE)
 				{
 					m_faceCount++;
@@ -279,8 +279,15 @@ void Chunk::updateMesh()
 		}
 	}
 
-	glDeleteBuffers(1, &m_VBO);
-	glDeleteVertexArrays(1, &m_VAO);
+	if (!m_meshUpdateCalled) {
+		m_meshUpdateCalled = true;
+	} 
+	else
+	{
+		glDeleteBuffers(1, &m_VBO);
+		glDeleteVertexArrays(1, &m_VAO);
+	}
+
 	createVAO();
 }
 

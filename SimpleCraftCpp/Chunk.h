@@ -116,6 +116,8 @@ private:
 	GLuint m_VBO;
 	GLuint m_VAO;
 	int m_faceCount;
+
+	bool m_meshUpdateCalled;
 	
 };
 

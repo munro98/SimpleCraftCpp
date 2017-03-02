@@ -1,7 +1,7 @@
 #pragma once
 
 #define MAP_UPDATE_RADIUS 4
-#define MAP_DELETE_RADIUS 18
+#define MAP_DELETE_RADIUS 32
 
 #define THREADS 4
 
