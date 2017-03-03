@@ -6,6 +6,8 @@
 
 #define CHUNK_BLOCK_COUNT CHUNK_WIDTH * CHUNK_DEPTH * CHUNK_HEIGHT
 
+#define TEXTURE_MAP_ROWS 2.0f
+
 #include <glm/glm.hpp>
 #include <GL/glew.h>
 
@@ -90,7 +92,7 @@ public:
 	void updateBlockBack(Chunk * backChunk, int x, int y);
 	void updateBlockLeft(Chunk * leftChunk, int y, int z);
 	void updateBlockRight(Chunk * rightChunk, int y, int z);
-	void addFace(int vertrexIndex, int x, int y, int z, int chunkX, int chunkZ, const GLfloat vertices[]);
+	void addFace(int vertrexIndex, int x, int y, int z, int chunkX, int chunkZ, int blockType, const GLfloat vertices[]);
 	void updateBlock(int x, int y, int z);
 	void updateBlock(bool value, int x, int y, int z);
 	void updateBlockLeft(int x, int y, int z);

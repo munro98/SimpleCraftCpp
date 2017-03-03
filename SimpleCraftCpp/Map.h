@@ -3,7 +3,7 @@
 #define MAP_UPDATE_RADIUS 4
 #define MAP_DELETE_RADIUS 32
 
-#define THREADS 4
+#define THREADS 2
 
 #include <mutex>
 #include <atomic>
@@ -47,7 +47,8 @@ private:
 
 	std::unordered_set<ChunkPosition> m_chunksToAddToMap;
 
-	std::thread m_thread;
+	std::vector<std::thread> m_threads;
+	//std::thread m_thread;
 
 	
 };

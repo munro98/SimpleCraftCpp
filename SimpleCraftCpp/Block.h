@@ -6,6 +6,7 @@
 #define RIGHT_FACE  00001000
 #define BOTTOM_FACE 00010000
 #define TOP_FACE    00100000
+#define TRANSPARENT 01000000
 
 class Block
 {
@@ -13,25 +14,15 @@ public:
 	Block();
 	~Block();
 
-	void Update();
-
-	void updateBlock(Block * frontBlock, Block * backBlock, Block * leftBlock, Block * rightBlock);
-
-	void updateFront(Block * frontBlock);
-
-	void updateBack(Block * backBlock);
-
-	void updateLeft(Block * leftBlock);
-
-	void updateRight(Block * rightBlock);
-
 	void setExposedFaces(unsigned int facesExposed);
 	unsigned int getExposedFaces();
 	void setRender(bool render);
-
+	void setType(unsigned char type);
 	bool getRender();
+	unsigned char getType();
 private:
-	unsigned int m_ExposedFaces;
-	bool m_Render;
+	bool m_render;
+	unsigned int m_exposedFaces;
+	unsigned char m_type;
 
 };

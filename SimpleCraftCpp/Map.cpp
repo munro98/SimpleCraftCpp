@@ -2,16 +2,17 @@
 #include "Map.h"
 
 
-Map::Map() : m_isRunning(true), m_thread(&Map::threadUpdateChunks, this)
+Map::Map() : m_isRunning(true)
 {
+	for (int i = 0; i < THREADS; i++)
+	{
+		m_threads.push_back(std::thread(&Map::threadUpdateChunks, this));
+	}
 }
 
 Map::~Map()
 {
-	//m_isRunning = false;
-	//m_thread.detach();
-	
-	///*
+
 	for (auto it = m_chunks.begin(); it != m_chunks.end();) {
 		auto chunk = it->second;
 		delete chunk;
@@ -19,8 +20,7 @@ Map::~Map()
 		++it;
 		m_chunks.erase(toErase);
 	}
-	//*/
-	//TODO: empty queues here
+
 	m_chunksGeneratedMutex.lock();
 	while (!m_chunksGenerated.empty())
 	{
@@ -61,20 +61,20 @@ void Map::update(float playerX, float playerZ)
 	// current position (i, j) and how much of current segment we passed
 	int i = 0;
 	int j = 0;
-	int segment_passed = 0;
+	int segmentPassed = 0;
 	for (int k = 0; k < 128; ++k) {
 		// make a step, add 'direction' vector (di, dj) to current position (i, j)
 		i += di;
 		j += dj;
-		++segment_passed;
+		++segmentPassed;
 		//std::cout << i << " " << j << "\n";
 		updateChunk(x + i, z + j);
 
-		if (segment_passed == segmentLength) {
+		if (segmentPassed == segmentLength) {
 			// done with current segment
-			segment_passed = 0;
+			segmentPassed = 0;
 
-			// 'rotate' directions
+			//rotate direction
 			int buffer = di;
 			di = -dj;
 			dj = buffer;
@@ -139,10 +139,6 @@ void Map::update(float playerX, float playerZ)
 		rightChunk->updateLeft(chunk);
 		}
 
-		if (m_chunks.find(chunkPos) != m_chunks.end())
-		{
-			std::cout << "fml!!!!!!!!!!!!!!!!!!!";
-		}
 		m_chunks.insert({ chunkPos,  chunk });
 
 		m_chunksToAddToMap.erase(chunkPos);
@@ -152,8 +148,6 @@ void Map::update(float playerX, float playerZ)
 		
 	}
 	
-	
-
 }
 
 void Map::updateChunk(int x, int z) {
@@ -206,8 +200,10 @@ void Map::stopThreads()
 	std::cout << "stopping" << std::endl;
 	m_isRunning = false;
 	m_threadVariable.notify_all();
-	m_thread.join();
-	
+	for (int i = 0; i < THREADS; i++)
+	{
+		m_threads[i].join();
+	}
 }
 
 void Map::render(float playerX, float playerZ)

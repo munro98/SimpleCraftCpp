@@ -46,6 +46,16 @@ Chunk::Chunk(int chunkX, int chunkZ): m_blocks(new Block[CHUNK_WIDTH * CHUNK_DEP
 					{
 						m_blocks[i].setRender(true);
 					}
+
+					if (y > 12)
+					{
+						m_blocks[i].setType(2);
+					}
+
+					if (y > 14)
+					{
+						m_blocks[i].setType(3);
+					}
 				}
 			}
 	}
@@ -241,41 +251,42 @@ void Chunk::updateMesh()
 
 
 				unsigned int facesExposed = m_blocks[i].getExposedFaces();
+				unsigned char blockType = m_blocks[i].getType();
 
 				if (facesExposed & FRONT_FACE)
 				{
-					int vertrexIndex = (counter++) * 48;
-					addFace(vertrexIndex, x, y, z, m_chunkX, m_chunkZ, frontVertices);
+					int vertexIndex = (counter++) * 48;
+					addFace(vertexIndex, x, y, z, m_chunkX, m_chunkZ, blockType, frontVertices);
 				}
 
 				if (facesExposed & BACK_FACE)
 				{
-					int vertrexIndex = (counter++) * 48;
-					addFace(vertrexIndex, x, y, z, m_chunkX, m_chunkZ, backVertices);
+					int vertexIndex = (counter++) * 48;
+					addFace(vertexIndex, x, y, z, m_chunkX, m_chunkZ, blockType, backVertices);
 				}
 
 				if (facesExposed & LEFT_FACE)
 				{
-					int vertrexIndex = (counter++) * 48;
-					addFace(vertrexIndex, x, y, z, m_chunkX, m_chunkZ, leftVertices);
+					int vertexIndex = (counter++) * 48;
+					addFace(vertexIndex, x, y, z, m_chunkX, m_chunkZ, blockType, leftVertices);
 				}
 
 				if (facesExposed & RIGHT_FACE)
 				{
-					int vertrexIndex = (counter++) * 48;
-					addFace(vertrexIndex, x, y, z, m_chunkX, m_chunkZ, rightVertices);
+					int vertexIndex = (counter++) * 48;
+					addFace(vertexIndex, x, y, z, m_chunkX, m_chunkZ, blockType, rightVertices);
 				}
 
 				if (facesExposed & TOP_FACE)
 				{
-					int vertrexIndex = (counter++) * 48;
-					addFace(vertrexIndex, x, y, z, m_chunkX, m_chunkZ, topVertices);
+					int vertexIndex = (counter++) * 48;
+					addFace(vertexIndex, x, y, z, m_chunkX, m_chunkZ, blockType, topVertices);
 				}
 
 				if (facesExposed & BOTTOM_FACE)
 				{
-					int vertrexIndex = (counter++) * 48;
-					addFace(vertrexIndex, x, y, z, m_chunkX, m_chunkZ, bottomVertices);
+					int vertexIndex = (counter++) * 48;
+					addFace(vertexIndex, x, y, z, m_chunkX, m_chunkZ, blockType, bottomVertices);
 				}
 
 			}
@@ -292,6 +303,106 @@ void Chunk::updateMesh()
 	}
 
 	createVAO();
+}
+/* Unoptimised
+void Chunk::addFace(int vertrexIndex, int x, int y, int z, int chunkX, int chunkZ, int blockType, const GLfloat vertices[])
+{
+	y = -y;
+	memcpy(m_vertices + vertrexIndex, vertices, 192);
+
+	//int blockType = 3;
+	int textureX = blockType % 2;
+	int textureY = blockType / 2;
+
+	GLfloat textureXOffset = textureX * 0.5f;
+	GLfloat textureYOffset = textureY * 0.5f;
+
+	//Offset vertex values by position of block in the chunk + chunks position
+	m_vertices[vertrexIndex] += (GLfloat)(x + chunkX * CHUNK_WIDTH);
+	m_vertices[vertrexIndex + 8] += (GLfloat)(x + chunkX * CHUNK_WIDTH);
+	m_vertices[vertrexIndex + 16] += (GLfloat)(x + chunkX * CHUNK_WIDTH);
+	m_vertices[vertrexIndex + 24] += (GLfloat)(x + chunkX * CHUNK_WIDTH);
+	m_vertices[vertrexIndex + 32] += (GLfloat)(x + chunkX * CHUNK_WIDTH);
+	m_vertices[vertrexIndex + 40] += (GLfloat)(x + chunkX * CHUNK_WIDTH);
+
+	m_vertices[vertrexIndex + 1] += (GLfloat)(y);
+	m_vertices[vertrexIndex + 8 + 1] += (GLfloat)(y);
+	m_vertices[vertrexIndex + 16 + 1] += (GLfloat)(y);
+	m_vertices[vertrexIndex + 24 + 1] += (GLfloat)(y);
+	m_vertices[vertrexIndex + 32 + 1] += (GLfloat)(y);
+	m_vertices[vertrexIndex + 40 + 1] += (GLfloat)(y);
+
+	m_vertices[vertrexIndex + 2] += (GLfloat)(z + chunkZ * CHUNK_DEPTH);
+	m_vertices[vertrexIndex + 8 + 2] += (GLfloat)(z + chunkZ * CHUNK_DEPTH);
+	m_vertices[vertrexIndex + 16 + 2] += (GLfloat)(z + chunkZ * CHUNK_DEPTH);
+	m_vertices[vertrexIndex + 24 + 2] += (GLfloat)(z + chunkZ * CHUNK_DEPTH);
+	m_vertices[vertrexIndex + 32 + 2] += (GLfloat)(z + chunkZ * CHUNK_DEPTH);
+	m_vertices[vertrexIndex + 40 + 2] += (GLfloat)(z + chunkZ * CHUNK_DEPTH);
+
+
+	
+	m_vertices[vertrexIndex + 6] = m_vertices[vertrexIndex + 6] / TEXTURE_MAP_ROWS + textureXOffset;
+	m_vertices[vertrexIndex + 7] = m_vertices[vertrexIndex + 7] / TEXTURE_MAP_ROWS + textureYOffset;
+
+	m_vertices[vertrexIndex + 8 + 6] = m_vertices[vertrexIndex + 8 + 6] / TEXTURE_MAP_ROWS + textureXOffset;
+	m_vertices[vertrexIndex + 8 + 7] = m_vertices[vertrexIndex + 8 + 7] / TEXTURE_MAP_ROWS + textureYOffset;
+
+	m_vertices[vertrexIndex + 16 + 6] = m_vertices[vertrexIndex + 16 + 6] / TEXTURE_MAP_ROWS + textureXOffset;
+	m_vertices[vertrexIndex + 16 + 7] = m_vertices[vertrexIndex + 16 + 7] / TEXTURE_MAP_ROWS + textureYOffset;
+
+	m_vertices[vertrexIndex + 24 + 6] = m_vertices[vertrexIndex + 24 + 6] / TEXTURE_MAP_ROWS + textureXOffset;
+	m_vertices[vertrexIndex + 24 + 7] = m_vertices[vertrexIndex + 24 + 7] / TEXTURE_MAP_ROWS + textureYOffset;
+
+	m_vertices[vertrexIndex + 32 + 6] = m_vertices[vertrexIndex + 32 + 6] / TEXTURE_MAP_ROWS + textureXOffset;
+	m_vertices[vertrexIndex + 32 + 7] = m_vertices[vertrexIndex + 32 + 7] / TEXTURE_MAP_ROWS + textureYOffset;
+
+	m_vertices[vertrexIndex + 40 + 6] = m_vertices[vertrexIndex + 40 + 6] / TEXTURE_MAP_ROWS + textureXOffset;
+	m_vertices[vertrexIndex + 40 + 7] = m_vertices[vertrexIndex + 40 + 7] / TEXTURE_MAP_ROWS + textureYOffset;
+}
+*/
+
+void Chunk::addFace(int vertrexIndex, int x, int y, int z, int chunkX, int chunkZ, int blockType, const GLfloat vertices[])
+{
+	y = -y;
+	memcpy(m_vertices + vertrexIndex, vertices, 192);
+
+	int textureX = blockType % 2;
+	int textureY = blockType / 2;
+
+	GLfloat textureXOffset = textureX * 1.0f / TEXTURE_MAP_ROWS;
+	GLfloat textureYOffset = textureY * 1.0f / TEXTURE_MAP_ROWS;
+
+	//Offset vertex values by position of block in the chunk + chunks position
+	m_vertices[vertrexIndex] += (GLfloat)(x + chunkX * CHUNK_WIDTH);
+	m_vertices[vertrexIndex + 1] += (GLfloat)(y);
+	m_vertices[vertrexIndex + 2] += (GLfloat)(z + chunkZ * CHUNK_DEPTH);
+	m_vertices[vertrexIndex + 6] = m_vertices[vertrexIndex + 6] / TEXTURE_MAP_ROWS + textureXOffset;
+	m_vertices[vertrexIndex + 7] = m_vertices[vertrexIndex + 7] / TEXTURE_MAP_ROWS + textureYOffset;
+	m_vertices[vertrexIndex + 8] += (GLfloat)(x + chunkX * CHUNK_WIDTH);
+	m_vertices[vertrexIndex + 8 + 1] += (GLfloat)(y);
+	m_vertices[vertrexIndex + 8 + 2] += (GLfloat)(z + chunkZ * CHUNK_DEPTH);
+	m_vertices[vertrexIndex + 8 + 6] = m_vertices[vertrexIndex + 8 + 6] / TEXTURE_MAP_ROWS + textureXOffset;
+	m_vertices[vertrexIndex + 8 + 7] = m_vertices[vertrexIndex + 8 + 7] / TEXTURE_MAP_ROWS + textureYOffset;
+	m_vertices[vertrexIndex + 16] += (GLfloat)(x + chunkX * CHUNK_WIDTH);
+	m_vertices[vertrexIndex + 16 + 1] += (GLfloat)(y);
+	m_vertices[vertrexIndex + 16 + 2] += (GLfloat)(z + chunkZ * CHUNK_DEPTH);
+	m_vertices[vertrexIndex + 16 + 6] = m_vertices[vertrexIndex + 16 + 6] / TEXTURE_MAP_ROWS + textureXOffset;
+	m_vertices[vertrexIndex + 16 + 7] = m_vertices[vertrexIndex + 16 + 7] / TEXTURE_MAP_ROWS + textureYOffset;
+	m_vertices[vertrexIndex + 24] += (GLfloat)(x + chunkX * CHUNK_WIDTH);
+	m_vertices[vertrexIndex + 24 + 1] += (GLfloat)(y);
+	m_vertices[vertrexIndex + 24 + 2] += (GLfloat)(z + chunkZ * CHUNK_DEPTH);
+	m_vertices[vertrexIndex + 24 + 6] = m_vertices[vertrexIndex + 24 + 6] / TEXTURE_MAP_ROWS + textureXOffset;
+	m_vertices[vertrexIndex + 24 + 7] = m_vertices[vertrexIndex + 24 + 7] / TEXTURE_MAP_ROWS + textureYOffset;
+	m_vertices[vertrexIndex + 32] += (GLfloat)(x + chunkX * CHUNK_WIDTH);
+	m_vertices[vertrexIndex + 32 + 1] += (GLfloat)(y);
+	m_vertices[vertrexIndex + 32 + 2] += (GLfloat)(z + chunkZ * CHUNK_DEPTH);
+	m_vertices[vertrexIndex + 32 + 6] = m_vertices[vertrexIndex + 32 + 6] / TEXTURE_MAP_ROWS + textureXOffset;
+	m_vertices[vertrexIndex + 32 + 7] = m_vertices[vertrexIndex + 32 + 7] / TEXTURE_MAP_ROWS + textureYOffset;
+	m_vertices[vertrexIndex + 40] += (GLfloat)(x + chunkX * CHUNK_WIDTH);
+	m_vertices[vertrexIndex + 40 + 1] += (GLfloat)(y);
+	m_vertices[vertrexIndex + 40 + 2] += (GLfloat)(z + chunkZ * CHUNK_DEPTH);
+	m_vertices[vertrexIndex + 40 + 6] = m_vertices[vertrexIndex + 40 + 6] / TEXTURE_MAP_ROWS + textureXOffset;
+	m_vertices[vertrexIndex + 40 + 7] = m_vertices[vertrexIndex + 40 + 7] / TEXTURE_MAP_ROWS + textureYOffset;
 }
 
 void Chunk::createVAO()
@@ -312,6 +423,9 @@ void Chunk::createVAO()
 
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(2);
+
+	//glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), (GLvoid*)(8 * sizeof(GLfloat)));
+	//glEnableVertexAttribArray(3);
 
 	delete[] m_vertices;
 }
@@ -433,7 +547,7 @@ void Chunk::updateRight(Chunk* rightChunk)
 	}
 	updateMesh();
 }
-//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void Chunk::updateBlockFront(Chunk* frontChunk, int x, int y)
 {
 
@@ -458,7 +572,6 @@ void Chunk::updateBlockFront(Chunk* frontChunk, int x, int y)
 
 	updateMesh();
 }
-
 
 void Chunk::updateBlockBack(Chunk* backChunk, int x, int y)
 {
@@ -531,35 +644,6 @@ void Chunk::updateBlockRight(Chunk* rightChunk, int y, int z)
 	m_blocks[i].setExposedFaces(facesExposed);
 
 	updateMesh();
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void Chunk::addFace(int vertrexIndex ,int x, int y, int z,int chunkX, int chunkZ, const GLfloat vertices[])
-{
-	y = -y;
-	memcpy(m_vertices + vertrexIndex, vertices, 192);
-	//std::cout << "hit " << sizeof(vertices) << " " << std::endl;
-	m_vertices[vertrexIndex] += (GLfloat)(x + chunkX * CHUNK_WIDTH);
-	m_vertices[vertrexIndex + 8] += (GLfloat)(x + chunkX * CHUNK_WIDTH);
-	m_vertices[vertrexIndex + 16] += (GLfloat)(x + chunkX * CHUNK_WIDTH);
-	m_vertices[vertrexIndex + 24] += (GLfloat)(x + chunkX * CHUNK_WIDTH);
-	m_vertices[vertrexIndex + 32] += (GLfloat)(x + chunkX * CHUNK_WIDTH);
-	m_vertices[vertrexIndex + 40] += (GLfloat)(x + chunkX * CHUNK_WIDTH);
-
-	m_vertices[vertrexIndex + 1] += (GLfloat)(y);
-	m_vertices[vertrexIndex + 8 + 1] += (GLfloat)(y);
-	m_vertices[vertrexIndex + 16 + 1] += (GLfloat)(y);
-	m_vertices[vertrexIndex + 24 + 1] += (GLfloat)(y);
-	m_vertices[vertrexIndex + 32 + 1] += (GLfloat)(y);
-	m_vertices[vertrexIndex + 40 + 1] += (GLfloat)(y);
-
-	m_vertices[vertrexIndex + 2] += (GLfloat)(z + chunkZ * CHUNK_DEPTH);
-	m_vertices[vertrexIndex + 8 + 2] += (GLfloat)(z + chunkZ * CHUNK_DEPTH);
-	m_vertices[vertrexIndex + 16 + 2] += (GLfloat)(z + chunkZ * CHUNK_DEPTH);
-	m_vertices[vertrexIndex + 24 + 2] += (GLfloat)(z + chunkZ * CHUNK_DEPTH);
-	m_vertices[vertrexIndex + 32 + 2] += (GLfloat)(z + chunkZ * CHUNK_DEPTH);
-	m_vertices[vertrexIndex + 40 + 2] += (GLfloat)(z + chunkZ * CHUNK_DEPTH);
 }
 
 void Chunk::updateBlock(int x, int y, int z)

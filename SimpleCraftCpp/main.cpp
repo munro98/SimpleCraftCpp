@@ -121,7 +121,7 @@ int main(int argc, char** argv) {
 		1, 2, 3    // Second Triangle
 	};
 
-	char *textureName = "./res/GrassColourSmudge.png";
+	char *textureName = "./res/TextureMap.png";
 	int x, y, bytesPerPixel;
 	unsigned char* textureData = stbi_load(textureName, &x, &y, &bytesPerPixel, 3);
 
@@ -159,7 +159,7 @@ int main(int argc, char** argv) {
 	GLint lightAmbientLoc = glGetUniformLocation(shader.mProgram, "light.ambient");
 	glUniform3f(lightAmbientLoc, 0.4f, 0.4f, 0.4f);
 	GLint lightDiffuseLoc = glGetUniformLocation(shader.mProgram, "light.diffuse");
-	glUniform3f(lightDiffuseLoc, 1.2f, 1.2f, 1.2f);
+	glUniform3f(lightDiffuseLoc, 1.0f, 1.0f, 1.0f);
 	GLint lightSpecularLoc = glGetUniformLocation(shader.mProgram, "light.specular");
 	glUniform3f(lightSpecularLoc, 0.0f, 0.0f, 0.0f);
 	GLint lightPosLoc = glGetUniformLocation(shader.mProgram, "light.position");
@@ -306,12 +306,12 @@ int main(int argc, char** argv) {
 		
 		if (MOUSEBUTTON[SDL_BUTTON_LEFT] && !LASTMOUSEBUTTON[SDL_BUTTON_LEFT])
 		{
-			map.rayCastBlock(camera.getPosition(), camera.getFront());
+			map.rayCastBlockRemove(camera.getPosition(), camera.getFront());
 		}
 		
 		if (MOUSEBUTTON[SDL_BUTTON_RIGHT] && !LASTMOUSEBUTTON[SDL_BUTTON_RIGHT])
 		{
-			map.rayCastBlockRemove(camera.getPosition(), camera.getFront());
+			map.rayCastBlock(camera.getPosition(), camera.getFront());
 		}
 		
 
@@ -334,6 +334,7 @@ int main(int argc, char** argv) {
 		glBindTexture(GL_TEXTURE_2D, texture);
 
 		glm::mat4 mapModelMatrix = glm::mat4();
+		//glm::translate(mapModelMatrix, camera.getPosition());
 		glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(mapModelMatrix));
 		glBindVertexArray(0);
 
