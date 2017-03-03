@@ -105,6 +105,8 @@ public:
 	void setRender(bool value, int * blockHitPosition);
 	void updateSurroundingBlockFaces(int x, int y, int z);
 
+	bool hitBlock(glm::vec3 & position);
+
 	int getChunkX();
 	int getChunkZ();
 private:

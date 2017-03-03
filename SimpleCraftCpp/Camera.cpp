@@ -2,6 +2,7 @@
 
 Camera::Camera()
 {
+	//m_position = glm::vec3(1140000.0f, 8.0f, 10.0f);
 	m_position = glm::vec3(0.0f, 8.0f, 10.0f);
 
 	m_target = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -59,19 +60,23 @@ void Camera::rotate(float x, float y) {
 	m_right = glm::normalize(glm::cross(m_up, m_direction));
 }
 
-glm::vec3 Camera::getPosition() {
+void Camera::setPosition(glm::vec3& position) {
+	m_position = position;
+}
+
+glm::vec3& Camera::getPosition() {
 	return m_position;
 }
 
-glm::vec3 Camera::getFront() {
+glm::vec3& Camera::getFront() {
 	return m_front;
 }
 
-glm::vec3 Camera::getUp() {
+glm::vec3& Camera::getUp() {
 	return m_up;
 }
 
-glm::vec3 Camera::getRight() {
+glm::vec3& Camera::getRight() {
 	return m_right;
 }
 

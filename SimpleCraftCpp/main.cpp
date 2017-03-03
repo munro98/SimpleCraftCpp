@@ -159,7 +159,7 @@ int main(int argc, char** argv) {
 	GLint lightAmbientLoc = glGetUniformLocation(shader.mProgram, "light.ambient");
 	glUniform3f(lightAmbientLoc, 0.4f, 0.4f, 0.4f);
 	GLint lightDiffuseLoc = glGetUniformLocation(shader.mProgram, "light.diffuse");
-	glUniform3f(lightDiffuseLoc, 0.8f, 0.8f, 0.8f);
+	glUniform3f(lightDiffuseLoc, 1.2f, 1.2f, 1.2f);
 	GLint lightSpecularLoc = glGetUniformLocation(shader.mProgram, "light.specular");
 	glUniform3f(lightSpecularLoc, 0.0f, 0.0f, 0.0f);
 	GLint lightPosLoc = glGetUniformLocation(shader.mProgram, "light.position");
@@ -269,14 +269,36 @@ int main(int argc, char** argv) {
 			}
 		}
 
+		glm::vec3 cameraVelocity(0.0f, 0.0f, 0.0f);
+		float speed = 10.0f;
+
 		if (KEYS[SDLK_w])
-			camera.forward(deltaTime.count());
+			cameraVelocity += camera.getFront() * speed * (float)deltaTime.count();
+			//camera.forward(deltaTime.count());
 		if (KEYS[SDLK_s])
-			camera.backward(deltaTime.count());
+			cameraVelocity -= camera.getFront() * speed * (float)deltaTime.count();
 		if (KEYS[SDLK_a])
-			camera.left(deltaTime.count());
+			cameraVelocity -= speed * (float)deltaTime.count()  * glm::normalize(glm::cross(camera.getFront(), camera.getUp()));
 		if (KEYS[SDLK_d])
-			camera.right(deltaTime.count());
+			cameraVelocity += speed * (float)deltaTime.count() * glm::normalize(glm::cross(camera.getFront(), camera.getUp()));
+
+		// Collision
+		if (map.hitBlock(camera.getPosition() + glm::vec3(cameraVelocity.x, 0.0f, 0.0f)))
+		{
+			cameraVelocity.x = 0.0f;
+		}
+
+		if (map.hitBlock(camera.getPosition() + glm::vec3(0.0f, cameraVelocity.y, 0.0f)))
+		{
+			cameraVelocity.y = 0.0f;
+		}
+
+		if (map.hitBlock(camera.getPosition() + glm::vec3(0.0f, 0.0f, cameraVelocity.z)))
+		{
+			cameraVelocity.z = 0.0f;
+		}
+
+		camera.setPosition(camera.getPosition() + cameraVelocity);
 
 		if (KEYS[SDLK_ESCAPE])
 			display.close();

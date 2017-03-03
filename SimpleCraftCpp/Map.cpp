@@ -41,7 +41,7 @@ void Map::update(float playerX, float playerZ)
 	//std::cout << x << ", " << z << std::endl;
 
 	//Change this algorithm
-	///*
+	/*
 	for (int xx = -MAP_UPDATE_RADIUS; xx <= MAP_UPDATE_RADIUS; xx++)
 	{
 		for (int zz = -MAP_UPDATE_RADIUS; zz <= MAP_UPDATE_RADIUS; zz++)
@@ -50,7 +50,41 @@ void Map::update(float playerX, float playerZ)
 			updateChunk(x + xx, z + zz);
 		}
 	}
-	//*/
+	*/
+
+	updateChunk(x, z);
+
+	int di = 1;
+	int dj = 0;
+	int segmentLength = 1;
+
+	// current position (i, j) and how much of current segment we passed
+	int i = 0;
+	int j = 0;
+	int segment_passed = 0;
+	for (int k = 0; k < 128; ++k) {
+		// make a step, add 'direction' vector (di, dj) to current position (i, j)
+		i += di;
+		j += dj;
+		++segment_passed;
+		//std::cout << i << " " << j << "\n";
+		updateChunk(x + i, z + j);
+
+		if (segment_passed == segmentLength) {
+			// done with current segment
+			segment_passed = 0;
+
+			// 'rotate' directions
+			int buffer = di;
+			di = -dj;
+			dj = buffer;
+
+			// increase segment length if necessary
+			if (dj == 0) {
+				++segmentLength;
+			}
+		}
+	}
 
 	//Remove far chunks
 	for (auto it = m_chunks.begin(); it != m_chunks.end();) {
@@ -123,45 +157,6 @@ void Map::update(float playerX, float playerZ)
 }
 
 void Map::updateChunk(int x, int z) {
-	/*
-	auto chunkIt = m_Chunks.find(ChunkPosition(x, z));
-	if (chunkIt == m_Chunks.end())
-	{
-		Chunk* frontChunk = findChunkAt(x,z - 1);
-		Chunk* backChunk = findChunkAt(x, z + 1);
-		Chunk* leftChunk = findChunkAt(x - 1, z);
-		Chunk* rightChunk = findChunkAt(x + 1, z);
-
-		Chunk* chunk = new Chunk(x, z);
-		chunk->updateBlockFaces(frontChunk, backChunk, leftChunk, rightChunk);
-		chunk->updateMesh();
-		m_Chunks.insert({ ChunkPosition(x, z),  chunk });
-
-		
-	
-		if (frontChunk != nullptr)
-		{
-			frontChunk->updateBack(chunk);
-		}
-
-		if (backChunk != nullptr)
-		{
-
-			backChunk->updateFront(chunk);
-		}
-
-		if (leftChunk != nullptr)
-		{
-			leftChunk->updateRight(chunk);
-		}
-
-		if (rightChunk != nullptr)
-		{
-			rightChunk->updateLeft(chunk);
-		}
-		
-	}
-	*/
 
 	ChunkPosition chunkPos(x, z);
 	auto chunkIt = m_chunks.find(chunkPos);
@@ -176,6 +171,7 @@ void Map::updateChunk(int x, int z) {
 
 		m_threadVariable.notify_all();
 	}
+
 }
 
 void Map::threadUpdateChunks() {
@@ -221,7 +217,7 @@ void Map::render(float playerX, float playerZ)
 	}
 }
 
-void Map::rayCastBlock(glm::vec3 start, glm::vec3 forward)
+void Map::rayCastBlock(glm::vec3& start, glm::vec3& forward)
 {
 
 	static float stepValue = 0.1f;
@@ -364,7 +360,7 @@ void Map::rayCastBlock(glm::vec3 start, glm::vec3 forward)
 	//std::cout << blockPos[0] << " " << blockPos[1] << " " << blockPos[2] << std::endl;
 }
 
-void Map::rayCastBlockRemove(glm::vec3 start, glm::vec3 forward)
+void Map::rayCastBlockRemove(glm::vec3& start, glm::vec3& forward)
 {
 
 	static float stepValue = 0.1f;
@@ -452,6 +448,36 @@ void Map::rayCastBlockRemove(glm::vec3 start, glm::vec3 forward)
 
 	hitChunk->updateMesh();
 	//std::cout << blockPos[0] << " " << blockPos[1] << " " << blockPos[2] << std::endl;
+
+}
+
+bool Map::hitBlock(glm::vec3& position)
+{
+	Chunk* hitChunk = nullptr;
+
+	int x;
+	int z;
+	std::unordered_map<int, std::unordered_map<int, Chunk*>>::iterator chunkX;
+
+	float playerX = position.x;
+	float playerZ = position.z;
+
+	x = (int)std::floor(playerX / CHUNK_WIDTH);
+	z = (int)std::floor(playerZ / CHUNK_DEPTH);
+
+	auto chunkIt = m_chunks.find(ChunkPosition(x, z));
+	if (chunkIt == m_chunks.end())
+	{
+		return false;
+	}
+
+	hitChunk = chunkIt->second;
+	if (hitChunk->hitBlock(position))
+	{
+		return true;
+	}
+
+	return false;
 
 }
 

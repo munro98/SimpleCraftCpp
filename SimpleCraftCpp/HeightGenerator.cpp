@@ -53,7 +53,6 @@ float HeightGenerator::lerp(float a, float b, float f)
 	return a + f * (b - a);
 }
 
-//TODO: optimise this
 float HeightGenerator::generateSmoothNoise(int x, int z)
 {
 	//float corners = (generateNoise2(x-1, z-1) + generateNoise2(x+1, z-1) + generateNoise2(x-1, z+1) + generateNoise2(x+1, z+1)) / 8.0f;

@@ -14,10 +14,12 @@ public:
 	void Camera::right(double deltaTime);
 	void Camera::rotate(float pitch, float yaw);
 
-	glm::vec3 Camera::getPosition();
-	glm::vec3 Camera::getFront();
-	glm::vec3 Camera::getUp();
-	glm::vec3 Camera::getRight();
+	void setPosition(glm::vec3 & position);
+
+	glm::vec3& Camera::getPosition();
+	glm::vec3& Camera::getFront();
+	glm::vec3& Camera::getUp();
+	glm::vec3& Camera::getRight();
 
 	float getPitch();
 

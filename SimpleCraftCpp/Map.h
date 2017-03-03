@@ -27,8 +27,9 @@ public:
 	void updateChunk(int x, int z);
 	void threadUpdateChunks();
 	void render(float x, float y);
-	void rayCastBlock(glm::vec3 start, glm::vec3 forward);
-	void rayCastBlockRemove(glm::vec3 start, glm::vec3 forward);
+	void rayCastBlock(glm::vec3& start, glm::vec3& forward);
+	void rayCastBlockRemove(glm::vec3& start, glm::vec3& forward);
+	bool hitBlock(glm::vec3 & position);
 	Chunk* findChunkAt(int x, int z);
 private:
 	bool m_isRunning;

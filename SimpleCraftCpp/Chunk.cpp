@@ -6,6 +6,7 @@
 #include "Chunk.h"
 #include <chrono>
 #include "HeightGenerator.h"
+#include <thread>
 
 
 Chunk::Chunk(int chunkX, int chunkZ): m_blocks(new Block[CHUNK_WIDTH * CHUNK_DEPTH * CHUNK_HEIGHT]), m_chunkX(chunkX), m_chunkZ(chunkZ), m_vertices(nullptr), m_VBO(0), m_VAO(0), m_meshUpdateCalled(false)
@@ -48,6 +49,8 @@ Chunk::Chunk(int chunkX, int chunkZ): m_blocks(new Block[CHUNK_WIDTH * CHUNK_DEP
 				}
 			}
 	}
+
+	//std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
 	auto endTime = std::chrono::high_resolution_clock::now();
 	auto deltaTime = std::chrono::duration_cast<std::chrono::duration<double>>(endTime - startTime);
@@ -1069,8 +1072,6 @@ bool Chunk::rayCastBlockRemove(glm::vec3 hitBlock, int* blockHitPosition)
 
 	//std::cout << "block " << x << " " << y << " " << z << std::endl;
 
-	// do we need this?
-	//should we stop early here?
 	if (x >= CHUNK_WIDTH)
 	{
 		return false;
@@ -1164,6 +1165,56 @@ void Chunk::updateSurroundingBlockFaces(int x, int y, int z)
 	updateBlockTop(x, y - 1, z);
 	//std::cout << x << " " << y+1 << " " << z << std::endl;
 	updateBlockBottom(x, y + 1, z);
+}
+
+bool Chunk::hitBlock(glm::vec3& position)
+{
+	glm::vec3 blockPosition;
+	blockPosition.x = position.x - (float)(m_chunkX * CHUNK_WIDTH);
+	blockPosition.z = position.z - (float)(m_chunkZ * CHUNK_DEPTH);
+
+	//std::cout << "block " <<  << std::endl;
+
+	int x, y, z;
+	x = (int)std::floor(blockPosition.x);
+	z = (int)std::floor(blockPosition.z);
+	y = (int)std::floor(position.y);
+	y = -y;
+	//std::cout << "block " << x << " " << y << " " << z << std::endl;
+
+	if (x >= CHUNK_WIDTH)
+	{
+		return false;
+	}
+
+	if (x < 0)
+	{
+		return false;
+	}
+
+	if (y < 0)
+	{
+		return false;
+	}
+
+	if (z >= CHUNK_DEPTH)
+	{
+		return false;
+	}
+
+	if (z < 0)
+	{
+		return false;
+	}
+
+	int i = x + (z * CHUNK_WIDTH) + (y * CHUNK_WIDTH * CHUNK_DEPTH);
+
+	if (m_blocks[i].getRender())
+	{
+		return true;
+	}
+ 
+	return false;
 }
 
 int Chunk::getChunkX()
