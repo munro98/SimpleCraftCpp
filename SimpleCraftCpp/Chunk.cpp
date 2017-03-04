@@ -3,13 +3,19 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "Chunk.h"
 #include <chrono>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <istream>
+#include <sstream>
+
+#include "Chunk.h"
 #include "HeightGenerator.h"
-#include <thread>
 
 
-Chunk::Chunk(int chunkX, int chunkZ): m_blocks(new Block[CHUNK_WIDTH * CHUNK_DEPTH * CHUNK_HEIGHT]), m_chunkX(chunkX), m_chunkZ(chunkZ), m_vertices(nullptr), m_VBO(0), m_VAO(0), m_meshUpdateCalled(false)
+
+Chunk::Chunk(int chunkX, int chunkZ): m_blocks(new Block[CHUNK_WIDTH * CHUNK_DEPTH * CHUNK_HEIGHT]), m_savedBlocks(new Block[CHUNK_WIDTH * CHUNK_DEPTH * CHUNK_HEIGHT]), m_chunkX(chunkX), m_chunkZ(chunkZ), m_vertices(nullptr), m_VBO(0), m_VAO(0), m_meshUpdateCalled(false), m_modified(false)
 {
 
 	auto startTime = std::chrono::high_resolution_clock::now();
@@ -42,17 +48,17 @@ Chunk::Chunk(int chunkX, int chunkZ): m_blocks(new Block[CHUNK_WIDTH * CHUNK_DEP
 					blocks[i].setRender(true);
 					}
 					*/
-					if (y > 8 - height)
+					if (y > 28 - height)
 					{
 						m_blocks[i].setRender(true);
 					}
 
-					if (y > 12)
+					if (y > 40)
 					{
 						m_blocks[i].setType(2);
 					}
 
-					if (y > 14)
+					if (y > 43)
 					{
 						m_blocks[i].setType(3);
 					}
@@ -60,6 +66,47 @@ Chunk::Chunk(int chunkX, int chunkZ): m_blocks(new Block[CHUNK_WIDTH * CHUNK_DEP
 			}
 	}
 
+	std::ifstream inFile;
+	std::string line;
+	
+	inFile.open("chunkData/" + std::string(std::to_string(m_chunkX) + " " + std::to_string(m_chunkZ) + ".txt"));
+	
+	if (inFile.is_open()) {
+		while (inFile.good()) {
+			getline(inFile, line);
+
+			std::stringstream lineSS(line);
+
+			int index;
+			int blockType;
+			lineSS >> index;
+			lineSS >> blockType;
+
+			//std::cout << index << " " << blockType << std::endl;
+
+			if (index < 0 || index > CHUNK_BLOCK_COUNT)
+			{
+				std::cout << "Corrupt file" << std::endl;
+				break;
+			}
+
+			m_savedBlocks[index].setRender(true);
+			m_savedBlocks[index].setType(blockType);
+
+			if(blockType == 0)
+			{
+				m_blocks[index].setRender(false);
+			} else
+			{
+				m_blocks[index].setRender(true);
+			}
+			m_blocks[index].setType(blockType);
+			//m_modified |= true;
+		}
+
+	}
+
+	inFile.close();
 	//std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
 	auto endTime = std::chrono::high_resolution_clock::now();
@@ -69,20 +116,39 @@ Chunk::Chunk(int chunkX, int chunkZ): m_blocks(new Block[CHUNK_WIDTH * CHUNK_DEP
 	
 	*/
 
+
 }
 
 Chunk::~Chunk()
 {
 	//std::cout << mVertices << "\n";
+	if (m_modified) {
+		std::ofstream outFile("chunkData/" + std::string(std::to_string(m_chunkX) + " " + std::to_string(m_chunkZ) + ".txt"));
+
+		for (int y = 0; y < CHUNK_HEIGHT; y++)
+		{
+			for (int z = 0; z < CHUNK_DEPTH; z++)
+			{
+				for (int x = 0; x < CHUNK_WIDTH; x++)
+				{
+					int i = x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
+
+					int type = m_savedBlocks[i].getType();
+					if (m_savedBlocks[i].getRender())
+						outFile << i << " " << type << "\n";
+				}
+			}
+		}
+		outFile.close();
+	}
+
 	delete[] m_blocks;
+	delete[] m_savedBlocks;
 	if (m_meshUpdateCalled) {
 		glDeleteBuffers(1, &m_VBO);
 		glDeleteVertexArrays(1, &m_VAO);
 	}
-	
 
-	//char c;
-	//std::cin >> c;
 }
 
 void Chunk::render()
@@ -372,37 +438,40 @@ void Chunk::addFace(int vertrexIndex, int x, int y, int z, int chunkX, int chunk
 	GLfloat textureXOffset = textureX * 1.0f / TEXTURE_MAP_ROWS;
 	GLfloat textureYOffset = textureY * 1.0f / TEXTURE_MAP_ROWS;
 
+	GLfloat blockXPosition = x + chunkX * CHUNK_WIDTH;
+	GLfloat blockZPosition = z + chunkZ * CHUNK_DEPTH;
+
 	//Offset vertex values by position of block in the chunk + chunks position
 	m_vertices[vertrexIndex] += (GLfloat)(x + chunkX * CHUNK_WIDTH);
-	m_vertices[vertrexIndex + 1] += (GLfloat)(y);
-	m_vertices[vertrexIndex + 2] += (GLfloat)(z + chunkZ * CHUNK_DEPTH);
-	m_vertices[vertrexIndex + 6] = m_vertices[vertrexIndex + 6] / TEXTURE_MAP_ROWS + textureXOffset;
-	m_vertices[vertrexIndex + 7] = m_vertices[vertrexIndex + 7] / TEXTURE_MAP_ROWS + textureYOffset;
-	m_vertices[vertrexIndex + 8] += (GLfloat)(x + chunkX * CHUNK_WIDTH);
-	m_vertices[vertrexIndex + 8 + 1] += (GLfloat)(y);
-	m_vertices[vertrexIndex + 8 + 2] += (GLfloat)(z + chunkZ * CHUNK_DEPTH);
-	m_vertices[vertrexIndex + 8 + 6] = m_vertices[vertrexIndex + 8 + 6] / TEXTURE_MAP_ROWS + textureXOffset;
-	m_vertices[vertrexIndex + 8 + 7] = m_vertices[vertrexIndex + 8 + 7] / TEXTURE_MAP_ROWS + textureYOffset;
-	m_vertices[vertrexIndex + 16] += (GLfloat)(x + chunkX * CHUNK_WIDTH);
-	m_vertices[vertrexIndex + 16 + 1] += (GLfloat)(y);
-	m_vertices[vertrexIndex + 16 + 2] += (GLfloat)(z + chunkZ * CHUNK_DEPTH);
-	m_vertices[vertrexIndex + 16 + 6] = m_vertices[vertrexIndex + 16 + 6] / TEXTURE_MAP_ROWS + textureXOffset;
-	m_vertices[vertrexIndex + 16 + 7] = m_vertices[vertrexIndex + 16 + 7] / TEXTURE_MAP_ROWS + textureYOffset;
-	m_vertices[vertrexIndex + 24] += (GLfloat)(x + chunkX * CHUNK_WIDTH);
-	m_vertices[vertrexIndex + 24 + 1] += (GLfloat)(y);
-	m_vertices[vertrexIndex + 24 + 2] += (GLfloat)(z + chunkZ * CHUNK_DEPTH);
-	m_vertices[vertrexIndex + 24 + 6] = m_vertices[vertrexIndex + 24 + 6] / TEXTURE_MAP_ROWS + textureXOffset;
-	m_vertices[vertrexIndex + 24 + 7] = m_vertices[vertrexIndex + 24 + 7] / TEXTURE_MAP_ROWS + textureYOffset;
-	m_vertices[vertrexIndex + 32] += (GLfloat)(x + chunkX * CHUNK_WIDTH);
-	m_vertices[vertrexIndex + 32 + 1] += (GLfloat)(y);
-	m_vertices[vertrexIndex + 32 + 2] += (GLfloat)(z + chunkZ * CHUNK_DEPTH);
-	m_vertices[vertrexIndex + 32 + 6] = m_vertices[vertrexIndex + 32 + 6] / TEXTURE_MAP_ROWS + textureXOffset;
-	m_vertices[vertrexIndex + 32 + 7] = m_vertices[vertrexIndex + 32 + 7] / TEXTURE_MAP_ROWS + textureYOffset;
-	m_vertices[vertrexIndex + 40] += (GLfloat)(x + chunkX * CHUNK_WIDTH);
-	m_vertices[vertrexIndex + 40 + 1] += (GLfloat)(y);
-	m_vertices[vertrexIndex + 40 + 2] += (GLfloat)(z + chunkZ * CHUNK_DEPTH);
-	m_vertices[vertrexIndex + 40 + 6] = m_vertices[vertrexIndex + 40 + 6] / TEXTURE_MAP_ROWS + textureXOffset;
-	m_vertices[vertrexIndex + 40 + 7] = m_vertices[vertrexIndex + 40 + 7] / TEXTURE_MAP_ROWS + textureYOffset;
+	m_vertices[vertrexIndex = vertrexIndex + 1] += (GLfloat)(y);
+	m_vertices[vertrexIndex = vertrexIndex + 1] += blockZPosition;
+	m_vertices[vertrexIndex = vertrexIndex + 4] = m_vertices[vertrexIndex] / TEXTURE_MAP_ROWS + textureXOffset;
+	m_vertices[vertrexIndex = vertrexIndex + 1] = m_vertices[vertrexIndex] / TEXTURE_MAP_ROWS + textureYOffset;
+	m_vertices[vertrexIndex = vertrexIndex + 1] += blockXPosition;
+	m_vertices[vertrexIndex = vertrexIndex + 1] += (GLfloat)(y);
+	m_vertices[vertrexIndex = vertrexIndex + 1] += (GLfloat)(z + chunkZ * CHUNK_DEPTH);
+	m_vertices[vertrexIndex = vertrexIndex + 4] = m_vertices[vertrexIndex] / TEXTURE_MAP_ROWS + textureXOffset;
+	m_vertices[vertrexIndex = vertrexIndex + 1] = m_vertices[vertrexIndex] / TEXTURE_MAP_ROWS + textureYOffset;
+	m_vertices[vertrexIndex = vertrexIndex + 1] += blockXPosition;
+	m_vertices[vertrexIndex = vertrexIndex + 1] += (GLfloat)(y);
+	m_vertices[vertrexIndex = vertrexIndex + 1] += blockZPosition;
+	m_vertices[vertrexIndex = vertrexIndex + 4] = m_vertices[vertrexIndex] / TEXTURE_MAP_ROWS + textureXOffset;
+	m_vertices[vertrexIndex = vertrexIndex + 1] = m_vertices[vertrexIndex] / TEXTURE_MAP_ROWS + textureYOffset;
+	m_vertices[vertrexIndex = vertrexIndex + 1] += blockXPosition;
+	m_vertices[vertrexIndex = vertrexIndex + 1] += (GLfloat)(y);
+	m_vertices[vertrexIndex = vertrexIndex + 1] += blockZPosition;
+	m_vertices[vertrexIndex = vertrexIndex + 4] = m_vertices[vertrexIndex] / TEXTURE_MAP_ROWS + textureXOffset;
+	m_vertices[vertrexIndex = vertrexIndex + 1] = m_vertices[vertrexIndex] / TEXTURE_MAP_ROWS + textureYOffset;
+	m_vertices[vertrexIndex = vertrexIndex + 1] += blockXPosition;
+	m_vertices[vertrexIndex = vertrexIndex + 1] += (GLfloat)(y);
+	m_vertices[vertrexIndex = vertrexIndex + 1] += (GLfloat)(z + chunkZ * CHUNK_DEPTH);
+	m_vertices[vertrexIndex = vertrexIndex + 4] = m_vertices[vertrexIndex] / TEXTURE_MAP_ROWS + textureXOffset;
+	m_vertices[vertrexIndex = vertrexIndex + 1] = m_vertices[vertrexIndex] / TEXTURE_MAP_ROWS + textureYOffset;
+	m_vertices[vertrexIndex = vertrexIndex + 1] += blockXPosition;
+	m_vertices[vertrexIndex = vertrexIndex + 1] += (GLfloat)(y);
+	m_vertices[vertrexIndex = vertrexIndex + 1] += blockZPosition;
+	m_vertices[vertrexIndex = vertrexIndex + 4] = m_vertices[vertrexIndex] / TEXTURE_MAP_ROWS + textureXOffset;
+	m_vertices[vertrexIndex = vertrexIndex + 1] = m_vertices[vertrexIndex] / TEXTURE_MAP_ROWS + textureYOffset;
 }
 
 void Chunk::createVAO()
@@ -645,40 +714,9 @@ void Chunk::updateBlockRight(Chunk* rightChunk, int y, int z)
 
 	updateMesh();
 }
-
-void Chunk::updateBlock(int x, int y, int z)
+/*
+void Chunk::updateBlock(int i)
 {
-	if (x < 0)
-	{
-		return;
-	}
-
-	if (x >= CHUNK_WIDTH)
-	{
-		return;
-	}
-
-	if (z < 0)
-	{
-		return;
-	}
-
-	if (z >= CHUNK_DEPTH)
-	{
-		return;
-	}
-
-	if (y < 0)
-	{
-		return;
-	}
-
-	if (y >= CHUNK_HEIGHT)
-	{
-		return;
-	}
-
-	int i = x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
 	unsigned int facesExposed = 0;
 
 	if (!m_blocks[i].getRender())
@@ -724,8 +762,9 @@ void Chunk::updateBlock(int x, int y, int z)
 
 	m_blocks[i].setExposedFaces(facesExposed);
 }
+*/
 
-void Chunk::updateBlock(bool value, int x, int y, int z)
+void Chunk::addBlock(unsigned char type, int x, int y, int z)
 {
 	if (x < 0)
 	{
@@ -758,14 +797,11 @@ void Chunk::updateBlock(bool value, int x, int y, int z)
 	}
 
 	int i = x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
-	unsigned int facesExposed = 0;
 
-	m_blocks[i].setRender(value);
-	if (!m_blocks[i].getRender())
-	{
-		m_blocks[i].setExposedFaces(facesExposed);
-		return;
-	}
+	m_blocks[i].setRender(true);
+	m_blocks[i].setType(type);
+
+	unsigned int facesExposed = 0;
 
 	if (y == 0)
 	{
@@ -801,8 +837,50 @@ void Chunk::updateBlock(bool value, int x, int y, int z)
 	{
 		facesExposed |= BACK_FACE;
 	}
-
 	m_blocks[i].setExposedFaces(facesExposed);
+
+	updateSurroundingBlockFaces(x, y, z);
+}
+
+void Chunk::removeBlock(int x, int y, int z)
+{
+	if (x < 0)
+	{
+		return;
+	}
+
+	if (x >= CHUNK_WIDTH)
+	{
+		return;
+	}
+
+	if (z < 0)
+	{
+		return;
+	}
+
+	if (z >= CHUNK_DEPTH)
+	{
+		return;
+	}
+
+	if (y < 0)
+	{
+		return;
+	}
+
+	if (y >= CHUNK_HEIGHT)
+	{
+		return;
+	}
+
+	int i = x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
+
+	m_blocks[i].setRender(false);
+	m_blocks[i].setType(0);
+	m_blocks[i].setExposedFaces(0);
+
+	updateSurroundingBlockFaces(x, y, z);
 }
 
 void Chunk::updateBlockFront(int x, int y, int z)
@@ -1204,7 +1282,7 @@ bool Chunk::rayCastBlockRemove(glm::vec3 hitBlock, int* blockHitPosition)
 void Chunk::setRender(bool value, int* blockHitPosition)
 {
 
-	updateBlock(value, blockHitPosition[0], blockHitPosition[1], blockHitPosition[2]);
+	//updateBlock(value, blockHitPosition[0], blockHitPosition[1], blockHitPosition[2]);
 	// Update block faces around this block
 	updateSurroundingBlockFaces(blockHitPosition[0], blockHitPosition[1], blockHitPosition[2]);
 }
@@ -1299,6 +1377,46 @@ bool Chunk::hitBlock(glm::vec3& position)
 	}
  
 	return false;
+}
+
+void Chunk::saveBlock(int x, int y, int z)
+{
+	if (x < 0)
+	{
+		return;
+	}
+
+	if (x >= CHUNK_WIDTH)
+	{
+		return;
+	}
+
+	if (z < 0)
+	{
+		return;
+	}
+
+	if (z >= CHUNK_DEPTH)
+	{
+		return;
+	}
+
+	if (y < 0)
+	{
+		return;
+	}
+
+	if (y >= CHUNK_HEIGHT)
+	{
+		return;
+	}
+
+	int i = x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
+	
+	m_savedBlocks[i].setRender(true);
+	m_savedBlocks[i].setType(m_blocks[i].getType());
+	m_modified |= true;
+	
 }
 
 int Chunk::getChunkX()

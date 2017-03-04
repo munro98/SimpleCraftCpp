@@ -1,7 +1,7 @@
 #include "HeightGenerator.h"
 #include <cmath>
 #include <iostream>
-#include "Hasher.h"
+#include "Hash.h"
 
 
 HeightGenerator::HeightGenerator()
@@ -43,7 +43,7 @@ float HeightGenerator::generateInterpolatedNoise(float x, float z)
 
 float HeightGenerator::interpolate(float a, float b, float blend)
 {
-	double theta = blend * PI;
+	float theta = blend * PI;
 	float f = (1.0f - cos(theta)) * 0.5f;
 	return a * (1.0f - f) + b * f;
 }
@@ -61,7 +61,7 @@ float HeightGenerator::generateSmoothNoise(int x, int z)
 	return center;// +corners;// + sides
 	//return center + corners + sides;
 }
-
+/*
 float HeightGenerator::generateNoise(int x, int z)
 {
 	//rng.seed(std::random_device()());
@@ -75,11 +75,12 @@ float HeightGenerator::generateNoise(int x, int z)
 	//std::cout << value << "\n";
 	return value;
 }
+*/
 
 float HeightGenerator::generateNoise2(int x, int z)
 {
-	int value = (Hasher::hash(x, z) % 128) - 64;
+	int value = (Hash::hash(x, z) % 128) - 64;
 	float value2 = (float)value / 64.0f;
-	//std::cout << value2 << "\n";
+	//std::cout << value << "\n";
 	return value2;
 }

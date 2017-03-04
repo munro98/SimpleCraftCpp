@@ -45,7 +45,7 @@
     <ClCompile Include="ChunkPosition.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Hasher.cpp">
+    <ClCompile Include="Hash.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -77,7 +77,7 @@
     <ClInclude Include="ChunkPosition.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Hasher.h">
+    <ClInclude Include="Hash.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

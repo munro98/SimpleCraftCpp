@@ -3,7 +3,7 @@
 Camera::Camera()
 {
 	//m_position = glm::vec3(1140000.0f, 8.0f, 10.0f);
-	//m_position = glm::vec3(8000000.0f, 8.0f, 10.0f);
+	//m_position = glm::vec3(1000000.0f, 8.0f, 10.0f);
 	m_position = glm::vec3(0.0f, 8.0f, 10.0f);
 
 	m_target = glm::vec3(0.0f, 0.0f, 0.0f);

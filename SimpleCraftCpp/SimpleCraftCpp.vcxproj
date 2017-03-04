@@ -157,7 +157,7 @@
     <ClCompile Include="Chunk.cpp" />
     <ClCompile Include="ChunkPosition.cpp" />
     <ClCompile Include="Display.cpp" />
-    <ClCompile Include="Hasher.cpp" />
+    <ClCompile Include="Hash.cpp" />
     <ClCompile Include="HeightGenerator.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Map.cpp" />
@@ -170,7 +170,7 @@
     <ClInclude Include="Chunk.h" />
     <ClInclude Include="ChunkPosition.h" />
     <ClInclude Include="Display.h" />
-    <ClInclude Include="Hasher.h" />
+    <ClInclude Include="Hash.h" />
     <ClInclude Include="HeightGenerator.h" />
     <ClInclude Include="Map.h" />
     <ClInclude Include="Shader.h" />

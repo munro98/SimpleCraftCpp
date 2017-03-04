@@ -301,7 +301,9 @@ void Map::rayCastBlock(glm::vec3& start, glm::vec3& forward)
 
 	}
 
-	hitChunk->setRender(true, blockPos);
+	//hitChunk->setRender(true, blockPos);
+	hitChunk->addBlock(1, blockPos[0], blockPos[1], blockPos[2]);
+	hitChunk->saveBlock(blockPos[0], blockPos[1], blockPos[2]);
 
 	if (blockPos[2] == 0)
 	{
@@ -393,14 +395,11 @@ void Map::rayCastBlockRemove(glm::vec3& start, glm::vec3& forward)
 
 			break;
 		}
-		else
-		{
-			//std::cout << "no block hit" << std::endl;
-		}
-
 	}
 
-	hitChunk->setRender(false, blockPos);
+	//hitChunk->setRender(false, blockPos);
+	hitChunk->removeBlock(blockPos[0], blockPos[1], blockPos[2]);
+	hitChunk->saveBlock(blockPos[0], blockPos[1], blockPos[2]);
 
 	if (blockPos[2] == 0)
 	{
@@ -449,7 +448,7 @@ void Map::rayCastBlockRemove(glm::vec3& start, glm::vec3& forward)
 
 bool Map::hitBlock(glm::vec3& position)
 {
-	Chunk* hitChunk = nullptr;
+	Chunk* hitChunk;
 
 	int x;
 	int z;

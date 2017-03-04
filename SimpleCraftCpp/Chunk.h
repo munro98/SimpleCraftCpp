@@ -2,7 +2,7 @@
 
 #define CHUNK_WIDTH 16
 #define CHUNK_DEPTH 16
-#define CHUNK_HEIGHT 16
+#define CHUNK_HEIGHT 64
 
 #define CHUNK_BLOCK_COUNT CHUNK_WIDTH * CHUNK_DEPTH * CHUNK_HEIGHT
 
@@ -100,6 +100,10 @@ public:
 	void updateBlockTop(int x, int y, int z);
 	void updateBlockBottom(int x, int y, int z);
 
+	void addBlock(unsigned char type, int x, int y, int z);
+
+	void removeBlock(int x, int y, int z);
+
 	void updateBlockFront(int x, int y, int z);
 	void updateBlockBack(int x, int y, int z);
 	bool rayCastBlock(glm::vec3 hitBlock, int * blockHitPosition) const;
@@ -109,6 +113,8 @@ public:
 
 	bool hitBlock(glm::vec3 & position);
 
+	void saveBlock(int x, int y, int z);
+
 	int getChunkX();
 	int getChunkZ();
 private:
@@ -116,12 +122,14 @@ private:
 	int m_chunkZ;
 
 	Block* m_blocks;
+	Block* m_savedBlocks;
 	GLfloat* m_vertices;
 	GLuint m_VBO;
 	GLuint m_VAO;
 	int m_faceCount;
 
 	bool m_meshUpdateCalled;
+	bool m_modified;
 	
 };
 

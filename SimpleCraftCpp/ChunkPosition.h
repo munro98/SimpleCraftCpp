@@ -2,7 +2,7 @@
 #include <functional>
 #include <cmath>
 
-#include "Hasher.h"
+#include "Hash.h"
 
 class ChunkPosition
 {
@@ -24,7 +24,7 @@ namespace std
 	{
 		size_t operator() (ChunkPosition const& v) const
 		{
-			return Hasher::hash(v.x, v.z);
+			return Hash::hash(v.x, v.z);
 		}
 	};
 }
