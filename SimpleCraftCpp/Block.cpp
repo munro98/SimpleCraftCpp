@@ -9,12 +9,12 @@ Block::~Block()
 {
 }
 
-void Block::setExposedFaces(unsigned int exposedFaces)
+void Block::setExposedFaces(unsigned short exposedFaces)
 {
 	m_exposedFaces = exposedFaces;
 }
 
-unsigned int Block::getExposedFaces()
+unsigned short Block::getExposedFaces()
 {
 	return m_exposedFaces;
 }
@@ -24,7 +24,7 @@ void Block::setRender(bool render)
 	m_render = render;
 }
 
-void Block::setType(unsigned char type)
+void Block::setType(unsigned short type)
 {
 	m_type = type;
 }

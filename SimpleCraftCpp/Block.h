@@ -19,15 +19,15 @@ public:
 	Block();
 	~Block();
 
-	void setExposedFaces(unsigned int facesExposed);
-	unsigned int getExposedFaces();
+	void setExposedFaces(unsigned short facesExposed);
+	unsigned short getExposedFaces();
 	void setRender(bool render);
-	void setType(unsigned char type);
+	void setType(unsigned short type);
 	bool getRender();
 	unsigned char getType();
 private:
 	bool m_render;
-	unsigned int m_exposedFaces;
+	unsigned short m_exposedFaces;
 	unsigned char m_type;
 
 };

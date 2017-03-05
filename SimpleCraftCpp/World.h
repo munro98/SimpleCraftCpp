@@ -1,12 +1,11 @@
 #pragma once
 
-#define MAP_UPDATE_RADIUS 24
-#define MAP_DELETE_RADIUS 32
+#define MAP_UPDATE_RADIUS 8
+#define MAP_DELETE_RADIUS 16
 
 #define THREADS 2
 
 #include <mutex>
-#include <atomic>
 #include <queue>
 #include <unordered_set>
 #include <unordered_map>
