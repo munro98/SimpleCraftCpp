@@ -6,7 +6,7 @@
 
 #define CHUNK_BLOCK_COUNT CHUNK_WIDTH * CHUNK_DEPTH * CHUNK_HEIGHT
 
-#define TEXTURE_MAP_ROWS 2.0f
+#define TEXTURE_MAP_ROWS 2
 
 #include <glm/glm.hpp>
 #include <GL/glew.h>
@@ -73,13 +73,12 @@ const 	GLfloat topVertices[] = {
 	0.0f,  1.0f, 0.0f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
 };
 
-class RayCast;
-
 class Chunk
 {
 public:
 	Chunk(int chunkX, int chunkZ);
 	~Chunk();
+
 	void render();
 	void updateBlockFaces(Chunk * frontChunk, Chunk * backChunk, Chunk * leftChunk, Chunk * rightChunk);
 	void updateMesh();

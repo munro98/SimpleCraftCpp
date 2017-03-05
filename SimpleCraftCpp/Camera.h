@@ -22,9 +22,7 @@ public:
 	glm::vec3& Camera::getRight();
 
 	float getPitch();
-
 	float getYaw();
-
 
 private:
 

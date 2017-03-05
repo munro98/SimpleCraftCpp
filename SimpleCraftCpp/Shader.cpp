@@ -94,3 +94,7 @@ std::string Shader::loadShader(const std::string& fileName) {
 void Shader::use() {
 	glUseProgram(mProgram);
 }
+
+void Shader::stop() {
+	glUseProgram(0);
+}

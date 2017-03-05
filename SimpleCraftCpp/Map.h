@@ -51,7 +51,5 @@ private:
 	std::unordered_set<ChunkPosition> m_chunksToAddToMap;
 
 	std::vector<std::thread> m_threads;
-	//std::thread m_thread;
-
 	
 };

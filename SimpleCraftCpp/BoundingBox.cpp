@@ -4,7 +4,6 @@ BoundingBox::BoundingBox(glm::vec3 minimum, glm::vec3 maximum, glm::vec3 positio
 {
 	this->minimum = minimum;
 	this->maximum = maximum;
-
 	this->position = position;
 }
 

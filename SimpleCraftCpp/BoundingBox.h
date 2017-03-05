@@ -8,18 +8,14 @@
 class BoundingBox
 {
 public:
-
-	glm::vec3 minimum;
-	glm::vec3 maximum;
-
-	glm::vec3 position;
-
-
-
 	BoundingBox(glm::vec3 minimum, glm::vec3 maximum, glm::vec3 position);
 
 	glm::vec3 getPositiveVertex(const glm::vec3 &normal) const;
 	glm::vec3 getNegativeVertex(const glm::vec3 &normal) const;
+
+	glm::vec3 minimum;
+	glm::vec3 maximum;
+	glm::vec3 position;
 
 	//TestResult testIntersection(const glm::vec3 &point) const;
 	//TestResult testIntersection(std::shared_ptr<const BoundingBox> box) const;

@@ -52,83 +52,13 @@ int main(int argc, char** argv) {
 
 	glm::vec3 lightPos(0.0f, 5.0f, 0.0f);
 
-	glm::mat4 lightModel;
-	lightModel = glm::translate(lightModel, lightPos);
-
-	//glm::mat4 lightProjection = glm::perspective(90.0f, (float)width / (float)height, 0.1f, 1000.0f);
-	
-	
-	
-
-	glm::vec4 vec(1.0f, 0.0f, 0.0f, 1.0f);
-	glm::mat4 trans;
-	
-	trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
-
-	GLfloat vertices[] = {
-		// Positions           // Normals           // Texture Coords
-		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
-		0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
-		0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 0.0f,
-		0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 1.0f,
-
-		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
-		0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 0.0f,
-		0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
-		0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
-
-		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-
-		0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-		0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-		0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
-		0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-		0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-		0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
-
-		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
-		0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 1.0f,
-		0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
-		0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 0.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
-
-		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f,
-		0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
-		0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 1.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f,
-		0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
-	};
-
-	GLfloat skyvertices[] = {
-		1.f,  1.f, 0.0f,  // Top Right
-		1.f, -1.f, 0.0f,  // Bottom Right
-		-1.f, -1.f, 0.0f,  // Bottom Left
-		-1.f,  1.f, 0.0f   // Top Left 
-	};
-
-	GLuint skyindices[] = {  // Note that we start from 0!
-		0, 1, 3,   // First Triangle
-		1, 2, 3    // Second Triangle
-	};
-
 	char *textureName = "./res/TextureMap.png";
 	int x, y, bytesPerPixel;
 	unsigned char* textureData = stbi_load(textureName, &x, &y, &bytesPerPixel, 3);
 
-	GLuint texture;
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	GLuint textureAtlas;
+	glGenTextures(1, &textureAtlas);
+	glBindTexture(GL_TEXTURE_2D, textureAtlas);
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, x, y, 0, GL_RGB, GL_UNSIGNED_BYTE, textureData);
 	//glGenerateMipmap(GL_TEXTURE_2D);
@@ -137,13 +67,6 @@ int main(int argc, char** argv) {
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	Camera camera = Camera();
-
-	///////////////////////////////////////////////////////////////
-
-	//glm::mat4 lightProjection = makep(90.0f, (float)width / (float)height, 0.1f, 1000.0f);
-	glm::mat4 lightProjection = glm::perspective(60.0f, (float)width / (float)height, 0.01f, 100.0f);
-	//glm::mat4 fvp = lightProjection * lightView;
-
 
 	Shader shader = Shader("shader");
 	shader.use();
@@ -187,35 +110,8 @@ int main(int argc, char** argv) {
 	GLint lightQuadraticPos = glGetUniformLocation(shader.mProgram, "light.quadratic");
 	glUniform1f(lightQuadraticPos, 0.032f);
 
-	GLint modelLocation = glGetUniformLocation(shader.mProgram, "model");
-	GLint viewLocation = glGetUniformLocation(shader.mProgram, "view");
-	GLint projectionLocation = glGetUniformLocation(shader.mProgram, "projection");
+	GLint viewprojectionLocation = glGetUniformLocation(shader.mProgram, "viewprojection");
 
-	Shader shader2 = Shader("lampshader");
-	shader2.use();
-
-	GLint lightModelLocation = glGetUniformLocation(shader2.mProgram, "model");
-	GLint lightViewLocation = glGetUniformLocation(shader2.mProgram, "view");
-	GLint lightProjectionLocation = glGetUniformLocation(shader2.mProgram, "projection");
-
-	GLuint lightVAO;
-	glGenVertexArrays(1, &lightVAO);
-	glBindVertexArray(lightVAO);
-
-	GLuint lightVBO;
-	glGenBuffers(1, &lightVBO);
-	glBindBuffer(GL_ARRAY_BUFFER, lightVBO);
-	//Copy Vertex array to the GPU
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
-	glEnableVertexAttribArray(0);
-
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-	glEnableVertexAttribArray(1);
-
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
-	glEnableVertexAttribArray(2);
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
@@ -225,11 +121,8 @@ int main(int argc, char** argv) {
 	Map map;
 
 	display.setClearColor(0.05f, 0.4f, 0.9f, 1.0f);
-	
-	glm::mat4 view;
-	//glm::mat4 lightProjection2 = glm::perspective(60.0f, (float)width / (float)height, 0.1f, 1000.0f);
-	//Frustum frustum2(lightView, lightProjection2);
 
+	glm::mat4 view;
 	glm::mat4 projection = glm::perspective(60.0f, (float)width / (float)height, 0.1f, 1000.0f);
 
 	while (!display.getIsClosed()) {
@@ -330,13 +223,10 @@ int main(int argc, char** argv) {
 
 		display.clear();
 
-		glm::vec3 cameraPos = camera.getPosition();
 
-
+		//Make viewProjection Matrix and frustum
 		view = glm::lookAt(camera.getPosition(), camera.getPosition() + camera.getFront(), camera.getUp());
-		
 		Frustum frustum(view, projection);
-
 		glm::mat4 viewProjection = projection * view;
 
 		//Render Map
@@ -345,32 +235,23 @@ int main(int argc, char** argv) {
 		glUniform3f(lightPosLoc, lightPos.x, lightPos.y, lightPos.z);
 		glUniform3f(viewPosLoc, camera.getPosition().x, camera.getPosition().y, camera.getPosition().z);
 		
-		glUniformMatrix4fv(viewLocation, 1, GL_FALSE, glm::value_ptr(view));
-		glUniformMatrix4fv(projectionLocation, 1, GL_FALSE, glm::value_ptr(viewProjection));
-
-		//glUniformMatrix4fv(projectionLocation, 1, GL_FALSE, matrix);
+		//glUniformMatrix4fv(viewLocation, 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(viewprojectionLocation, 1, GL_FALSE, glm::value_ptr(viewProjection));
 
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture);
+		glBindTexture(GL_TEXTURE_2D, textureAtlas);
 
 		glm::mat4 mapModelMatrix = glm::mat4();
 		//glm::translate(mapModelMatrix, camera.getPosition());
-		glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(mapModelMatrix));
+		//glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(mapModelMatrix));
 		glBindVertexArray(0);
 
 		map.update(camera.getPosition().x, camera.getPosition().z);
 		map.render(frustum, camera.getPosition().x, camera.getPosition().z);
 		glBindTexture(GL_TEXTURE_2D, 0);
 
-		//Render Light
-		shader2.use();
-		glUniformMatrix4fv(lightModelLocation, 1, GL_FALSE, glm::value_ptr(lightModel));
-		glUniformMatrix4fv(lightViewLocation, 1, GL_FALSE, glm::value_ptr(view));
-		glUniformMatrix4fv(lightProjectionLocation, 1, GL_FALSE, glm::value_ptr(viewProjection));
-		glBindVertexArray(lightVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-		glBindVertexArray(0);
-		
+		shader.stop();
+
 	}
 	map.stopThreads();
 	

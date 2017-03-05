@@ -3,9 +3,6 @@
 
 #include <GL/glew.h>
 
-#ifndef SHADER_H
-#define SHADER_H
-
 class Shader
 {
 public:
@@ -16,10 +13,11 @@ public:
 
 	void use();
 
+	static void stop();
+
 	GLuint mProgram;
 private:
 	std::string mName;
 
 
 };
-#endif

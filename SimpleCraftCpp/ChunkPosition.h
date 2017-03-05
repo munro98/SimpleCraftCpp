@@ -13,7 +13,6 @@ public:
 	bool operator!=(const ChunkPosition & other) const;
 
 	int x, z;
-private:
 	
 };
 

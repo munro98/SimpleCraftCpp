@@ -37,7 +37,6 @@ public:
 	//TestResult testIntersection(std::shared_ptr<const BoundingSphere> sphere) const;
 
 protected:
-
 	glm::vec4 m_planes[6];
 };
 

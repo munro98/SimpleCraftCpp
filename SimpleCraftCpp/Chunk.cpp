@@ -13,8 +13,6 @@
 #include "Chunk.h"
 #include "HeightGenerator.h"
 
-
-
 Chunk::Chunk(int chunkX, int chunkZ): m_blocks(new Block[CHUNK_WIDTH * CHUNK_DEPTH * CHUNK_HEIGHT]), m_savedBlocks(new Block[CHUNK_WIDTH * CHUNK_DEPTH * CHUNK_HEIGHT]), m_chunkX(chunkX), m_chunkZ(chunkZ), m_vertices(nullptr), m_VBO(0), m_VAO(0), m_meshUpdateCalled(false), m_modified(false)
 {
 
@@ -29,25 +27,7 @@ Chunk::Chunk(int chunkX, int chunkZ): m_blocks(new Block[CHUNK_WIDTH * CHUNK_DEP
 			{
 			
 					int i = x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
-					//std::cout << i << std::endl;
-					/*
-					if (y > 125)
-					{
-					blocks[i].SetRender(true);
-					}
-					*/
-					/*
-					if (x == 1)
-					blocks[i].SetRender(false);
-					else
-					blocks[i].SetRender(true);
-
-					int random = rand() % 100;
-					if (random > 50)
-					{
-					blocks[i].setRender(true);
-					}
-					*/
+					
 					if (y > 28 - height)
 					{
 						m_blocks[i].setRender(true);
@@ -112,10 +92,6 @@ Chunk::Chunk(int chunkX, int chunkZ): m_blocks(new Block[CHUNK_WIDTH * CHUNK_DEP
 	auto endTime = std::chrono::high_resolution_clock::now();
 	auto deltaTime = std::chrono::duration_cast<std::chrono::duration<double>>(endTime - startTime);
 	//std::cout << deltaTime.count() << std::endl;
-	/*
-	
-	*/
-
 
 }
 
@@ -296,7 +272,6 @@ void Chunk::updateMesh()
 					m_faceCount++;
 				}
 				//std::cout << "blocks[i] " << i << " " << std::endl;
-				//blocks[i].SetExposedFaces(facesExposed);//
 			}
 		}
 	}
@@ -432,8 +407,8 @@ void Chunk::addFace(int vertrexIndex, int x, int y, int z, int chunkX, int chunk
 	y = -y;
 	memcpy(m_vertices + vertrexIndex, vertices, 192);
 
-	int textureX = blockType % 2;
-	int textureY = blockType / 2;
+	int textureX = blockType % TEXTURE_MAP_ROWS;
+	int textureY = blockType / TEXTURE_MAP_ROWS;
 
 	GLfloat textureXOffset = textureX * 1.0f / TEXTURE_MAP_ROWS;
 	GLfloat textureYOffset = textureY * 1.0f / TEXTURE_MAP_ROWS;

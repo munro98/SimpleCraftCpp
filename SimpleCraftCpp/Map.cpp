@@ -324,7 +324,6 @@ void Map::rayCastBlock(glm::vec3& start, glm::vec3& forward)
 
 	}
 
-	//hitChunk->setRender(true, blockPos);
 	hitChunk->addBlock(1, blockPos[0], blockPos[1], blockPos[2]);
 	hitChunk->saveBlock(blockPos[0], blockPos[1], blockPos[2]);
 
@@ -420,7 +419,6 @@ void Map::rayCastBlockRemove(glm::vec3& start, glm::vec3& forward)
 		}
 	}
 
-	//hitChunk->setRender(false, blockPos);
 	hitChunk->removeBlock(blockPos[0], blockPos[1], blockPos[2]);
 	hitChunk->saveBlock(blockPos[0], blockPos[1], blockPos[2]);
 
