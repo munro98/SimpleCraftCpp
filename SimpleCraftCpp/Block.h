@@ -8,6 +8,11 @@
 #define TOP_FACE    00100000
 #define TRANSPARENT 01000000
 
+typedef struct {
+	bool saved;
+	unsigned char type;
+} SavedBlock;
+
 class Block
 {
 public:

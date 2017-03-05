@@ -162,7 +162,7 @@
     <ClCompile Include="Hash.cpp" />
     <ClCompile Include="HeightGenerator.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Map.cpp" />
+    <ClCompile Include="World.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="stb_image.c" />
   </ItemGroup>
@@ -176,7 +176,7 @@
     <ClInclude Include="Frustum.h" />
     <ClInclude Include="Hash.h" />
     <ClInclude Include="HeightGenerator.h" />
-    <ClInclude Include="Map.h" />
+    <ClInclude Include="World.h" />
     <ClInclude Include="Math.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="stb_image.h" />

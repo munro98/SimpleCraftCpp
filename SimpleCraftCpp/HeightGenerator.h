@@ -19,6 +19,5 @@ public:
 
 	static float generateNoise2(int x, int z);
 
-	
 };
 

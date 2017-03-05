@@ -12,9 +12,9 @@
 #include "Display.h"
 #include "Shader.h"
 #include "Camera.h"
-#include "Map.h"
 
 #include "Frustum.h"
+#include "World.h"
 
 int width = 800, height = 600;
 //int width = 2540, height = 1400;
@@ -118,7 +118,7 @@ int main(int argc, char** argv) {
 	//glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
 
-	Map map;
+	World world;
 
 	display.setClearColor(0.05f, 0.4f, 0.9f, 1.0f);
 
@@ -189,17 +189,17 @@ int main(int argc, char** argv) {
 			cameraVelocity += speed * (float)deltaTime.count() * glm::normalize(glm::cross(camera.getFront(), camera.getUp()));
 
 		// Collision
-		if (map.hitBlock(camera.getPosition() + glm::vec3(cameraVelocity.x, 0.0f, 0.0f)))
+		if (world.hitBlock(camera.getPosition() + glm::vec3(cameraVelocity.x, 0.0f, 0.0f)))
 		{
 			cameraVelocity.x = 0.0f;
 		}
 
-		if (map.hitBlock(camera.getPosition() + glm::vec3(0.0f, cameraVelocity.y, 0.0f)))
+		if (world.hitBlock(camera.getPosition() + glm::vec3(0.0f, cameraVelocity.y, 0.0f)))
 		{
 			cameraVelocity.y = 0.0f;
 		}
 
-		if (map.hitBlock(camera.getPosition() + glm::vec3(0.0f, 0.0f, cameraVelocity.z)))
+		if (world.hitBlock(camera.getPosition() + glm::vec3(0.0f, 0.0f, cameraVelocity.z)))
 		{
 			cameraVelocity.z = 0.0f;
 		}
@@ -212,12 +212,12 @@ int main(int argc, char** argv) {
 		
 		if (MOUSEBUTTON[SDL_BUTTON_LEFT] && !LASTMOUSEBUTTON[SDL_BUTTON_LEFT])
 		{
-			map.rayCastBlockRemove(camera.getPosition(), camera.getFront());
+			world.rayCastBlockRemove(camera.getPosition(), camera.getFront());
 		}
 		
 		if (MOUSEBUTTON[SDL_BUTTON_RIGHT] && !LASTMOUSEBUTTON[SDL_BUTTON_RIGHT])
 		{
-			map.rayCastBlock(camera.getPosition(), camera.getFront());
+			world.rayCastBlock(camera.getPosition(), camera.getFront());
 		}
 		
 
@@ -246,14 +246,14 @@ int main(int argc, char** argv) {
 		//glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(mapModelMatrix));
 		glBindVertexArray(0);
 
-		map.update(camera.getPosition().x, camera.getPosition().z);
-		map.render(frustum, camera.getPosition().x, camera.getPosition().z);
+		world.update(camera.getPosition().x, camera.getPosition().z);
+		world.render(frustum, camera.getPosition().x, camera.getPosition().z);
 		glBindTexture(GL_TEXTURE_2D, 0);
 
 		shader.stop();
 
 	}
-	map.stopThreads();
+	world.stopThreads();
 	
 	return 0;
 }

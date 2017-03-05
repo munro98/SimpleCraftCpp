@@ -8,14 +8,10 @@ Shader::Shader(std::string name) : mName(name)
 	mProgram = glCreateProgram();
 
 	std::string output = loadShader("./res/" + name + ".vert.c");
-	//std::string output = LoadShader("./res/shader.vert");
 	const char *vertexShaderSource = output.c_str();
-	//std::cout << vertexShaderSource;
 
 	std::string output2 = loadShader("./res/" + name + ".frag.c");
-	//std::string output2 = LoadShader("./res/shader.frag");
 	const char *fragmentShaderSource = output2.c_str();
-	//std::cout << fragmentShaderSource;
 
 	GLuint vertexShader;
 	vertexShader = glCreateShader(GL_VERTEX_SHADER);

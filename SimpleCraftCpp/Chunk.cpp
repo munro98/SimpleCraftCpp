@@ -13,10 +13,10 @@
 #include "Chunk.h"
 #include "HeightGenerator.h"
 
-Chunk::Chunk(int chunkX, int chunkZ): m_blocks(new Block[CHUNK_WIDTH * CHUNK_DEPTH * CHUNK_HEIGHT]), m_savedBlocks(new Block[CHUNK_WIDTH * CHUNK_DEPTH * CHUNK_HEIGHT]), m_chunkX(chunkX), m_chunkZ(chunkZ), m_vertices(nullptr), m_VBO(0), m_VAO(0), m_meshUpdateCalled(false), m_modified(false)
+Chunk::Chunk(int chunkX, int chunkZ): m_blocks(new Block[CHUNK_WIDTH * CHUNK_DEPTH * CHUNK_HEIGHT]), m_savedBlocks(new SavedBlock[CHUNK_WIDTH * CHUNK_DEPTH * CHUNK_HEIGHT]()), m_chunkX(chunkX), m_chunkZ(chunkZ), m_vertices(nullptr), m_VBO(0), m_VAO(0), m_meshUpdateCalled(false), m_modified(false)
 {
 
-	auto startTime = std::chrono::high_resolution_clock::now();
+	//auto startTime = std::chrono::high_resolution_clock::now();
 	for (int x = 0; x < CHUNK_WIDTH; x++)
 	{
 		
@@ -70,8 +70,8 @@ Chunk::Chunk(int chunkX, int chunkZ): m_blocks(new Block[CHUNK_WIDTH * CHUNK_DEP
 				break;
 			}
 
-			m_savedBlocks[index].setRender(true);
-			m_savedBlocks[index].setType(blockType);
+			m_savedBlocks[index].saved = true;
+			m_savedBlocks[index].type = blockType;
 
 			if(blockType == 0)
 			{
@@ -87,10 +87,9 @@ Chunk::Chunk(int chunkX, int chunkZ): m_blocks(new Block[CHUNK_WIDTH * CHUNK_DEP
 	}
 
 	inFile.close();
-	//std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
-	auto endTime = std::chrono::high_resolution_clock::now();
-	auto deltaTime = std::chrono::duration_cast<std::chrono::duration<double>>(endTime - startTime);
+	//auto endTime = std::chrono::high_resolution_clock::now();
+	//auto deltaTime = std::chrono::duration_cast<std::chrono::duration<double>>(endTime - startTime);
 	//std::cout << deltaTime.count() << std::endl;
 
 }
@@ -109,8 +108,8 @@ Chunk::~Chunk()
 				{
 					int i = x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
 
-					int type = m_savedBlocks[i].getType();
-					if (m_savedBlocks[i].getRender())
+					int type = m_savedBlocks[i].type;
+					if (m_savedBlocks[i].saved)
 						outFile << i << " " << type << "\n";
 				}
 			}
@@ -467,9 +466,6 @@ void Chunk::createVAO()
 
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(2);
-
-	//glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), (GLvoid*)(8 * sizeof(GLfloat)));
-	//glEnableVertexAttribArray(3);
 
 	delete[] m_vertices;
 }
@@ -941,7 +937,6 @@ void Chunk::updateBlockTop(int x, int y, int z)
 	{
 		return;
 	}
-	//std::cout << "updateBlockTop" << std::endl;
 
 	int i = x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
 	assert(i >= 0);
@@ -973,8 +968,6 @@ void Chunk::updateBlockBottom(int x, int y, int z)
 	{
 		return;
 	}
-
-	//std::cout << "updateBlock " << x << " " << y << " " << z << std::endl;
 
 	int i = x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
 	assert(i >= 0);
@@ -1012,9 +1005,6 @@ bool Chunk::rayCastBlock(glm::vec3 hitBlock, int* blockHitPosition) const
 	y = (int)std::floor(hitBlock.y);
 	y = -y;
 
-	//std::cout << "hitBlock " << hitBlock. x << " " << hitBlock.y << " " << hitBlock.z << std::endl;
-	//std::cout << "block " << x << " " << y << " " << z << std::endl;
-
 	if (x >= CHUNK_WIDTH)
 	{
 		return false;
@@ -1041,13 +1031,10 @@ bool Chunk::rayCastBlock(glm::vec3 hitBlock, int* blockHitPosition) const
 	}
 
 	int i = x + (z * CHUNK_WIDTH) + (y * CHUNK_WIDTH * CHUNK_DEPTH);
-	//checkBounds(i);
 	// We hit a block
 	if (m_blocks[i].getRender())
 	{
 		int j = blockHitPosition[0] + (blockHitPosition[2] * CHUNK_WIDTH) + (blockHitPosition[1] * CHUNK_WIDTH * CHUNK_DEPTH);
-		//checkBounds(j);
-		//std::cout << "hit " << hitBlock.x - (float)x << " " << hitBlock.y + (float)y << " " << hitBlock.z - (float)z << std::endl;
 
 		//Depending on what face of the block hit
 		//We need to find what block lies adjacent to it
@@ -1073,8 +1060,6 @@ bool Chunk::rayCastBlock(glm::vec3 hitBlock, int* blockHitPosition) const
 		float relativeX = std::abs((hitBlock.x - 0.5f) - (float)x);
 		float relativeY = std::abs((hitBlock.y - 0.5f) + (float)y);
 		float relativeZ = std::abs((hitBlock.z - 0.5f) - (float)z);
-
-		//std::cout << "relative " << relativeX << " " << relativeY << " " << relativeZ << std::endl;
 	
 		//could be x or y or z
 		if (relativeX > relativeZ)
@@ -1133,17 +1118,12 @@ bool Chunk::rayCastBlock(glm::vec3 hitBlock, int* blockHitPosition) const
 				}
 			}
 		}
-		//std::cout << "hitBlock " << hitBlock.x << " " << hitBlock.y << " " << hitBlock.z << std::endl;
-		//std::cout << "rayCastBlock " << x << " " << y << " " << z << std::endl;
 		blockHitPosition[0] = x;
 		blockHitPosition[1] = y;
 		blockHitPosition[2] = z;
 		return true;
 		
 	}
-	//*/
-	//blocks[i].setRender(true);
-	//updateBlock(x, y, z);
 	return false;
 }
 
@@ -1157,8 +1137,6 @@ bool Chunk::rayCastBlockRemove(glm::vec3 hitBlock, int* blockHitPosition)
 	z = (int)std::floor(hitBlock.z);
 	y = (int)std::floor(hitBlock.y);
 	y = -y;
-
-	//std::cout << "block " << x << " " << y << " " << z << std::endl;
 
 	if (x >= CHUNK_WIDTH)
 	{
@@ -1191,26 +1169,13 @@ bool Chunk::rayCastBlockRemove(glm::vec3 hitBlock, int* blockHitPosition)
 	// We hit a block
 	if (m_blocks[i].getRender())
 	{
-		//std::cout << "hit " << hitBlock.x - (float)x << " " << hitBlock.y + (float)y << " " << hitBlock.z - (float)z << std::endl;
-
 		blockHitPosition[0] = x;
 		blockHitPosition[1] = y;
 		blockHitPosition[2] = z;
 		return true;
 
 	}
-	//*/
-	//blocks[i].setRender(true);
-	//updateBlock(x, y, z);
 	return false;
-}
-
-void Chunk::setRender(bool value, int* blockHitPosition)
-{
-
-	//updateBlock(value, blockHitPosition[0], blockHitPosition[1], blockHitPosition[2]);
-	// Update block faces around this block
-	updateSurroundingBlockFaces(blockHitPosition[0], blockHitPosition[1], blockHitPosition[2]);
 }
 
 void Chunk::updateSurroundingBlockFaces(int x, int y, int z)
@@ -1251,7 +1216,6 @@ void Chunk::updateSurroundingBlockFaces(int x, int y, int z)
 	updateBlockBack(x, y, z + 1);
 
 	updateBlockTop(x, y - 1, z);
-	//std::cout << x << " " << y+1 << " " << z << std::endl;
 	updateBlockBottom(x, y + 1, z);
 }
 
@@ -1261,14 +1225,11 @@ bool Chunk::hitBlock(glm::vec3& position)
 	blockPosition.x = position.x - (float)(m_chunkX * CHUNK_WIDTH);
 	blockPosition.z = position.z - (float)(m_chunkZ * CHUNK_DEPTH);
 
-	//std::cout << "block " <<  << std::endl;
-
 	int x, y, z;
 	x = (int)std::floor(blockPosition.x);
 	z = (int)std::floor(blockPosition.z);
 	y = (int)std::floor(position.y);
 	y = -y;
-	//std::cout << "block " << x << " " << y << " " << z << std::endl;
 
 	if (x >= CHUNK_WIDTH)
 	{
@@ -1339,8 +1300,8 @@ void Chunk::saveBlock(int x, int y, int z)
 
 	int i = x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
 	
-	m_savedBlocks[i].setRender(true);
-	m_savedBlocks[i].setType(m_blocks[i].getType());
+	m_savedBlocks[i].saved = true;
+	m_savedBlocks[i].type = m_blocks[i].getType();
 	m_modified |= true;
 	
 }

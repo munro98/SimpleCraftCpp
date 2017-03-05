@@ -1,6 +1,6 @@
 #pragma once
 
-#define MAP_UPDATE_RADIUS 4
+#define MAP_UPDATE_RADIUS 24
 #define MAP_DELETE_RADIUS 32
 
 #define THREADS 2
@@ -17,11 +17,11 @@
 #include "ChunkPosition.h"
 #include "Frustum.h"
 
-class Map
+class World
 {
 public:
-	Map();
-	~Map();
+	World();
+	~World();
 
 	void stopThreads();
 	void update(float playerX, float playerZ);

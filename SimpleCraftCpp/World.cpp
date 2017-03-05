@@ -1,17 +1,17 @@
 #include <iostream>
-#include "Map.h"
+#include "World.h"
 #include "Frustum.h"
 
 
-Map::Map() : m_isRunning(true)
+World::World() : m_isRunning(true)
 {
 	for (int i = 0; i < THREADS; ++i)
 	{
-		m_threads.push_back(std::thread(&Map::threadUpdateChunks, this));
+		m_threads.push_back(std::thread(&World::threadUpdateChunks, this));
 	}
 }
 
-Map::~Map()
+World::~World()
 {
 
 	for (auto it = m_chunks.begin(); it != m_chunks.end();) {
@@ -32,7 +32,7 @@ Map::~Map()
 }
 
 
-void Map::update(float playerX, float playerZ)
+void World::update(float playerX, float playerZ)
 {	
 	///*
 
@@ -63,7 +63,7 @@ void Map::update(float playerX, float playerZ)
 	int i = 0;
 	int j = 0;
 	int segmentPassed = 0;
-	for (int k = 0; k < 500; ++k) {
+	for (int k = 0; k < MAP_UPDATE_RADIUS * MAP_UPDATE_RADIUS; ++k) {
 		// make a step, add 'direction' vector (di, dj) to current position (i, j)
 		i += di;
 		j += dj;
@@ -151,7 +151,7 @@ void Map::update(float playerX, float playerZ)
 	
 }
 
-void Map::updateChunk(int x, int z) {
+void World::updateChunk(int x, int z) {
 
 	ChunkPosition chunkPos(x, z);
 	auto chunkIt = m_chunks.find(chunkPos);
@@ -169,7 +169,7 @@ void Map::updateChunk(int x, int z) {
 
 }
 
-void Map::threadUpdateChunks() {
+void World::threadUpdateChunks() {
 
 	while (m_isRunning) {
 		//m_ChunkSetQueue lock
@@ -196,7 +196,7 @@ void Map::threadUpdateChunks() {
 
 }
 
-void Map::stopThreads()
+void World::stopThreads()
 {
 	m_isRunning = false;
 	m_threadVariable.notify_all();
@@ -207,12 +207,12 @@ void Map::stopThreads()
 }
 
 
-int Map::chunkVisible(Frustum frustum, int chunkX, int chunkZ) {
+int World::chunkVisible(Frustum frustum, int chunkX, int chunkZ) {
 	BoundingBox box(glm::vec3(0.0f, -CHUNK_HEIGHT, 0.0f), glm::vec3(CHUNK_WIDTH, 0.0f, CHUNK_DEPTH), glm::vec3(chunkX * CHUNK_WIDTH, 0.0f, chunkZ * CHUNK_DEPTH));
 	return frustum.testIntersection(box);
 }
 
-void Map::render(Frustum frustum, float playerX, float playerZ)
+void World::render(Frustum frustum, float playerX, float playerZ)
 {
 	for (auto it = m_chunks.begin(); it != m_chunks.end(); ++it) {
 
@@ -225,7 +225,7 @@ void Map::render(Frustum frustum, float playerX, float playerZ)
 	}
 }
 
-void Map::render(float playerX, float playerZ)
+void World::render(float playerX, float playerZ)
 {
 	for (auto it = m_chunks.begin(); it != m_chunks.end(); ++it) {
 
@@ -236,7 +236,7 @@ void Map::render(float playerX, float playerZ)
 	}
 }
 
-void Map::rayCastBlock(glm::vec3& start, glm::vec3& forward)
+void World::rayCastBlock(glm::vec3& start, glm::vec3& forward)
 {
 
 	static float stepValue = 0.1f;
@@ -380,7 +380,7 @@ void Map::rayCastBlock(glm::vec3& start, glm::vec3& forward)
 	//std::cout << blockPos[0] << " " << blockPos[1] << " " << blockPos[2] << std::endl;
 }
 
-void Map::rayCastBlockRemove(glm::vec3& start, glm::vec3& forward)
+void World::rayCastBlockRemove(glm::vec3& start, glm::vec3& forward)
 {
 
 	static float stepValue = 0.1f;
@@ -467,7 +467,7 @@ void Map::rayCastBlockRemove(glm::vec3& start, glm::vec3& forward)
 
 }
 
-bool Map::hitBlock(glm::vec3& position)
+bool World::hitBlock(glm::vec3& position)
 {
 	Chunk* hitChunk;
 
@@ -497,7 +497,7 @@ bool Map::hitBlock(glm::vec3& position)
 
 }
 
-Chunk* Map::findChunkAt(int x , int z)
+Chunk* World::findChunkAt(int x , int z)
 {
 	auto chunkIt = m_chunks.find(ChunkPosition(x, z));
 	if (chunkIt == m_chunks.end())
