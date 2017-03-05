@@ -7,15 +7,17 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include"stb_image.h"
+#include "stb_image.h"
 
 #include "Display.h"
 #include "Shader.h"
 #include "Camera.h"
 #include "Map.h"
-#include "HeightGenerator.h"
 
-int width = 800, height = 800;
+#include "Frustum.h"
+
+int width = 800, height = 600;
+//int width = 2540, height = 1400;
 
 int mouseX = 0;
 int mouseY = 0;
@@ -24,10 +26,6 @@ double updateRate = 1.0 / 60.0;
 
 int main(int argc, char** argv) {
 	std::cout << "Initializing!" << std::endl;
-
-	//std::cout << HeightGenerator::generateNoise(5, 5) << std::endl;
-	//std::cout << HeightGenerator::generateNoise(5, 5) << std::endl;
-	//std::cout << HeightGenerator::generateNoise(5, 6) << std::endl;
 
 	Display display(width, height, "SimpleCraftCpp");
 
@@ -57,7 +55,10 @@ int main(int argc, char** argv) {
 	glm::mat4 lightModel;
 	lightModel = glm::translate(lightModel, lightPos);
 
-	glm::mat4 lightProjection = glm::perspective(90.0f, (float)width / (float)height, 0.1f, 1000.0f);
+	//glm::mat4 lightProjection = glm::perspective(90.0f, (float)width / (float)height, 0.1f, 1000.0f);
+	
+	
+	
 
 	glm::vec4 vec(1.0f, 0.0f, 0.0f, 1.0f);
 	glm::mat4 trans;
@@ -136,6 +137,13 @@ int main(int argc, char** argv) {
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	Camera camera = Camera();
+
+	///////////////////////////////////////////////////////////////
+
+	//glm::mat4 lightProjection = makep(90.0f, (float)width / (float)height, 0.1f, 1000.0f);
+	glm::mat4 lightProjection = glm::perspective(60.0f, (float)width / (float)height, 0.01f, 100.0f);
+	//glm::mat4 fvp = lightProjection * lightView;
+
 
 	Shader shader = Shader("shader");
 	shader.use();
@@ -218,6 +226,11 @@ int main(int argc, char** argv) {
 
 	display.setClearColor(0.05f, 0.4f, 0.9f, 1.0f);
 	
+	glm::mat4 view;
+	//glm::mat4 lightProjection2 = glm::perspective(60.0f, (float)width / (float)height, 0.1f, 1000.0f);
+	//Frustum frustum2(lightView, lightProjection2);
+
+	glm::mat4 projection = glm::perspective(60.0f, (float)width / (float)height, 0.1f, 1000.0f);
 
 	while (!display.getIsClosed()) {
 
@@ -317,18 +330,25 @@ int main(int argc, char** argv) {
 
 		display.clear();
 
+		glm::vec3 cameraPos = camera.getPosition();
+
+
+		view = glm::lookAt(camera.getPosition(), camera.getPosition() + camera.getFront(), camera.getUp());
 		
-		glm::mat4 lightView;
-		lightView = glm::lookAt(camera.getPosition(), camera.getPosition() + camera.getFront(), camera.getUp());
-		//assert(0);
+		Frustum frustum(view, projection);
+
+		glm::mat4 viewProjection = projection * view;
+
 		//Render Map
 		shader.use();
 
 		glUniform3f(lightPosLoc, lightPos.x, lightPos.y, lightPos.z);
 		glUniform3f(viewPosLoc, camera.getPosition().x, camera.getPosition().y, camera.getPosition().z);
 		
-		glUniformMatrix4fv(viewLocation, 1, GL_FALSE, glm::value_ptr(lightView));
-		glUniformMatrix4fv(projectionLocation, 1, GL_FALSE, glm::value_ptr(lightProjection));
+		glUniformMatrix4fv(viewLocation, 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(projectionLocation, 1, GL_FALSE, glm::value_ptr(viewProjection));
+
+		//glUniformMatrix4fv(projectionLocation, 1, GL_FALSE, matrix);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texture);
@@ -339,14 +359,14 @@ int main(int argc, char** argv) {
 		glBindVertexArray(0);
 
 		map.update(camera.getPosition().x, camera.getPosition().z);
-		map.render(camera.getPosition().x, camera.getPosition().z);
+		map.render(frustum, camera.getPosition().x, camera.getPosition().z);
 		glBindTexture(GL_TEXTURE_2D, 0);
 
 		//Render Light
 		shader2.use();
 		glUniformMatrix4fv(lightModelLocation, 1, GL_FALSE, glm::value_ptr(lightModel));
-		glUniformMatrix4fv(lightViewLocation, 1, GL_FALSE, glm::value_ptr(lightView));
-		glUniformMatrix4fv(lightProjectionLocation, 1, GL_FALSE, glm::value_ptr(lightProjection));
+		glUniformMatrix4fv(lightViewLocation, 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(lightProjectionLocation, 1, GL_FALSE, glm::value_ptr(viewProjection));
 		glBindVertexArray(lightVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);

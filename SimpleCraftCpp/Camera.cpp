@@ -84,3 +84,7 @@ glm::vec3& Camera::getRight() {
 float Camera::getPitch() {
 	return m_pitch;
 }
+
+float Camera::getYaw() {
+	return m_yaw;
+}

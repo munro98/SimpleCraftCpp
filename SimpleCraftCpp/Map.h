@@ -15,6 +15,7 @@
 
 #include "Chunk.h"
 #include "ChunkPosition.h"
+#include "Frustum.h"
 
 class Map
 {
@@ -26,7 +27,9 @@ public:
 	void update(float playerX, float playerZ);
 	void updateChunk(int x, int z);
 	void threadUpdateChunks();
-	void render(float x, float y);
+	int chunkVisible(Frustum frustum, int p, int q);
+	void render(Frustum frustum, float x, float y);
+	void render(float playerX, float playerZ);
 	void rayCastBlock(glm::vec3& start, glm::vec3& forward);
 	void rayCastBlockRemove(glm::vec3& start, glm::vec3& forward);
 	bool hitBlock(glm::vec3 & position);

@@ -16,7 +16,8 @@ void main()
     //gl_Position = projection * view * model * vec4(position, 1.0f);
     //vec4 thing = vec4(float(blockPosition[0]), float(blockPosition[1]), float(blockPosition[2]), 0.0f);
     //vec4 thing = vec4(blockPosition, 0.0f);
-    gl_Position = projection * view * model * (vec4(position, 1.0f));
+    //gl_Position = projection * view * model * (vec4(position, 1.0f));
+    gl_Position = projection * (vec4(position, 1.0f));
     FragPos = vec3(model * vec4(position, 0.0f));
     //Normal = normal;
     Normal = mat3(transpose(model)) * normal;

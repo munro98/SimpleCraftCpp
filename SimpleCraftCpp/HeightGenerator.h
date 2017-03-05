@@ -1,7 +1,8 @@
 #pragma once
-#define PI 3.1415926535897932384626433832795 
 #define AMPLITUDE 6.0f
 #include <random>
+
+#include "Math.h"
 
 class HeightGenerator
 {

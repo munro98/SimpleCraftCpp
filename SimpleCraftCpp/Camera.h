@@ -23,6 +23,8 @@ public:
 
 	float getPitch();
 
+	float getYaw();
+
 
 private:
 

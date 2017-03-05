@@ -499,7 +499,7 @@ void Chunk::createVAO()
 	delete[] m_vertices;
 }
 
-void Chunk::updateFront(Chunk* frontChunk)
+void Chunk::updateFront(const Chunk *frontChunk)
 {
 	
 	for (int y = 0; y < CHUNK_HEIGHT; y++)
@@ -529,7 +529,7 @@ void Chunk::updateFront(Chunk* frontChunk)
 	updateMesh();
 }
 
-void Chunk::updateBack(Chunk* backChunk)
+void Chunk::updateBack(const Chunk *backChunk)
 {
 	
 	for (int y = 0; y < CHUNK_HEIGHT; y++)
@@ -559,7 +559,7 @@ void Chunk::updateBack(Chunk* backChunk)
 	updateMesh();
 }
 
-void Chunk::updateLeft(Chunk* leftChunk)
+void Chunk::updateLeft(const Chunk *leftChunk)
 {
 	for (int z = 0; z < CHUNK_DEPTH; z++)
 	{
@@ -588,7 +588,7 @@ void Chunk::updateLeft(Chunk* leftChunk)
 	updateMesh();
 }
 
-void Chunk::updateRight(Chunk* rightChunk)
+void Chunk::updateRight(const Chunk *rightChunk)
 {
 	for (int z = 0; z < CHUNK_DEPTH; z++)
 	{
@@ -617,7 +617,7 @@ void Chunk::updateRight(Chunk* rightChunk)
 	updateMesh();
 }
 
-void Chunk::updateBlockFront(Chunk* frontChunk, int x, int y)
+void Chunk::updateBlockFront(const Chunk *frontChunk, int x, int y)
 {
 
 	int i = x + 0 * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
@@ -642,7 +642,7 @@ void Chunk::updateBlockFront(Chunk* frontChunk, int x, int y)
 	updateMesh();
 }
 
-void Chunk::updateBlockBack(Chunk* backChunk, int x, int y)
+void Chunk::updateBlockBack(const Chunk *backChunk, int x, int y)
 {
 	int i = x + (CHUNK_DEPTH - 1) * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
 
@@ -667,7 +667,7 @@ void Chunk::updateBlockBack(Chunk* backChunk, int x, int y)
 	updateMesh();
 }
 
-void Chunk::updateBlockLeft(Chunk* leftChunk, int y, int z)
+void Chunk::updateBlockLeft(const Chunk *leftChunk, int y, int z)
 {
 	int i = 0 + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
 
@@ -691,7 +691,7 @@ void Chunk::updateBlockLeft(Chunk* leftChunk, int y, int z)
 	updateMesh();
 }
 
-void Chunk::updateBlockRight(Chunk* rightChunk, int y, int z)
+void Chunk::updateBlockRight(const Chunk *rightChunk, int y, int z)
 {
 	int i = (CHUNK_WIDTH - 1) + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
 
@@ -714,55 +714,6 @@ void Chunk::updateBlockRight(Chunk* rightChunk, int y, int z)
 
 	updateMesh();
 }
-/*
-void Chunk::updateBlock(int i)
-{
-	unsigned int facesExposed = 0;
-
-	if (!m_blocks[i].getRender())
-	{
-		m_blocks[i].setExposedFaces(facesExposed);
-		return;
-	}
-		
-	if (y == 0)
-	{
-		facesExposed |= TOP_FACE;
-	}
-
-	if (i - CHUNK_WIDTH * CHUNK_DEPTH > -1 && !m_blocks[i - CHUNK_WIDTH * CHUNK_DEPTH].getRender())
-	{
-		facesExposed |= TOP_FACE;
-	}
-
-	if (i + CHUNK_WIDTH * CHUNK_DEPTH < CHUNK_WIDTH * CHUNK_DEPTH * CHUNK_HEIGHT && !m_blocks[i + CHUNK_WIDTH * CHUNK_DEPTH].getRender())
-	{
-		facesExposed |= BOTTOM_FACE;
-	}
-
-	if (x > 0 && i - 1 > -1 && !m_blocks[i - 1].getRender())
-	{
-		facesExposed |= LEFT_FACE;
-	}
-
-	if (x < CHUNK_WIDTH - 1 && i + 1 < CHUNK_WIDTH * CHUNK_DEPTH * CHUNK_HEIGHT && !m_blocks[i + 1].getRender())
-	{
-		facesExposed |= RIGHT_FACE;
-	}
-
-	if (z > 0 && i - CHUNK_WIDTH > -1 && !m_blocks[i - CHUNK_WIDTH].getRender())
-	{
-		facesExposed |= FRONT_FACE;
-	}
-
-	if (z < CHUNK_DEPTH - 1 && i + CHUNK_WIDTH < CHUNK_WIDTH * CHUNK_DEPTH * CHUNK_HEIGHT && !m_blocks[i + CHUNK_WIDTH].getRender())
-	{
-		facesExposed |= BACK_FACE;
-	}
-
-	m_blocks[i].setExposedFaces(facesExposed);
-}
-*/
 
 void Chunk::addBlock(unsigned char type, int x, int y, int z)
 {

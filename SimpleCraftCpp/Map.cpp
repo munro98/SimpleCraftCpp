@@ -1,10 +1,11 @@
 #include <iostream>
 #include "Map.h"
+#include "Frustum.h"
 
 
 Map::Map() : m_isRunning(true)
 {
-	for (int i = 0; i < THREADS; i++)
+	for (int i = 0; i < THREADS; ++i)
 	{
 		m_threads.push_back(std::thread(&Map::threadUpdateChunks, this));
 	}
@@ -62,7 +63,7 @@ void Map::update(float playerX, float playerZ)
 	int i = 0;
 	int j = 0;
 	int segmentPassed = 0;
-	for (int k = 0; k < 128; ++k) {
+	for (int k = 0; k < 500; ++k) {
 		// make a step, add 'direction' vector (di, dj) to current position (i, j)
 		i += di;
 		j += dj;
@@ -197,18 +198,40 @@ void Map::threadUpdateChunks() {
 
 void Map::stopThreads()
 {
-	std::cout << "stopping" << std::endl;
 	m_isRunning = false;
 	m_threadVariable.notify_all();
-	for (int i = 0; i < THREADS; i++)
+	for (int i = 0; i < THREADS; ++i)
 	{
 		m_threads[i].join();
+	}
+}
+
+
+int Map::chunkVisible(Frustum frustum, int chunkX, int chunkZ) {
+	BoundingBox box(glm::vec3(0.0f, -CHUNK_HEIGHT, 0.0f), glm::vec3(CHUNK_WIDTH, 0.0f, CHUNK_DEPTH), glm::vec3(chunkX * CHUNK_WIDTH, 0.0f, chunkZ * CHUNK_DEPTH));
+	return frustum.testIntersection(box);
+}
+
+void Map::render(Frustum frustum, float playerX, float playerZ)
+{
+	for (auto it = m_chunks.begin(); it != m_chunks.end(); ++it) {
+
+		int chunkX = it->second->getChunkX();
+		int chunkZ = it->second->getChunkZ();
+
+		int vis = chunkVisible(frustum, chunkX, chunkZ);
+		if (vis == 1 || vis == 2)
+			it->second->render();
 	}
 }
 
 void Map::render(float playerX, float playerZ)
 {
 	for (auto it = m_chunks.begin(); it != m_chunks.end(); ++it) {
+
+		int chunkX = it->second->getChunkX();
+		int chunkZ = it->second->getChunkZ();
+
 		it->second->render();
 	}
 }
@@ -226,7 +249,7 @@ void Map::rayCastBlock(glm::vec3& start, glm::vec3& forward)
 	int x;
 	int z;
 
-	for (int i = 0; i < 100; i++)
+	for (int i = 0; i < 100; ++i)
 	{
 		hitBlock = hitBlock + step;
 
@@ -373,7 +396,7 @@ void Map::rayCastBlockRemove(glm::vec3& start, glm::vec3& forward)
 	int z;
 	std::unordered_map<int, std::unordered_map<int, Chunk*>>::iterator chunkX;
 
-	for (int i = 0; i < 100; i++)
+	for (int i = 0; i < 100; ++i)
 	{
 		hitBlock = hitBlock + step;
 
