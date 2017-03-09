@@ -393,7 +393,7 @@ void World::rayCastBlockRemove(glm::vec3& start, glm::vec3& forward)
 
 	int x;
 	int z;
-	std::unordered_map<int, std::unordered_map<int, Chunk*>>::iterator chunkX;
+	std::unordered_map<int, std::unordered_map<int, Chunk*> >::iterator chunkX;
 
 	for (int i = 0; i < 100; ++i)
 	{
@@ -473,7 +473,7 @@ bool World::hitBlock(glm::vec3& position)
 
 	int x;
 	int z;
-	std::unordered_map<int, std::unordered_map<int, Chunk*>>::iterator chunkX;
+	std::unordered_map<int, std::unordered_map<int, Chunk*> >::iterator chunkX;
 
 	float playerX = position.x;
 	float playerZ = position.z;

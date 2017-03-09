@@ -5,21 +5,21 @@
 class Camera
 {
 public:
-	Camera::Camera();
-	Camera::~Camera();
+	Camera();
+	~Camera();
 
-	void Camera::forward(double deltaTime);
-	void Camera::backward(double deltaTime);
-	void Camera::left(double deltaTime);
-	void Camera::right(double deltaTime);
-	void Camera::rotate(float pitch, float yaw);
+	void forward(double deltaTime);
+	void backward(double deltaTime);
+	void left(double deltaTime);
+	void right(double deltaTime);
+	void rotate(float pitch, float yaw);
 
 	void setPosition(glm::vec3 & position);
 
-	glm::vec3& Camera::getPosition();
-	glm::vec3& Camera::getFront();
-	glm::vec3& Camera::getUp();
-	glm::vec3& Camera::getRight();
+	glm::vec3& getPosition();
+	glm::vec3& getFront();
+	glm::vec3& getUp();
+	glm::vec3& getRight();
 
 	float getPitch();
 	float getYaw();

@@ -1,5 +1,4 @@
 #include "Block.h"
-#include <glm/gtc/matrix_transform.inl>
 
 Block::Block() : m_exposedFaces(0), m_render(false), m_type(1)
 {
