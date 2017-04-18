@@ -9,8 +9,8 @@
 #define TRANSPARENT 01000000
 
 typedef struct {
-	bool saved;
 	unsigned char type;
+	bool saved;
 } SavedBlock;
 
 class Block
@@ -26,8 +26,7 @@ public:
 	bool getRender();
 	unsigned char getType();
 private:
-	bool m_render;
 	unsigned short m_exposedFaces;
 	unsigned char m_type;
-
+	bool m_render;
 };
