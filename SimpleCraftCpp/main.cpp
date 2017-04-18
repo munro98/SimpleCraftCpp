@@ -190,6 +190,7 @@ int main(int argc, char** argv) {
 			cameraVelocity += speed * (float)deltaTime.count() * glm::normalize(glm::cross(camera.getFront(), camera.getUp()));
 
 		// Collision
+		/*
 		if (world.hitBlock(camera.getPosition() + glm::vec3(cameraVelocity.x, 0.0f, 0.0f)))
 		{
 			cameraVelocity.x = 0.0f;
@@ -204,7 +205,7 @@ int main(int argc, char** argv) {
 		{
 			cameraVelocity.z = 0.0f;
 		}
-
+		*/
 		camera.setPosition(camera.getPosition() + cameraVelocity);
 
 		if (KEYS[SDLK_ESCAPE])

@@ -25,12 +25,13 @@ Chunk::Chunk(int chunkX, int chunkZ): m_blocks(new Block[CHUNK_WIDTH * CHUNK_DEP
 			int height = HeightGenerator::generateHeight(x + (chunkX * CHUNK_WIDTH), z + (chunkZ * CHUNK_DEPTH));
 			for (int y = 0; y < CHUNK_HEIGHT; y++)
 			{
-			
-					int i = x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
+				int i = x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
+					/*
+					
 					
 					if (y > 28 - height)
 					{
-						m_blocks[i].setRender(true);
+						
 					}
 
 					if (y > 40)
@@ -42,10 +43,14 @@ Chunk::Chunk(int chunkX, int chunkZ): m_blocks(new Block[CHUNK_WIDTH * CHUNK_DEP
 					{
 						m_blocks[i].setType(3);
 					}
+					*/
+					m_blocks[i].setRender(true);
+					m_blocks[i].setType(3);
 				}
 			}
 	}
 
+	/*
 	std::ifstream inFile;
 	std::string line;
 	
@@ -87,7 +92,7 @@ Chunk::Chunk(int chunkX, int chunkZ): m_blocks(new Block[CHUNK_WIDTH * CHUNK_DEP
 	}
 
 	inFile.close();
-
+	*/
 	//auto endTime = std::chrono::high_resolution_clock::now();
 	//auto deltaTime = std::chrono::duration_cast<std::chrono::duration<double>>(endTime - startTime);
 	//std::cout << deltaTime.count() << std::endl;
@@ -279,7 +284,8 @@ void Chunk::updateMesh()
 	m_vertices = new GLfloat[8 * 6 * m_faceCount];
 
 	int counter = 0;
-
+	bool startedTopFace = false;
+	unsigned char startType;
 	
 	for (int y = 0; y < CHUNK_HEIGHT; y++)
 	{
@@ -317,10 +323,22 @@ void Chunk::updateMesh()
 					addFace(vertexIndex, x, y, z, m_chunkX, m_chunkZ, blockType, rightVertices);
 				}
 
+				// TODO: greedy meshing
 				if (facesExposed & TOP_FACE)
 				{
 					int vertexIndex = (counter++) * 48;
 					addFace(vertexIndex, x, y, z, m_chunkX, m_chunkZ, blockType, topVertices);
+
+					if (startedTopFace) {
+						//createQuad
+						//finish up
+						startedTopFace = false;
+					}
+					else {
+						//save x y z
+						startedTopFace = true;
+						startType = blockType;
+					}
 				}
 
 				if (facesExposed & BOTTOM_FACE)

@@ -1,8 +1,8 @@
 #pragma once
 
-#define CHUNK_WIDTH 32
-#define CHUNK_DEPTH 32
-#define CHUNK_HEIGHT 64
+#define CHUNK_WIDTH 16
+#define CHUNK_DEPTH 16
+#define CHUNK_HEIGHT 3
 
 #define CHUNK_BLOCK_COUNT CHUNK_WIDTH * CHUNK_DEPTH * CHUNK_HEIGHT
 

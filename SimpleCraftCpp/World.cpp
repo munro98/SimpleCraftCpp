@@ -5,10 +5,18 @@
 
 World::World() : m_isRunning(true)
 {
+	ChunkPosition chunkPos(0, 0);
+	Chunk* chunk = new Chunk(0, 0);
+	m_chunks.insert({ chunkPos,  chunk });
+	chunk->updateBlockFaces(nullptr, nullptr, nullptr, nullptr);
+	chunk->updateMesh();
+
 	for (int i = 0; i < THREADS; ++i)
 	{
 		m_threads.push_back(std::thread(&World::threadUpdateChunks, this));
 	}
+	
+
 }
 
 World::~World()
@@ -52,7 +60,7 @@ void World::update(float playerX, float playerZ)
 		}
 	}
 	*/
-
+	/*
 	updateChunk(x, z);
 
 	int di = 1;
@@ -86,7 +94,7 @@ void World::update(float playerX, float playerZ)
 			}
 		}
 	}
-
+	*/
 	//Remove far chunks
 	for (auto it = m_chunks.begin(); it != m_chunks.end();) {
 		auto chunk = it->second;
